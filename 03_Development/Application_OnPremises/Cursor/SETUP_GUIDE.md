@@ -34,10 +34,16 @@ Open Command Prompt and run:
 cd C:\PABLO\AI_Projects\FMPS_AutoTraderApplication\03_Development\Application_OnPremises\Cursor
 
 # Install required packages
+# If you get "pip is not recognized" error, use this instead:
+python -m pip install -r requirements.txt
+
+# Or if pip works:
 pip install -r requirements.txt
 ```
 
 Wait for installation to complete (about 1-2 minutes).
+
+**Note**: If you see "pip is not recognized", just add `python -m` before the pip command.
 
 ### Step 3: Run the Converter
 
@@ -203,13 +209,34 @@ where python
 C:\Users\YourName\AppData\Local\Programs\Python\Python311\python.exe excel_to_markdown_converter.py
 ```
 
-### Problem: "pip is not recognized"
+### Problem: "pip is not recognized" / "pip no se reconoce"
 
-**Solution**:
+**Cause**: pip is not in your system PATH (common issue)
+
+**Quick Solution** (Works immediately):
 ```bash
-# Use Python to run pip
+# Instead of: pip install -r requirements.txt
+# Use this:
 python -m pip install -r requirements.txt
 ```
+
+This uses Python to run pip directly - no PATH needed!
+
+**Permanent Solution** (Add pip to PATH):
+1. Find Python Scripts folder:
+   ```bash
+   python -c "import sys; import os; print(os.path.dirname(sys.executable) + '\\Scripts')"
+   ```
+2. Copy the path shown (e.g., `C:\Users\YourName\AppData\Local\Programs\Python\Python311\Scripts`)
+3. Add to PATH:
+   - Press `Win + X` → "System"
+   - "Advanced system settings" → "Environment Variables"
+   - Under "System variables", find "Path" → "Edit"
+   - Click "New" → Paste the Scripts path
+   - OK on all windows
+4. Close and reopen Command Prompt
+
+**Alternative**: Reinstall Python and ensure "Add Python to PATH" is checked
 
 ### Problem: Permission denied during pip install
 

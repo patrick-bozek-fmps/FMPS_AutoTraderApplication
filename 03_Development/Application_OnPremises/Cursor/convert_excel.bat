@@ -27,9 +27,11 @@ python -c "import pandas, openpyxl, watchdog" >nul 2>&1
 if errorlevel 1 (
     echo [WARN] Required packages not found. Installing...
     echo.
-    pip install -r requirements.txt
+    REM Use python -m pip to avoid PATH issues
+    python -m pip install -r requirements.txt
     if errorlevel 1 (
         echo [ERROR] Failed to install dependencies
+        echo [ERROR] Make sure Python is properly installed
         pause
         exit /b 1
     )
