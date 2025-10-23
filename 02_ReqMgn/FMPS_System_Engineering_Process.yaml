@@ -1,0 +1,88 @@
+process:
+  name: FMPS_System_Engineering_Process
+  version: "1.0"
+  purpose: >-
+    Generate a system specification from a product/customer specification. The system specification
+    is reviewed and approved to enable automated downstream development steps.
+  inputs:
+    - name: Customer specification
+      file: "Customer_Specification.xlsx"
+      required: true
+      format: "*.xlsx"
+      sheets:
+        - name: Requirements
+          columns:
+            - Requirement ID
+            - Requirement Description
+  outputs:
+    - name: Customer specification (reviewed)
+      file: "Customer_Specification.xlsx"
+      format: "*.xlsx"
+      sheets:
+        - name: Requirements
+          columns:
+            - Requirement ID
+            - Requirement Description
+            - Review Comments
+    - name: System specification
+      file: "System_Specification.xlsx"
+      format: "*.xlsx"
+      sheets:
+        - name: Requirements
+          columns:
+            - Requirement ID
+            - Requirement Type            # enum: System Function | System Architecture | Performance | Constraint
+            - Requirement Description
+            - Source Requirement IDs      # upstream links to customer spec (comma-separated IDs)
+            - Architecture Link           # reference to architecture element/model
+        - name: Test Cases
+          columns:
+            - Test Case ID
+            - Parent Requirement ID       # links to Requirements.Requirement ID
+            - Test Case Type              # enum: Positive | Negative
+            - Test Case Description
+            - Expected Result
+      acceptance:
+        - Given a valid customer specification
+        - When the review of the customer specification is completed
+        - Then each system requirement has at least one Positive and one Negative test case
+        - And traceability Customer Requirement -> System Requirement -> Test Case is documented via IDs
+    - name: Chat export (for handover)
+      format: "Markdown tables mirroring the 'Requirements' and 'Test Cases' sheets to be copied into Excel"
+  globals:
+    rules:
+      - Roles: Requirements Engineer (20y FinTech), System Architect (20y), System Test Engineer (20y).
+      - One Positive and one Negative test case per system requirement (minimum).
+      - Use "System_Specification.xlsx" sheets 'Requirements' and 'Test Cases' with the defined columns.
+      - Language: English for artifacts, precise and testable statements.
+      - Requirement Type allowed values: [System Function, System Architecture, Performance, Constraint].
+  steps:
+    - id: S1
+      title: Review customer specification
+      action: >-
+        Review the column "Requirement Description" in sheet "Requirements" of "Customer_Specification.xlsx"
+        and write technical review comments into "Review Comments". Flag unclear items.
+      depends_on: []
+    - id: S2
+      title: Write system requirements and architecture
+      action: >-
+        Create system functions and associated system requirements in "System_Specification.xlsx" (sheet "Requirements").
+        For each entry, fill: Requirement ID, Type, Description, Source Requirement IDs (from customer spec),
+        and Architecture Link (to the relevant architecture element).
+      depends_on: [S1]
+    - id: S3
+      title: Derive system test cases
+      action: >-
+        For each system requirement, derive at least one Positive and one Negative test case and add them
+        to sheet "Test Cases" with IDs, Type, Description, and Expected Result. Ensure Parent Requirement ID is set.
+      depends_on: [S2]
+    - id: S4
+      title: Produce chat export for Excel handover
+      action: >-
+        Output two Markdown tables ('Requirements', 'Test Cases') with the defined columns so they can be pasted into Excel.
+      depends_on: [S3]
+  completion:
+    definition: System specification ready and checked against the acceptance criteria
+    deliver:
+      - System specification
+      - Chat export
