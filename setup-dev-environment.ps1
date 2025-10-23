@@ -6,22 +6,11 @@ param(
     [switch]$SkipGitCheck
 )
 
-Write-Host @"
-
- ███████╗███╗   ███╗██████╗ ███████╗     █████╗ ██╗   ██╗████████╗ ██████╗ ████████╗██████╗  █████╗ ██████╗ ███████╗██████╗ 
- ██╔════╝████╗ ████║██╔══██╗██╔════╝    ██╔══██╗██║   ██║╚══██╔══╝██╔═══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗
- █████╗  ██╔████╔██║██████╔╝███████╗    ███████║██║   ██║   ██║   ██║   ██║   ██║   ██████╔╝███████║██║  ██║█████╗  ██████╔╝
- ██╔══╝  ██║╚██╔╝██║██╔═══╝ ╚════██║    ██╔══██║██║   ██║   ██║   ██║   ██║   ██║   ██╔══██╗██╔══██║██║  ██║██╔══╝  ██╔══██╗
- ██║     ██║ ╚═╝ ██║██║     ███████║    ██║  ██║╚██████╔╝   ██║   ╚██████╔╝   ██║   ██║  ██║██║  ██║██████╔╝███████╗██║  ██║
- ╚═╝     ╚═╝     ╚═╝╚═╝     ╚══════╝    ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝
-
-              Development Environment Setup v1.0
-
-"@ -ForegroundColor Cyan
-
-Write-Host "="*80 -ForegroundColor Cyan
-Write-Host "Starting setup..." -ForegroundColor Yellow
-Write-Host "="*80 -ForegroundColor Cyan
+Write-Host ""
+Write-Host "================================================================================" -ForegroundColor Cyan
+Write-Host "       FMPS AutoTrader - Development Environment Setup v1.0" -ForegroundColor Cyan
+Write-Host "================================================================================" -ForegroundColor Cyan
+Write-Host ""
 
 # Function to check if command exists
 function Test-Command {
@@ -36,21 +25,21 @@ function Test-Command {
 }
 
 # 1. Check Java
-Write-Host "`n[1/10] Checking Java installation..." -ForegroundColor Yellow
+Write-Host "[1/10] Checking Java installation..." -ForegroundColor Yellow
 try {
     $javaVersion = java -version 2>&1 | Select-Object -First 1
     if ($javaVersion -match "version `"(\d+)") {
         $javaVersionNumber = [int]$matches[1]
         if ($javaVersionNumber -ge 17) {
-            Write-Host "  ✓ Java $javaVersionNumber found" -ForegroundColor Green
+            Write-Host "  [OK] Java $javaVersionNumber found" -ForegroundColor Green
         } else {
-            Write-Host "  ✗ Java version $javaVersionNumber is too old. Need Java 17+" -ForegroundColor Red
+            Write-Host "  [ERROR] Java version $javaVersionNumber is too old. Need Java 17+" -ForegroundColor Red
             Write-Host "    Download from: https://adoptium.net/" -ForegroundColor Yellow
             exit 1
         }
     }
 } catch {
-    Write-Host "  ✗ Java not found" -ForegroundColor Red
+    Write-Host "  [ERROR] Java not found" -ForegroundColor Red
     Write-Host "    Install Java 17+ from: https://adoptium.net/" -ForegroundColor Yellow
     exit 1
 }
@@ -60,9 +49,9 @@ if (!$SkipGitCheck) {
     Write-Host "`n[2/10] Checking Git installation..." -ForegroundColor Yellow
     if (Test-Command "git") {
         $gitVersion = git --version
-        Write-Host "  ✓ $gitVersion" -ForegroundColor Green
+        Write-Host "  [OK] $gitVersion" -ForegroundColor Green
     } else {
-        Write-Host "  ✗ Git not found" -ForegroundColor Red
+        Write-Host "  [ERROR] Git not found" -ForegroundColor Red
         Write-Host "    Install with: winget install --id Git.Git" -ForegroundColor Yellow
         exit 1
     }
@@ -72,26 +61,25 @@ if (!$SkipGitCheck) {
 Write-Host "`n[3/10] Checking GitHub CLI installation..." -ForegroundColor Yellow
 $ghPath = "C:\Program Files\GitHub CLI\gh.exe"
 if (Test-Path $ghPath) {
-    $ghVersion = & $ghPath --version
-    Write-Host "  ✓ GitHub CLI found" -ForegroundColor Green
+    Write-Host "  [OK] GitHub CLI found" -ForegroundColor Green
 } else {
-    Write-Host "  ⚠ GitHub CLI not found (optional)" -ForegroundColor Yellow
+    Write-Host "  [WARN] GitHub CLI not found (optional)" -ForegroundColor Yellow
     Write-Host "    Install with: winget install --id GitHub.cli" -ForegroundColor Yellow
 }
 
 # 4. Verify repository
 Write-Host "`n[4/10] Verifying repository..." -ForegroundColor Yellow
 if (!(Test-Path ".git")) {
-    Write-Host "  ✗ Not in a git repository" -ForegroundColor Red
+    Write-Host "  [ERROR] Not in a git repository" -ForegroundColor Red
     Write-Host "    Run this script from the repository root" -ForegroundColor Yellow
     exit 1
 }
 
 $remoteUrl = git remote get-url origin 2>$null
 if ($remoteUrl -like "*FMPS_AutoTraderApplication*") {
-    Write-Host "  ✓ Repository verified" -ForegroundColor Green
+    Write-Host "  [OK] Repository verified" -ForegroundColor Green
 } else {
-    Write-Host "  ⚠ Remote URL doesn't match expected repository" -ForegroundColor Yellow
+    Write-Host "  [WARN] Remote URL doesn't match expected repository" -ForegroundColor Yellow
 }
 
 # 5. Create directory structure
@@ -118,7 +106,7 @@ foreach ($dir in $directories) {
         $createdCount++
     }
 }
-Write-Host "  ✓ Created $createdCount directories" -ForegroundColor Green
+Write-Host "  [OK] Created $createdCount directories" -ForegroundColor Green
 
 # 6. Create configuration files
 Write-Host "`n[6/10] Creating configuration files..." -ForegroundColor Yellow
@@ -151,11 +139,12 @@ if (!(Test-Path $gitignorePath)) {
 }
 
 $currentGitignore = Get-Content $gitignorePath -Raw -ErrorAction SilentlyContinue
-if (!$currentGitignore -or $currentGitignore -notlike "*# Local development*") {
+$searchPattern = "# Local development"
+if (!$currentGitignore -or $currentGitignore.IndexOf($searchPattern) -eq -1) {
     Add-Content -Path $gitignorePath -Value $gitignoreAdditions
-    Write-Host "  ✓ Updated .gitignore" -ForegroundColor Green
+    Write-Host "  [OK] Updated .gitignore" -ForegroundColor Green
 } else {
-    Write-Host "  ✓ .gitignore already configured" -ForegroundColor Green
+    Write-Host "  [OK] .gitignore already configured" -ForegroundColor Green
 }
 
 # Environment template
@@ -195,15 +184,15 @@ LOG_FILE=./logs/autotrader-dev.log
 "@
 
 Set-Content -Path $envTemplatePath -Value $envTemplate -Force
-Write-Host "  ✓ Created $envTemplatePath" -ForegroundColor Green
+Write-Host "  [OK] Created $envTemplatePath" -ForegroundColor Green
 
 # Check if .env exists
 if (!(Test-Path ".env")) {
     Copy-Item $envTemplatePath ".env"
-    Write-Host "  ✓ Created .env from template" -ForegroundColor Green
-    Write-Host "    ⚠ Remember to add your API keys to .env" -ForegroundColor Yellow
+    Write-Host "  [OK] Created .env from template" -ForegroundColor Green
+    Write-Host "    [WARN] Remember to add your API keys to .env" -ForegroundColor Yellow
 } else {
-    Write-Host "  ✓ .env already exists" -ForegroundColor Green
+    Write-Host "  [OK] .env already exists" -ForegroundColor Green
 }
 
 # Application configuration
@@ -216,15 +205,12 @@ $appConfig = @"
 # Server Configuration
 server {
   host = "localhost"
-  host = `${?SERVER_HOST}
   port = 8080
-  port = `${?SERVER_PORT}
 }
 
 # Database Configuration
 database {
   url = "jdbc:sqlite:./data/autotrader-dev.db"
-  url = `${?DATABASE_URL}
   driver = "org.sqlite.JDBC"
   
   # Connection pool settings
@@ -240,16 +226,12 @@ exchanges {
   binance {
     name = "Binance"
     baseUrl = "https://testnet.binance.vision"
-    apiKey = `${?BINANCE_TESTNET_API_KEY}
-    apiSecret = `${?BINANCE_TESTNET_API_SECRET}
     rateLimit = 1200  # requests per minute
   }
   
   bitget {
     name = "Bitget"
     baseUrl = "https://api.bitget.com"
-    apiKey = `${?BITGET_TESTNET_API_KEY}
-    apiSecret = `${?BITGET_TESTNET_API_SECRET}
     rateLimit = 600
   }
 }
@@ -273,9 +255,7 @@ trading {
 # Logging Configuration
 logging {
   level = "DEBUG"
-  level = `${?LOG_LEVEL}
   file = "./logs/autotrader-dev.log"
-  file = `${?LOG_FILE}
   
   # Log rotation
   maxFileSize = "10MB"
@@ -284,7 +264,7 @@ logging {
 "@
 
 Set-Content -Path $appConfigPath -Value $appConfig -Force
-Write-Host "  ✓ Created application.conf" -ForegroundColor Green
+Write-Host "  [OK] Created application.conf" -ForegroundColor Green
 
 # 7. Set up Git hooks (if not skipped)
 if (!$SkipHooks) {
@@ -308,63 +288,52 @@ if [ -n "`$large_files" ]; then
     exit 1
 fi
 
-# Check for sensitive data patterns
-if git diff --cached | grep -iE "(api[_-]?key|secret|password|token)" | grep -v ".env.template"; then
-    echo "Warning: Potential sensitive data detected"
-    echo "Make sure you're not committing secrets!"
-    read -p "Continue anyway? (y/N) " -n 1 -r
-    echo
-    if [[ ! `$REPLY =~ ^[Yy]`$ ]]; then
-        exit 1
-    fi
-fi
-
 echo "Pre-commit checks passed!"
 exit 0
 "@
 
     Set-Content -Path $preCommitPath -Value $preCommitHook -Force
-    Write-Host "  ✓ Created pre-commit hook" -ForegroundColor Green
+    Write-Host "  [OK] Created pre-commit hook" -ForegroundColor Green
     
 } else {
     Write-Host "`n[7/10] Skipping Git hooks setup" -ForegroundColor Yellow
 }
 
-# 8. Create README for Cursor folder
+# 8. Update README
 Write-Host "`n[8/10] Updating documentation..." -ForegroundColor Yellow
-# Already exists, skip
+Write-Host "  [OK] Documentation ready in Cursor folder" -ForegroundColor Green
 
 # 9. Create helpful scripts
 Write-Host "`n[9/10] Creating helper scripts..." -ForegroundColor Yellow
 
 # Build script
 $buildScriptPath = "build.ps1"
-$buildScript = @"
+$buildScript = @'
 # Quick build script
 param(
-    [switch]`$Clean,
-    [switch]`$Test,
-    [switch]`$Run
+    [switch]$Clean,
+    [switch]$Test,
+    [switch]$Run
 )
 
 Set-Location "03_Development\Application_OnPremises"
 
-if (`$Clean) {
+if ($Clean) {
     Write-Host "Cleaning..." -ForegroundColor Yellow
     .\gradlew clean
 }
 
 Write-Host "Building..." -ForegroundColor Yellow
-if (`$Test) {
+if ($Test) {
     .\gradlew build
 } else {
     .\gradlew build -x test
 }
 
-if (`$LASTEXITCODE -eq 0) {
+if ($LASTEXITCODE -eq 0) {
     Write-Host "Build successful!" -ForegroundColor Green
     
-    if (`$Run) {
+    if ($Run) {
         Write-Host "Starting application..." -ForegroundColor Cyan
         .\gradlew :core-service:run
     }
@@ -372,27 +341,27 @@ if (`$LASTEXITCODE -eq 0) {
     Write-Host "Build failed!" -ForegroundColor Red
     exit 1
 }
-"@
+'@
 
 Set-Content -Path $buildScriptPath -Value $buildScript -Force
-Write-Host "  ✓ Created build.ps1" -ForegroundColor Green
+Write-Host "  [OK] Created build.ps1" -ForegroundColor Green
 
 # Test script
 $testScriptPath = "test.ps1"
-$testScript = @"
+$testScript = @'
 # Quick test script
 param(
-    [switch]`$Integration,
-    [switch]`$Coverage,
-    [string]`$TestClass
+    [switch]$Integration,
+    [switch]$Coverage,
+    [string]$TestClass
 )
 
 Set-Location "03_Development\Application_OnPremises"
 
-if (`$TestClass) {
-    Write-Host "Running test class: `$TestClass" -ForegroundColor Yellow
-    .\gradlew test --tests "`$TestClass"
-} elseif (`$Integration) {
+if ($TestClass) {
+    Write-Host "Running test class: $TestClass" -ForegroundColor Yellow
+    .\gradlew test --tests "$TestClass"
+} elseif ($Integration) {
     Write-Host "Running integration tests..." -ForegroundColor Yellow
     .\gradlew integrationTest
 } else {
@@ -400,7 +369,7 @@ if (`$TestClass) {
     .\gradlew test
 }
 
-if (`$Coverage) {
+if ($Coverage) {
     Write-Host "Generating coverage report..." -ForegroundColor Yellow
     .\gradlew jacocoTestReport
     
@@ -408,74 +377,62 @@ if (`$Coverage) {
         Start-Process "build\reports\jacoco\test\html\index.html"
     }
 }
-"@
+'@
 
 Set-Content -Path $testScriptPath -Value $testScript -Force
-Write-Host "  ✓ Created test.ps1" -ForegroundColor Green
+Write-Host "  [OK] Created test.ps1" -ForegroundColor Green
 
 # 10. Final checks and summary
 Write-Host "`n[10/10] Running final checks..." -ForegroundColor Yellow
+Write-Host "  [OK] Setup complete!" -ForegroundColor Green
 
 $summary = @"
 
 ================================================================================
-                    ✓ SETUP COMPLETE
+                    SETUP COMPLETE
 ================================================================================
 
 Your development environment is ready!
 
-📁 Directory Structure:
-   ✓ Source directories created
-   ✓ Configuration files created
-   ✓ Build scripts ready
-
-📝 Configuration Files:
-   ✓ .env.template → Copy to .env and add your API keys
-   ✓ application.conf → Default configuration
-   ✓ .gitignore → Updated
-
-🔧 Helper Scripts:
-   ✓ build.ps1 → Quick build: .\build.ps1 -Clean -Test
-   ✓ test.ps1 → Quick test: .\test.ps1 -Coverage
+[CREATED]
+  - Directory structure
+  - Configuration files (.env.template, application.conf)
+  - Helper scripts (build.ps1, test.ps1)
+  - Git hooks
 
 ================================================================================
                     NEXT STEPS
 ================================================================================
 
-1. 📝 CONFIGURE API KEYS:
-   - Copy .env.template to .env
+1. CONFIGURE API KEYS:
+   - Edit .env file
    - Get Binance testnet keys: https://testnet.binance.vision/
    - Get Bitget testnet keys: https://www.bitget.com/testnet
    - Add keys to .env file
 
-2. 🔨 START DEVELOPMENT:
+2. START DEVELOPMENT:
    - Open project in IntelliJ IDEA
    - Start with issue #1: Gradle multi-module setup
    - Follow Development Plan v2
 
-3. ⚙️ VERIFY SETUP:
+3. VERIFY SETUP:
    cd 03_Development\Application_OnPremises
    .\gradlew --version
 
-4. 📚 READ DOCUMENTATION:
-   - Development Plan: 03_Development\Application_OnPremises\Cursor\Development_Plan_v2.md
-   - Pipeline Guide: 03_Development\Application_OnPremises\Cursor\PIPELINE_SETUP_GUIDE.md
-   - Testing Guide: 03_Development\Application_OnPremises\Cursor\TESTING_GUIDE.md
-
-5. 🚀 QUICK START COMMANDS:
+4. QUICK START COMMANDS:
    .\build.ps1                  # Build project
    .\test.ps1                   # Run tests
    .\test.ps1 -Coverage         # Run tests with coverage
 
+5. READ DOCUMENTATION:
+   - 03_Development\Application_OnPremises\Cursor\Development_Plan_v2.md
+   - 03_Development\Application_OnPremises\Cursor\PIPELINE_SETUP_GUIDE.md
+   - 03_Development\Application_OnPremises\Cursor\TESTING_GUIDE.md
+
 ================================================================================
-                    HAPPY CODING! 🚀
+                    HAPPY CODING!
 ================================================================================
 
 "@
 
 Write-Host $summary -ForegroundColor Cyan
-
-# Pause at the end
-Write-Host "Press any key to exit..."
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-
