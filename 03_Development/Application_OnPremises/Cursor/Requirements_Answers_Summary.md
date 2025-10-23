@@ -205,51 +205,58 @@ Should v1.0 support:
 
 ---
 
-## 🎯 **Recommended Decisions for v1.0**
+## 🎯 **FINAL DECISIONS FOR v1.0** ✅
 
-Based on requirements analysis, here are my recommendations:
+**Status**: APPROVED by stakeholder on October 23, 2025
 
-### **1. Architecture** ✅ DECIDED
+### **1. Architecture** ✅ APPROVED
 - **Decision**: Separate Windows service for Core Application
 - **Reason**: 24/7 availability requirement
 - **Implementation**: 
   - Core runs as background service
   - UI connects via REST API + WebSocket
   - Can support multiple UI clients
+- **Stakeholder**: ✅ Approved
 
-### **2. MVP Scope** 📝 RECOMMEND
+### **2. MVP Scope** ✅ APPROVED
 - **Decision**: Desktop-first with multi-device API design
 - **Reason**: Requirements mention all devices but desktop is realistic for v1.0
 - **Implementation**:
   - v1.0: Windows desktop UI only
   - Architecture: RESTful API allows future mobile apps
   - v1.1+: Add tablet/smartphone apps
+- **Stakeholder**: ✅ Approved
 
-### **3. Instance Limit** 📝 RECOMMEND
-- **Decision**: Start with 10-20 AI trader instances max
-- **Reason**: No specification given, be conservative
+### **3. Instance Limit** ✅ APPROVED (MODIFIED)
+- **Decision**: Start with **3 AI trader instances maximum**
+- **Reason**: Conservative start, easier to manage and test
 - **Implementation**:
-  - Configurable limit in settings
-  - Resource monitoring
-  - Can increase after testing
+  - Hard limit of 3 for v1.0
+  - Configurable limit in settings (for future increase)
+  - Resource monitoring per trader
+  - Can increase to 5-10 in v1.1 after testing
+- **Stakeholder**: ✅ Approved - **Start with 3**
 
-### **4. Knowledge Database** 📝 RECOMMEND
+### **4. Knowledge Database** ✅ APPROVED
 - **Decision**: Simple pattern storage (Option C) for v1.0
 - **Reason**: Requirements vague, avoid ML complexity
 - **Implementation**:
   - SQLite database storing trade patterns
   - Successful strategies and their outcomes
+  - Historical trade data and results
   - Query system to find matching patterns
   - Can evolve to rule-based in v1.1
+- **Stakeholder**: ✅ Approved - **Option C**
 
-### **5. Demo vs Real** ✅ DECIDED (with caution)
-- **Decision**: Support both Virtual and Real money modes
-- **Reason**: Explicitly required in ATP_ProdSpec_53
+### **5. Demo vs Real** ✅ APPROVED (MODIFIED)
+- **Decision**: **Demo/Virtual money ONLY for v1.0**
+- **Reason**: Focus on safety and validation first
 - **Implementation**:
-  - Demo mode fully functional first
-  - Real money with extensive safety checks
-  - User must explicitly choose and confirm
-  - Consider requiring demo success before real money
+  - v1.0: Demo accounts and virtual money ONLY
+  - Fully functional trading simulation
+  - Real money mode deferred to v1.1+
+  - Gives time to validate system thoroughly
+- **Stakeholder**: ✅ Approved - **Demo first, Real later**
 
 ---
 
@@ -290,6 +297,27 @@ All in: `02_ReqMgn/FMPS_AutoTraderApplication_Customer_Specification.md`
 
 ---
 
-**Status**: Ready for decision confirmation  
-**Next**: Create Development Plan v2 once decisions confirmed
+## ✅ **DECISIONS FINALIZED**
+
+**Date**: October 23, 2025  
+**Status**: ALL DECISIONS APPROVED  
+**Next Step**: Create Development Plan v2
+
+### **Approved Scope for v1.0:**
+1. ✅ Client-server architecture (Core as Windows service)
+2. ✅ Windows desktop UI only (multi-device API design)
+3. ✅ Maximum 3 AI trader instances
+4. ✅ Simple pattern storage (no ML)
+5. ✅ Demo/virtual money ONLY (no real money in v1.0)
+
+### **Deferred to v1.1+:**
+- ⏳ Mobile/tablet/smartwatch apps
+- ⏳ Increase AI trader limit to 5-10
+- ⏳ Real money trading mode
+- ⏳ Advanced rule-based learning
+- ⏳ Machine learning capabilities
+
+---
+
+**Ready to proceed with Development Plan v2 creation** 🚀
 
