@@ -1,0 +1,18 @@
+
+# Local development
+.env
+data/
+logs/
+*.db
+*.db-journal
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+
+# Build
+build/
+out/
+*.log

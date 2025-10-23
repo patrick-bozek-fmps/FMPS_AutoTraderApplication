@@ -1,6 +1,7 @@
-rootProject.name = "Application_OnPremises"
+rootProject.name = "fmps-autotrader"
 
-include(":app")
-
-
-
+include(
+    "shared",
+    "core-service",
+    "desktop-ui"
+)
