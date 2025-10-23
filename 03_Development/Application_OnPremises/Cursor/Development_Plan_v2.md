@@ -946,23 +946,197 @@ FMPS_AutoTraderApplication/
 - WebSocket throughput
 - Database query performance
 
-### 14.3 CI/CD Pipeline
+### 14.3 Test Suite Structure
+
+**Directory Organization:**
+```
+Application_OnPremises/
+├── shared/
+│   └── src/test/kotlin/
+│       └── com/fmps/autotrader/shared/
+│           ├── models/           # Model validation tests
+│           └── utils/            # Utility function tests
+│
+├── core-service/
+│   └── src/test/kotlin/
+│       └── com/fmps/autotrader/core/
+│           ├── api/              # API endpoint tests
+│           │   ├── TraderRoutesTest.kt
+│           │   ├── PositionRoutesTest.kt
+│           │   └── WebSocketTest.kt
+│           ├── traders/          # Trading logic tests
+│           │   ├── AITraderTest.kt
+│           │   ├── AITraderManagerTest.kt
+│           │   ├── PositionManagerTest.kt
+│           │   ├── RiskManagerTest.kt
+│           │   └── strategies/
+│           │       ├── TrendFollowingStrategyTest.kt
+│           │       ├── MeanReversionStrategyTest.kt
+│           │       └── BreakoutStrategyTest.kt
+│           ├── connectors/       # Exchange connector tests
+│           │   ├── BinanceConnectorTest.kt
+│           │   ├── BitgetConnectorTest.kt
+│           │   └── integration/  # Integration tests
+│           │       ├── BinanceIntegrationTest.kt
+│           │       └── BitgetIntegrationTest.kt
+│           ├── indicators/       # Technical indicator tests
+│           │   ├── RSITest.kt
+│           │   ├── MACDTest.kt
+│           │   └── SMATest.kt
+│           ├── patterns/         # Pattern storage tests
+│           │   ├── PatternServiceTest.kt
+│           │   └── PatternMatcherTest.kt
+│           └── database/         # Database tests
+│               └── repositories/
+│                   ├── AITraderRepositoryTest.kt
+│                   ├── TradeHistoryRepositoryTest.kt
+│                   └── PatternRepositoryTest.kt
+│
+└── desktop-ui/
+    └── src/test/kotlin/
+        └── com/fmps/autotrader/ui/
+            ├── viewmodels/       # ViewModel tests
+            │   ├── DashboardViewModelTest.kt
+            │   └── TraderViewModelTest.kt
+            ├── services/         # Service tests
+            │   ├── ApiClientTest.kt
+            │   └── WebSocketClientTest.kt
+            └── e2e/              # End-to-end tests
+                ├── TraderCreationE2ETest.kt
+                └── TradingWorkflowE2ETest.kt
+```
+
+### 14.4 Test Coverage Requirements
+
+**Per Module:**
+- **shared**: 90%+ (models are critical)
+- **core-service**: 85%+ (business logic critical)
+- **desktop-ui**: 75%+ (UI harder to test)
+- **Overall**: 80%+ minimum
+
+**Critical Areas (90%+ required):**
+- Risk management logic
+- Position management
+- Trade execution
+- Pattern storage
+- API endpoints
+
+### 14.5 CI/CD Pipeline
+
+**GitHub Actions Workflow - Automatic on Every Commit:**
+
+```yaml
+# .github/workflows/ci.yml
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+    
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      working-directory: 03_Development/Application_OnPremises
+    
+    - name: Build all modules
+      run: ./gradlew build -x test
+      working-directory: 03_Development/Application_OnPremises
+    
+    - name: Run unit tests
+      run: ./gradlew test
+      working-directory: 03_Development/Application_OnPremises
+    
+    - name: Run integration tests
+      run: ./gradlew integrationTest
+      working-directory: 03_Development/Application_OnPremises
+    
+    - name: Generate test coverage report
+      run: ./gradlew jacocoTestReport
+      working-directory: 03_Development/Application_OnPremises
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./03_Development/Application_OnPremises/build/reports/jacoco/test/jacocoTestReport.xml
+        fail_ci_if_error: true
+    
+    - name: Enforce minimum coverage
+      run: ./gradlew jacocoTestCoverageVerification
+      working-directory: 03_Development/Application_OnPremises
+    
+    - name: Code style check
+      run: ./gradlew ktlintCheck
+      working-directory: 03_Development/Application_OnPremises
+    
+    - name: Static code analysis
+      run: ./gradlew detekt
+      working-directory: 03_Development/Application_OnPremises
+    
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |
+          03_Development/Application_OnPremises/**/build/test-results/**/*.xml
+    
+    - name: Comment PR with test results
+      uses: dorny/test-reporter@v1
+      if: github.event_name == 'pull_request'
+      with:
+        name: Test Results
+        path: '03_Development/Application_OnPremises/**/build/test-results/**/*.xml'
+        reporter: java-junit
+
+  code-quality:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+```
 
 **On Pull Request:**
-- Build all modules
-- Run unit tests
-- Code style check (ktlint)
-- Code analysis (detekt)
+- ✅ Build all modules
+- ✅ Run all unit tests
+- ✅ Run integration tests
+- ✅ Generate coverage report
+- ✅ Enforce 80% minimum coverage
+- ✅ Code style check (ktlint)
+- ✅ Static analysis (detekt)
+- ✅ Comment results on PR
 
 **On Merge to Develop:**
-- All PR checks
-- Integration tests
-- Generate test coverage report
+- ✅ All PR checks
+- ✅ Additional integration tests
+- ✅ Upload coverage to Codecov
+- ✅ SonarCloud analysis
 
 **On Merge to Main:**
-- All develop checks
-- Create release candidate
-- Generate changelog
+- ✅ All develop checks
+- ✅ Create release candidate
+- ✅ Generate changelog
+- ✅ Tag release
 
 ---
 
