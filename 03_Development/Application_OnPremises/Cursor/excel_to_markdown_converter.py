@@ -402,8 +402,11 @@ Examples:
         source_dir = args.source
     else:
         # Default: relative to this script (Cursor folder -> 02_ReqMgn)
+        # Script is at: .../Application_OnPremises/Cursor/
+        # We need: .../02_ReqMgn
+        # Path: Cursor -> Application_OnPremises -> 03_Development -> FMPS_AutoTraderApplication -> 02_ReqMgn
         script_dir = Path(__file__).parent
-        source_dir = script_dir.parent.parent.parent.parent / '02_ReqMgn'
+        source_dir = script_dir.parent.parent.parent / '02_ReqMgn'
     
     source_dir = source_dir.resolve()
     
