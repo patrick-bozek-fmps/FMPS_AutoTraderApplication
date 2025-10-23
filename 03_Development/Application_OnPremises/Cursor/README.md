@@ -4,7 +4,26 @@ This folder contains AI-assisted development documentation and planning material
 
 ## 📁 Contents
 
-### 1. Development_Plan.md
+### 1. Excel to Markdown Converter ⭐ NEW
+**Automatically converts Excel requirements to readable Markdown format**
+
+- `excel_to_markdown_converter.py` - Main converter script
+- `requirements.txt` - Python dependencies
+- `convert_excel.bat` - Windows batch file (easy to use)
+- `convert_excel_watch.bat` - Watch mode batch file
+- `CONVERTER_README.md` - Complete converter documentation
+- `SETUP_GUIDE.md` - Python installation guide
+
+**Use this to**: Convert Excel requirements files to Markdown so they can be read by AI assistants and easily reviewed.
+
+**Quick start**:
+1. Install Python (see SETUP_GUIDE.md)
+2. Double-click `convert_excel.bat`
+3. Excel files in `02_ReqMgn/` will be converted to Markdown
+
+---
+
+### 2. Development_Plan.md
 **Comprehensive development plan for the desktop application**
 
 - Complete project overview and objectives
@@ -21,7 +40,7 @@ This folder contains AI-assisted development documentation and planning material
 
 ---
 
-### 2. Missing_Information_OpenPoints.md
+### 3. Missing_Information_OpenPoints.md
 **Critical questions and information gaps that need clarification**
 
 - Requirements clarification needed (Excel specs)
@@ -39,7 +58,7 @@ This folder contains AI-assisted development documentation and planning material
 
 ---
 
-### 3. Technical_Architecture.md
+### 4. Technical_Architecture.md
 **Detailed technical architecture and design**
 
 - System architecture diagram
@@ -58,7 +77,19 @@ This folder contains AI-assisted development documentation and planning material
 
 ---
 
-### 4. README.md (this file)
+### 5. Executive_Summary.md
+**High-level overview of the entire development plan**
+
+- Project status and deliverables summary
+- Timeline and success criteria
+- Risk analysis and recommendations
+- Next steps and decision log
+
+**Use this document to**: Get a quick overview of the project for stakeholders and management.
+
+---
+
+### 6. README.md (this file)
 **Navigation guide for the Cursor documentation**
 
 ---
@@ -105,6 +136,8 @@ These documents should be updated regularly:
 
 Before starting Phase 1, ensure:
 
+- [ ] **Python installed** (see SETUP_GUIDE.md)
+- [ ] **Excel files converted to Markdown** (run converter)
 - [ ] All Excel requirements documents have been reviewed
 - [ ] Critical questions in Missing_Information_OpenPoints.md are answered
 - [ ] Technology stack is approved
@@ -113,6 +146,16 @@ Before starting Phase 1, ensure:
 - [ ] Git workflow is established
 - [ ] Team roles are assigned
 - [ ] MVP scope is agreed upon
+
+### ⚡ First Step: Convert Requirements
+
+1. Install Python: See `SETUP_GUIDE.md`
+2. Run converter: Double-click `convert_excel.bat` or run:
+   ```bash
+   python excel_to_markdown_converter.py
+   ```
+3. Review generated `.md` files in `02_ReqMgn/` folder
+4. Update planning documents based on actual requirements
 
 ---
 
