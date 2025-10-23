@@ -102,7 +102,7 @@ class ExcelToMarkdownConverter:
                 
                 # Skip empty sheets
                 if df.empty:
-                    print(f"    ⚠️  Sheet is empty, skipping")
+                    print(f"    [WARN] Sheet is empty, skipping")
                     continue
                 
                 markdown_content += self._convert_sheet_to_markdown(sheet_name, df)
@@ -110,13 +110,13 @@ class ExcelToMarkdownConverter:
             # Write to file
             output_path.write_text(markdown_content, encoding='utf-8')
             
-            print(f"\n✅ Successfully converted to: {output_path.name}")
+            print(f"\n[OK] Successfully converted to: {output_path.name}")
             print(f"   Size: {output_path.stat().st_size:,} bytes")
             
             return output_path
             
         except Exception as e:
-            print(f"\n❌ Error converting {excel_path.name}: {str(e)}")
+            print(f"\n[ERROR] Error converting {excel_path.name}: {str(e)}")
             raise
 
     def _generate_header(self, excel_path: Path) -> str:
@@ -236,13 +236,13 @@ class ExcelFileChangeHandler(FileSystemEventHandler):
         
         self.last_modified[file_path] = current_time
         
-        print(f"\n🔄 Detected change in: {file_path.name}")
+        print(f"\n[CHANGE] Detected change in: {file_path.name}")
         time.sleep(0.5)  # Wait a bit for file to be fully written
         
         try:
             self.converter.convert_excel_to_markdown(file_path)
         except Exception as e:
-            print(f"❌ Error during auto-conversion: {e}")
+            print(f"[ERROR] Error during auto-conversion: {e}")
 
 
 def find_excel_files(directory: Path) -> List[Path]:
@@ -293,7 +293,7 @@ def convert_all_files(source_dir: Path, output_dir: Optional[Path] = None) -> Li
             md_file = converter.convert_excel_to_markdown(excel_file)
             converted_files.append(md_file)
         except Exception as e:
-            print(f"❌ Failed to convert {excel_file.name}: {e}")
+            print(f"[ERROR] Failed to convert {excel_file.name}: {e}")
     
     return converted_files
 
@@ -313,7 +313,7 @@ def watch_directory(source_dir: Path, output_dir: Optional[Path] = None):
         print(f"⚠️  No Excel files found in {source_dir}")
         return
     
-    print(f"\n👁️  Watching {len(excel_files)} Excel file(s) for changes:")
+    print(f"\n[WATCH] Watching {len(excel_files)} Excel file(s) for changes:")
     for f in excel_files:
         print(f"  - {f.name}")
     
@@ -322,18 +322,18 @@ def watch_directory(source_dir: Path, output_dir: Optional[Path] = None):
     observer.schedule(event_handler, str(source_dir), recursive=False)
     observer.start()
     
-    print(f"\n✅ Watching directory: {source_dir}")
+    print(f"\n[OK] Watching directory: {source_dir}")
     print("   Press Ctrl+C to stop...\n")
     
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\n\n🛑 Stopping file watch...")
+        print("\n\n[STOP] Stopping file watch...")
         observer.stop()
     
     observer.join()
-    print("✅ File watch stopped.")
+    print("[OK] File watch stopped.")
 
 
 def main():
@@ -391,9 +391,9 @@ Examples:
         converter = ExcelToMarkdownConverter(args.output)
         try:
             converter.convert_excel_to_markdown(args.file)
-            print("\n✅ Conversion complete!")
+            print("\n[SUCCESS] Conversion complete!")
         except Exception as e:
-            print(f"\n❌ Conversion failed: {e}")
+            print(f"\n[ERROR] Conversion failed: {e}")
             sys.exit(1)
         return
     
@@ -411,7 +411,7 @@ Examples:
     source_dir = source_dir.resolve()
     
     if not source_dir.exists():
-        print(f"❌ Error: Source directory does not exist: {source_dir}")
+        print(f"[ERROR] Source directory does not exist: {source_dir}")
         sys.exit(1)
     
     print(f"Source directory: {source_dir}")
@@ -426,7 +426,7 @@ Examples:
     converted_files = convert_all_files(source_dir, args.output)
     
     if converted_files:
-        print(f"\n✅ Successfully converted {len(converted_files)} file(s)")
+        print(f"\n[SUCCESS] Successfully converted {len(converted_files)} file(s)")
     
     # Watch for changes if requested
     if args.watch:
@@ -435,7 +435,7 @@ Examples:
         print("="*70)
         watch_directory(source_dir, args.output)
     else:
-        print("\n✅ All conversions complete!")
+        print("\n[SUCCESS] All conversions complete!")
         print("   Tip: Use --watch flag to automatically convert when files change")
 
 
