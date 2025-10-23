@@ -6,6 +6,70 @@
 
 ---
 
+## 🚨 **ACTION REQUIRED: 5 Critical Questions**
+
+**These questions MUST be answered before creating the new Development Plan:**
+
+### **Question 1: Architecture for Desktop v1.0**
+**Should the Core Application be:**
+- **Option A**: Separate Windows service/process that UI connects to?
+- **Option B**: Embedded in desktop app (can run with or without UI)?
+- **Option C**: Your preference?
+
+**Impact**: Determines entire application structure and complexity
+
+---
+
+### **Question 2: MVP Scope**
+**For v1.0 desktop version, should we:**
+- **Option A**: Full multi-device architecture from start?
+- **Option B**: Desktop-only, designed for future expansion?
+- **Option C**: Your preference?
+
+**Recommendation**: Option B (desktop first, architecture ready for expansion)
+
+---
+
+### **Question 3: AI Trader Instances Limit**
+**How many concurrent AI traders should v1.0 support?**
+- **Option A**: 1-5 traders (conservative, easier to manage)
+- **Option B**: 10-20 traders (moderate, more resources needed)
+- **Option C**: Unlimited (complex, needs careful resource management)
+
+**Impact**: Resource management, testing scope, performance requirements
+
+---
+
+### **Question 4: Trading Knowledge Database Type**
+**What is "AI Trader Training" technically?**
+- **Option A**: Machine learning / neural networks (COMPLEX - months of work)
+- **Option B**: Rule-based learning with pattern storage (MODERATE - weeks)
+- **Option C**: Just storing successful trade patterns (SIMPLE - days)
+
+**Impact**: HUGE difference in timeline and complexity!
+
+---
+
+### **Question 5: Real Money Trading in v1.0?**
+**Should v1.0 support:**
+- **Option A**: Demo accounts only (SAFE - recommended)
+- **Option B**: Both demo and real money (RISKY - needs extensive testing)
+- **Option C**: Your preference?
+
+**Recommendation**: Demo only for v1.0, add real money in v1.1 after validation
+
+---
+
+## ⏳ **Once Questions Are Answered:**
+
+✅ Create Development Plan v2 (based on your answers)  
+✅ Create Technical Architecture v2 (client-server design)  
+✅ Update timeline (18-20 weeks estimated)  
+✅ Define MVP features clearly  
+✅ Start Phase 1 development
+
+---
+
 ## ✅ **Converter Assessment**
 
 ### **Quality: EXCELLENT** ✅
