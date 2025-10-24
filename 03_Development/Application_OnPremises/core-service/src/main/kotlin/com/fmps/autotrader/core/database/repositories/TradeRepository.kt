@@ -150,6 +150,26 @@ class TradeRepository {
     }
     
     /**
+     * Find all open trades (all AI traders)
+     */
+    suspend fun findAllOpenTrades(): List<Trade> = dbQuery {
+        TradesTable.selectAll()
+            .where { TradesTable.status eq "OPEN" }
+            .orderBy(TradesTable.entryTimestamp to SortOrder.DESC)
+            .map { rowToTrade(it) }
+    }
+    
+    /**
+     * Find all trades (with limit)
+     */
+    suspend fun findAll(limit: Int = 100): List<Trade> = dbQuery {
+        TradesTable.selectAll()
+            .orderBy(TradesTable.entryTimestamp to SortOrder.DESC)
+            .limit(limit)
+            .map { rowToTrade(it) }
+    }
+    
+    /**
      * Find closed trades for an AI trader
      */
     suspend fun findClosedTrades(aiTraderId: Int, limit: Int = 100): List<Trade> = dbQuery {

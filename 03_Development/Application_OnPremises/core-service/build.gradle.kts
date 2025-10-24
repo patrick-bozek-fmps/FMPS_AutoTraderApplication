@@ -5,7 +5,7 @@ plugins {
 }
 
 application {
-    mainClass.set("com.fmps.autotrader.core.MainKt")
+    mainClass.set("com.fmps.autotrader.core.api.ApplicationKt")
 }
 
 dependencies {
@@ -30,6 +30,7 @@ dependencies {
     implementation("io.ktor:ktor-server-websockets:$ktorVersion")
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
+    implementation("io.ktor:ktor-server-default-headers:$ktorVersion")
     
     // Ktor Client (for exchange APIs)
     implementation("io.ktor:ktor-client-core:$ktorVersion")
