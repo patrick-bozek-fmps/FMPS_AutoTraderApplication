@@ -611,17 +611,12 @@ With the REST API fully operational, the project is ready for:
 **CI/CD Status**: ✅ PASSED
 
 ### **Phase 9-14: WebSocket, Testing, and Documentation**
-**Commit**: [To be committed]  
+**Commit**: `1aec787`  
 **Date**: October 24, 2025  
-**Message**: `feat: Complete Issue #3 - Add WebSocket support, tests, and full documentation`  
-**Files Changed**: ~15 files
-- Added WebSocket support (3 channels)
-- Added 15 new tests (39 total)
-- Created comprehensive API documentation
-- Integrated server with Main.kt
-- Updated all project documentation
+**Message**: `feat: Complete Issue #3 - Add WebSocket support, tests, and comprehensive documentation`  
+**Files Changed**: 12 files, 1797 insertions(+), 117 deletions(-)
 
-**Includes**:
+**New Files Created**:
 - `WebSocketManager.kt` - Session management and broadcasting
 - `WebSocketRoutes.kt` - 3 WebSocket endpoint handlers
 - `WebSockets.kt` - Plugin configuration
@@ -630,11 +625,15 @@ With the REST API fully operational, the project is ready for:
 - `BigDecimalSerializerTest.kt` - 7 tests
 - `API_DOCUMENTATION.md` - Full API reference (750+ lines)
 - `README.md` - Project overview and quick start
+
+**Modified Files**:
 - Updated `Main.kt` - Server lifecycle integration
 - Updated `Application.kt` - Refactored for reusability
+- Updated `Routing.kt` - Added WebSocket routes
 - Updated `Issue_03_REST_API_Server.md` - All phases complete
 
-**CI/CD Status**: Pending push
+**CI/CD Status**: ✅ **PASSED**
+- Run URL: https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/18781801071
 
 ---
 
