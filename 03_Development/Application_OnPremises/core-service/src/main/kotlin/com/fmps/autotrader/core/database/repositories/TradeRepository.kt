@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.slf4j.LoggerFactory
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDateTime
 
 /**
@@ -75,7 +76,6 @@ class TradeRepository {
             ?: return@dbQuery false
         
         val entryPrice = trade[TradesTable.entryPrice]
-        val entryAmount = trade[TradesTable.entryAmount]
         val tradeType = trade[TradesTable.tradeType]
         val leverage = trade[TradesTable.leverage]
         
@@ -228,8 +228,8 @@ class TradeRepository {
         }
         
         val netProfitLoss = totalProfit + totalLoss
-        val averageProfitLoss = netProfitLoss.divide(totalTrades.toBigDecimal(), 6, BigDecimal.ROUND_HALF_UP)
-        val successRate = (successfulTrades.toBigDecimal().divide(totalTrades.toBigDecimal(), 4, BigDecimal.ROUND_HALF_UP)) * BigDecimal("100")
+        val averageProfitLoss = netProfitLoss.divide(totalTrades.toBigDecimal(), 6, RoundingMode.HALF_UP)
+        val successRate = (successfulTrades.toBigDecimal().divide(totalTrades.toBigDecimal(), 4, RoundingMode.HALF_UP)) * BigDecimal("100")
         
         TradeStatistics(
             totalTrades = totalTrades.toInt(),

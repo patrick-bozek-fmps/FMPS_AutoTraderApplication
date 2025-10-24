@@ -48,11 +48,13 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
 └────────────────────┬────────────────────────────────────┘
                      ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Step 5: Wait for CI (MANDATORY) ⏱️                     │
-│  • Wait 2-3 minutes for GitHub Actions                   │
-│  • Monitor: https://github.com/.../actions              │
+│  Step 5: Verify CI Passes (MANDATORY) ⏱️ AUTOMATED     │
+│  • Run: .\Cursor\check-ci-status.ps1 -Watch -Wait 20    │
+│  • Script automatically monitors GitHub Actions          │
+│  • Wait for: [SUCCESS] message                          │
 │  • Verify: Green checkmark ✅                           │
 │  • DO NOT PROCEED until CI passes                       │
+│  • Alternative: Manual check at github.com/.../actions   │
 └────────────────────┬────────────────────────────────────┘
                      ▼
 ┌─────────────────────────────────────────────────────────┐
@@ -161,13 +163,61 @@ cd 03_Development/Application_OnPremises
 4. Repeat until all pass
 5. **NEVER push failing tests**
 
-### **CI Testing (REQUIRED after push)**
-1. Push code to GitHub
-2. Navigate to: https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions
-3. Find your commit in the list
-4. Wait for workflow to complete (2-3 minutes)
-5. Verify green checkmark ✅
-6. If red ❌, follow "If CI Fails" workflow above
+### **CI Testing (REQUIRED after push) - AUTOMATED** ✨
+
+#### **Option 1: Automated Checking (RECOMMENDED)**
+```powershell
+# Navigate to project root
+cd C:\PABLO\AI_Projects\FMPS_AutoTraderApplication
+
+# One-time check
+.\03_Development\Application_OnPremises\Cursor\check-ci-status.ps1
+
+# Watch mode (auto-checks every 20 seconds until complete)
+.\03_Development\Application_OnPremises\Cursor\check-ci-status.ps1 -Watch -WaitSeconds 20
+```
+
+**Output**:
+- Shows 5 most recent workflow runs
+- Displays status: `in_progress`, `completed`
+- Shows conclusion: `success`, `failure`
+- Provides commit SHA, timestamps, run URL
+- Exit codes: 0=success, 1=failure, 3=in progress
+
+**Wait for**:
+```
+[SUCCESS] Latest CI run passed!
+You can proceed with the next step.
+```
+
+#### **Option 2: Manual Checking**
+1. Navigate to: https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions
+2. Find your commit in the list
+3. Wait for workflow to complete (2-3 minutes)
+4. Verify green checkmark ✅
+5. If red ❌, follow "If CI Fails" workflow above
+
+### **Build Warnings Detection** ⚠️
+
+After running tests, check for warnings:
+```powershell
+# Run build and capture warnings
+.\gradlew build --no-daemon 2>&1 | Select-String -Pattern "^w:" -Context 0,0
+
+# Or run tests with warning capture
+.\gradlew test --no-daemon 2>&1 | Select-String -Pattern "^w:" -Context 0,0
+
+# Save warnings to file for review
+.\gradlew build --no-daemon 2>&1 | Select-String -Pattern "^w:" > warnings.txt
+```
+
+**Common Warnings to Fix**:
+- Unused variables
+- Deprecated API usage
+- Unchecked casts
+- Missing documentation
+
+**Policy**: Fix all warnings before pushing (target: 0 warnings)
 
 ---
 
