@@ -52,6 +52,9 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
 │  • Run: .\Cursor\check-ci-status.ps1 -Watch -Wait 20    │
 │  • Script automatically monitors GitHub Actions          │
 │  • Wait for: [SUCCESS] message                          │
+│  • Then check annotations:                               │
+│    .\Cursor\check-ci-annotations.ps1                     │
+│  • Review any warnings (cache failures are OK)           │
 │  • Verify: Green checkmark ✅                           │
 │  • DO NOT PROCEED until CI passes                       │
 │  • Alternative: Manual check at github.com/.../actions   │
@@ -218,6 +221,47 @@ After running tests, check for warnings:
 - Missing documentation
 
 **Policy**: Fix all warnings before pushing (target: 0 warnings)
+
+### **CI Annotations (Infrastructure Warnings)** ⚠️
+
+GitHub Actions may report annotations (warnings from the CI infrastructure itself). These are **separate from code warnings**.
+
+**Check CI Annotations**:
+```powershell
+# Check latest run annotations
+.\03_Development\Application_OnPremises\Cursor\check-ci-annotations.ps1
+
+# Show full details
+.\03_Development\Application_OnPremises\Cursor\check-ci-annotations.ps1 -ShowAll
+
+# Check specific run by ID
+.\03_Development\Application_OnPremises\Cursor\check-ci-annotations.ps1 -RunId 12345678
+```
+
+**Common CI Annotations**:
+1. **Cache Failures** (most common):
+   - `Failed to save cache entry` - GitHub's cache service unavailable
+   - `Failed to restore cache` - Cache service errors (400, 503)
+   - **Impact**: Build runs slower (no cached dependencies)
+   - **Action**: None required - these are GitHub infrastructure issues
+
+2. **Node.js/Setup Warnings**:
+   - Deprecated actions or runtime versions
+   - **Action**: Update action versions in `.github/workflows/ci.yml`
+
+3. **Deprecation Warnings**:
+   - Actions using deprecated features
+   - **Action**: Update to newer action versions
+
+**Policy**:
+- ✅ Cache failures: **Acceptable** (GitHub infrastructure, not our fault)
+- ⚠️ Deprecation warnings: **Fix within 1 month** (update actions)
+- ❌ Failure annotations: **Must fix immediately** (CI failures)
+
+**Exit Codes**:
+- `0` = No warnings/failures (clean)
+- `1` = Failure annotations found (must fix)
+- `2` = Warning annotations found (review)
 
 ---
 
