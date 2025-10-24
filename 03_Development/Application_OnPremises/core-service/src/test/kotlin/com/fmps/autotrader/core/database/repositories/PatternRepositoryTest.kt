@@ -132,7 +132,7 @@ class PatternRepositoryTest {
         assertEquals(5, pattern?.totalOccurrences)
         
         // Confidence should be proportional (50% of min occurrences, so confidence = success_rate * 0.5)
-        val expectedConfidence = BigDecimal("100") * BigDecimal("0.5")
+        // Expected: 100% success rate * 0.5 (50% of min occurrences) = 50% confidence
         assertTrue(pattern?.confidence!! < BigDecimal("100"))
         
         // Add 5 more successful trades (now at min occurrences of 10)
@@ -259,7 +259,7 @@ class PatternRepositoryTest {
     
     @Test
     fun `should find active patterns only`() = runBlocking {
-        val pattern1 = repository.create(
+        repository.create(
             name = "Active Pattern",
             patternType = "BREAKOUT",
             tradingPair = "BTC/USDT",

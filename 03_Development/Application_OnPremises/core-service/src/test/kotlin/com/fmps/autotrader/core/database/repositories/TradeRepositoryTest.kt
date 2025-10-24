@@ -18,7 +18,11 @@ class TradeRepositoryTest {
     
     @BeforeAll
     fun setup() = runBlocking {
-        File(testDbPath).delete()
+        // Clean up and ensure directory exists
+        val testDbFile = File(testDbPath)
+        testDbFile.parentFile?.mkdirs()
+        testDbFile.delete()
+        
         System.setProperty("database.url", "jdbc:sqlite:$testDbPath")
         System.setProperty("app.environment", "test")
         
@@ -28,14 +32,22 @@ class TradeRepositoryTest {
         tradeRepository = TradeRepository()
         aiTraderRepository = AITraderRepository()
         
+        // Clear any existing traders (in case of test interference)
+        val existingTraders = aiTraderRepository.findAll()
+        existingTraders.forEach { aiTraderRepository.delete(it.id) }
+        
         // Create a test AI trader
-        testTraderId = aiTraderRepository.create(
+        val traderId = aiTraderRepository.create(
             name = "Test Trader",
             exchange = "BINANCE",
             tradingPair = "BTC/USDT",
             leverage = 10,
             initialBalance = BigDecimal("10000")
-        )!!
+        )
+        
+        testTraderId = requireNotNull(traderId) {
+            "Failed to create test AI trader in setup. This should not happen in a clean test environment."
+        }
     }
     
     @AfterAll
@@ -150,7 +162,7 @@ class TradeRepositoryTest {
             takeProfitPrice = BigDecimal("52000")
         )
         
-        val trade2 = tradeRepository.create(
+        tradeRepository.create(
             aiTraderId = testTraderId,
             tradeType = "SHORT",
             exchange = "BINANCE",
@@ -175,9 +187,8 @@ class TradeRepositoryTest {
     
     @Test
     fun `should calculate trade statistics`() = runBlocking {
-        // Clear existing trades
-        val existingTrades = tradeRepository.findByAITrader(testTraderId)
-        // Note: Can't delete trades in this test as they have foreign key constraints
+        // Note: Existing trades from other tests will be included in statistics
+        // This is acceptable for testing the statistics calculation logic
         
         // Create and close multiple trades
         val trade1 = tradeRepository.create(
