@@ -5,6 +5,7 @@ import com.fmps.autotrader.core.api.routes.configureConfigurationRoutes
 import com.fmps.autotrader.core.api.routes.configureHealthRoutes
 import com.fmps.autotrader.core.api.routes.configurePatternRoutes
 import com.fmps.autotrader.core.api.routes.configureTradeRoutes
+import com.fmps.autotrader.core.api.routes.configureWebSocketRoutes
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -36,6 +37,9 @@ fun Application.configureRouting() {
             // Configuration routes
             configureConfigurationRoutes()
         }
+        
+        // WebSocket routes
+        configureWebSocketRoutes()
     }
 }
 
