@@ -1,8 +1,8 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 2.1  
-**Date**: October 23, 2025  
-**Status**: 🚀 In Development - Phase 1 Started  
+**Version**: 2.2  
+**Date**: October 24, 2025  
+**Status**: 🚀 In Development - Phase 1 In Progress  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
 ---
@@ -11,18 +11,18 @@
 
 | Phase | Status | Progress | Completed |
 |-------|--------|----------|-----------|
-| **Phase 1: Foundation & Infrastructure** | 🏗️ **In Progress** | 1/9 tasks | Issue #1 ✅ |
+| **Phase 1: Foundation & Infrastructure** | 🏗️ **In Progress** | 2/9 tasks | Issues #1, #2 ✅ |
 | Phase 2: Exchange Integration | ⏳ Not Started | 0/15 tasks | - |
 | Phase 3: AI Trading Engine | ⏳ Not Started | 0/20 tasks | - |
 | Phase 4: Desktop UI | ⏳ Not Started | 0/15 tasks | - |
 | Phase 5: Windows Service | ⏳ Not Started | 0/8 tasks | - |
 | Phase 6: Testing & Polish | ⏳ Not Started | 0/12 tasks | - |
 
-**Overall Progress**: **1/79 issues completed (1.3%)**
+**Overall Progress**: **2/79 issues completed (2.5%)**
 
-**Last Milestone**: ✅ **Issue #1** - Gradle multi-module project structure (Oct 23, 2025)
+**Last Milestone**: ✅ **Issue #2** - Database layer with Exposed ORM (Oct 24, 2025)
 
-**Next Up**: 🔜 **Issue #2** - Configure database layer with Exposed ORM
+**Next Up**: 🔜 **Issue #3** - Set up REST API server with Ktor
 
 ---
 
@@ -32,14 +32,16 @@
 |---------|------|---------|--------|
 | 1.0 | Oct 23, 2025 | Initial plan based on assumptions | AI Assistant |
 | 2.0 | Oct 23, 2025 | Updated with actual requirements & decisions | AI Assistant |
-| **2.1** | **Oct 23, 2025** | **Added progress tracking, Issue #1 complete** | **AI Assistant** |
+| 2.1 | Oct 23, 2025 | Added progress tracking, Issue #1 complete | AI Assistant |
+| **2.2** | **Oct 24, 2025** | **Issue #2 complete: Database layer implemented** | **AI Assistant** |
 
-**Changes from v2.0:**
-- ✅ Issue #1 completed: Gradle multi-module project structure
-- ✅ CI/CD pipeline configured and working
-- ✅ Development environment setup complete
-- ✅ Git workflow established
-- ✅ Added progress tracking section
+**Changes from v2.1:**
+- ✅ Issue #2 completed: Database layer with Exposed ORM
+- ✅ 5 database tables with schema definitions
+- ✅ 3 repositories with full CRUD operations
+- ✅ Flyway migrations configured
+- ✅ 24 unit tests (all passing)
+- ✅ HikariCP connection pooling setup
 
 **Changes from v1.0:**
 - ✅ Client-server architecture instead of monolithic
