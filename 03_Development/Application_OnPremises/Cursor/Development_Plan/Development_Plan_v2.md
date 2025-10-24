@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 2.3  
+**Version**: 2.4  
 **Date**: October 24, 2025  
 **Status**: 🚀 In Development - Phase 1 In Progress  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -11,7 +11,7 @@
 
 | Phase | Status | Progress | Completed |
 |-------|--------|----------|-----------|
-| **Phase 1: Foundation & Infrastructure** | 🏗️ **In Progress** | 3/9 tasks | Issues #1, #2, #3 ✅ |
+| **Phase 1: Foundation & Infrastructure** | 🏗️ **In Progress** | 3/9 tasks | Issues #2, #3, #4 ✅ |
 | Phase 2: Exchange Integration | ⏳ Not Started | 0/15 tasks | - |
 | Phase 3: AI Trading Engine | ⏳ Not Started | 0/20 tasks | - |
 | Phase 4: Desktop UI | ⏳ Not Started | 0/15 tasks | - |
@@ -20,9 +20,9 @@
 
 **Overall Progress**: **3/79 issues completed (3.8%)**
 
-**Last Milestone**: ✅ **Issue #3** - REST API Server with Ktor (Oct 24, 2025)
+**Last Milestone**: ✅ **Issue #4** - REST API Server with Ktor (Oct 24, 2025)
 
-**Next Up**: 🔜 **Issue #4** - TBD (Exchange Integration or Pattern Matching)
+**Next Up**: 🔜 **Issue #5** - Implement Logging Infrastructure (Planned for next week)
 
 ---
 
@@ -32,12 +32,19 @@
 |---------|------|---------|--------|
 | 1.0 | Oct 23, 2025 | Initial plan based on assumptions | AI Assistant |
 | 2.0 | Oct 23, 2025 | Updated with actual requirements & decisions | AI Assistant |
-| 2.1 | Oct 23, 2025 | Added progress tracking, Issue #1 complete | AI Assistant |
-| 2.2 | Oct 24, 2025 | Issue #2 complete: Database layer implemented | AI Assistant |
-| **2.3** | **Oct 24, 2025** | **Issue #3 complete: REST API Server with Ktor** | **AI Assistant** |
+| 2.1 | Oct 23, 2025 | Added progress tracking, Issue #2 complete | AI Assistant |
+| 2.2 | Oct 24, 2025 | Issue #3 complete: Database layer implemented | AI Assistant |
+| 2.3 | Oct 24, 2025 | Issue #4 complete: REST API Server with Ktor | AI Assistant |
+| **2.4** | **Oct 24, 2025** | **Issue numbering realigned with GitHub structure** | **AI Assistant** |
+
+**Changes from v2.3:**
+- ✅ Issue numbering realigned to match GITHUB_PROJECT_STRUCTURE.md (Issue #1→#2, #2→#3, #3→#4)
+- ✅ Issue #5 (Logging Infrastructure) created and documented
+- ✅ All issue documents renamed and organized
+- ✅ Ready to continue with Issue #5 next week
 
 **Changes from v2.2:**
-- ✅ Issue #3 completed: REST API Server with Ktor framework
+- ✅ Issue #4 completed: REST API Server with Ktor framework (was Issue #3)
 - ✅ 34 REST API endpoints (AI Traders, Trades, Patterns, Configurations, Health)
 - ✅ Complete DTO layer with kotlinx.serialization
 - ✅ Entity-to-DTO mappers
@@ -307,9 +314,10 @@ dependencies {
 
 ### 5.1 Project Setup ✅ **COMPLETE**
 
-**Issue**: #1 - Set up Gradle multi-module project structure  
+**Issue**: #2 - Set up Gradle multi-module project structure  
 **Status**: ✅ **Completed** (Oct 23, 2025)  
-**Commit**: `906c2c3` - feat(core): set up Gradle multi-module project structure
+**Commit**: `906c2c3` - feat(core): set up Gradle multi-module project structure  
+**Documentation**: `Issue_02_Gradle_MultiModule_Setup.md`
 
 **Tasks:**
 - [x] ~~Clean up existing codebase structure~~
@@ -356,26 +364,31 @@ dependencies {
 
 **Deliverable**: Complete data model library
 
-### 5.3 Database Setup
+### 5.3 Database Setup ✅ **COMPLETE**
+
+**Issue**: #3 - Configure database layer with Exposed ORM  
+**Status**: ✅ **Completed** (Oct 24, 2025)  
+**Commit**: `df6e2dd` - feat: Implement database layer with Exposed ORM, migrations, and repositories  
+**Documentation**: `Issue_03_Database_Layer.md`
 
 **Tasks:**
-- [ ] Design SQLite database schema
-  - [ ] `ai_traders` table
-  - [ ] `positions` table
-  - [ ] `orders` table
-  - [ ] `trade_history` table
-  - [ ] `patterns` table
-  - [ ] `configurations` table
-- [ ] Implement database migrations
-- [ ] Create DAO layer with Exposed
-- [ ] Implement repositories
-  - [ ] `AITraderRepository`
-  - [ ] `TradeHistoryRepository`
-  - [ ] `PatternRepository`
-- [ ] Add connection pooling
-- [ ] Write database tests
+- [x] ~~Design SQLite database schema~~
+  - [x] ~~`ai_traders` table~~
+  - [x] ~~`positions` table (deferred)~~
+  - [x] ~~`orders` table (deferred)~~
+  - [x] ~~`trade_history` table~~
+  - [x] ~~`patterns` table~~
+  - [x] ~~`configurations` table (deferred)~~
+- [x] ~~Implement database migrations (Flyway)~~
+- [x] ~~Create DAO layer with Exposed~~
+- [x] ~~Implement repositories~~
+  - [x] ~~`AITraderRepository`~~
+  - [x] ~~`TradeHistoryRepository`~~
+  - [x] ~~`PatternRepository`~~
+- [x] ~~Add connection pooling (HikariCP)~~
+- [x] ~~Write database tests (24 tests passing)~~
 
-**Deliverable**: Working database layer with tests
+**Deliverable**: ✅ Working database layer with comprehensive tests
 
 ### 5.4 Configuration Management
 
@@ -392,7 +405,11 @@ dependencies {
 
 **Deliverable**: Configuration system ready
 
-### 5.5 Logging Setup
+### 5.5 Logging Setup 📋 **PLANNED** (Next Week)
+
+**Issue**: #5 - Implement logging infrastructure  
+**Status**: 📋 **Planned** (Ready to start next week)  
+**Documentation**: `Issue_05_Logging_Infrastructure.md`
 
 **Tasks:**
 - [ ] Configure SLF4J + Logback
@@ -401,8 +418,35 @@ dependencies {
 - [ ] Configure file rotation and archiving
 - [ ] Add performance metrics collection
 - [ ] Create structured logging format
+- [ ] Add MDC for request tracing
+- [ ] Integrate logging across all modules
 
 **Deliverable**: Logging infrastructure operational
+
+### 5.6 REST API Server ✅ **COMPLETE**
+
+**Issue**: #4 - Set up REST API server with Ktor  
+**Status**: ✅ **Completed** (Oct 24, 2025)  
+**Commits**: `ec0a49a`, `1aec787` - feat: Implement REST API server with Ktor + WebSocket support  
+**Documentation**: `Issue_04_REST_API_Server.md`
+
+**Tasks:**
+- [x] ~~Set up Ktor server with Netty~~
+- [x] ~~Create 34 REST API endpoints~~
+  - [x] ~~9 AI Trader endpoints (CRUD, status, balance)~~
+  - [x] ~~8 Trade endpoints (create, close, statistics)~~
+  - [x] ~~10 Pattern endpoints (match, activate, top performers)~~
+  - [x] ~~4 Configuration endpoints (placeholders)~~
+  - [x] ~~3 Health/Status endpoints~~
+- [x] ~~Complete DTO layer with kotlinx.serialization~~
+- [x] ~~Entity-to-DTO mappers~~
+- [x] ~~Error handling and validation~~
+- [x] ~~CORS and request logging configured~~
+- [x] ~~WebSocket support (3 channels)~~
+- [x] ~~Integration with Main.kt~~
+- [x] ~~39 tests passing~~
+
+**Deliverable**: ✅ Complete REST API with 34 endpoints + WebSocket
 
 ---
 
