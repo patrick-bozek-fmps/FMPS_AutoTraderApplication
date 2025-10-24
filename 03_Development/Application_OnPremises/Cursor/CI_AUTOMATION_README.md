@@ -168,6 +168,91 @@ WARNINGS (7)
 
 ---
 
+### 3. `analyze-ci-failures.ps1` - CI Failure Analyzer ⭐
+
+**Purpose**: Automatically retrieve and analyze failures from CI runs, providing actionable recommendations.
+
+**Usage**:
+```powershell
+# Analyze latest failed run (or latest run if none failed)
+.\analyze-ci-failures.ps1
+
+# Analyze specific run by ID
+.\analyze-ci-failures.ps1 -RunId 18776384869
+```
+
+**What It Does**:
+- Finds the most recent failed CI run
+- Retrieves all failure annotations
+- Extracts error messages and details
+- Categorizes failures (test failures, compilation errors, etc.)
+- Provides specific recommendations for fixing
+
+**Output Example** (when CI fails):
+```
+================================================================================
+  CI Failure Analyzer
+================================================================================
+
+Analyzing Run 12345678
+  Commit: abc1234
+  Status: completed | Conclusion: failure
+
+Found 1 job(s)
+
+--------------------------------------------------------------------------------
+Job: Build and Test
+  Status: completed | Conclusion: failure
+  Failures: 3
+
+================================================================================
+  Analysis Summary
+================================================================================
+
+Failed Jobs: 1
+
+--------------------------------------------------------------------------------
+FAILURE DETAILS (3 failures)
+--------------------------------------------------------------------------------
+
+[FAILURE] Test TradeRepositoryTest.testCloseTrade failed
+  java.lang.AssertionError: expected:<SUCCESS> but was:<FAILED>
+    at TradeRepositoryTest.testCloseTrade(TradeRepositoryTest.kt:45)
+  File: core-service/src/test/kotlin/.../TradeRepositoryTest.kt:45
+
+[FAILURE] Compilation error in Main.kt
+  error: unresolved reference: invalidFunction
+  File: core-service/src/main/kotlin/com/fmps/autotrader/core/Main.kt:23
+
+--------------------------------------------------------------------------------
+RECOMMENDED ACTIONS
+--------------------------------------------------------------------------------
+
+TEST FAILURES DETECTED:
+  1. Run tests locally: .\gradlew test --no-daemon
+  2. Review test reports in build/reports/tests/
+  3. Fix failing tests before pushing
+
+COMPILATION ERRORS DETECTED:
+  1. Run build locally: .\gradlew clean build --no-daemon
+  2. Check for syntax errors and missing imports
+  3. Verify all dependencies are available
+
+For full logs, visit: https://github.com/.../actions/runs/12345678
+```
+
+**Exit Codes**:
+- `0` = No failures (CI passed)
+- `1` = Failures found (CI failed)
+
+**Key Benefits**:
+- ✅ Automatically identifies failure types
+- ✅ Extracts specific error messages
+- ✅ Provides actionable fix recommendations
+- ✅ **Enables automated debugging and fixes**
+
+---
+
 ## 🔄 Typical Workflow
 
 ### After Pushing Code:
@@ -182,10 +267,13 @@ Start-Sleep -Seconds 30
 # Step 3: Check for annotations
 .\03_Development\Application_OnPremises\Cursor\check-ci-annotations.ps1
 
-# Step 4: Review results
+# Step 4: If CI failed, analyze failures automatically
+.\03_Development\Application_OnPremises\Cursor\analyze-ci-failures.ps1
+
+# Step 5: Review results
 # - If CI passed and only cache warnings → ✅ Proceed
 # - If CI passed with deprecation warnings → ⚠️ Create issue to fix
-# - If CI failed or failure annotations → ❌ Fix immediately
+# - If CI failed → ⚠️ Review failure analysis and fix issues
 ```
 
 ---
