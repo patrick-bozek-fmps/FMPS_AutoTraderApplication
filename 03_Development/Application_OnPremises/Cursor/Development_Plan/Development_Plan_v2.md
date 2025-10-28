@@ -1,81 +1,44 @@
-# FMPS AutoTrader Application - Development Plan v2
+﻿# FMPS AutoTrader Application - Development Plan v2
 
 **Version**: 2.6  
 **Date**: October 28, 2025  
-**Status**: 🚀 In Development - Phase 1 Nearly Complete  
+**Status**: ðŸš€ In Development - Phase 1 Nearly Complete  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
 ---
 
-## 🎯 **Current Development Status**
+##  **Current Development Status**
 
-| Phase | Status | Progress | Completed |
-|-------|--------|----------|-----------|
-| **Phase 1: Foundation & Infrastructure** | 🏗️ **Nearly Complete** | 4/6 sections | Issues #1, #2, #3, #4 ✅ |
-| Phase 2: Exchange Integration | ⏳ Not Started | 0/4 sections | - |
-| Phase 3: AI Trading Engine | ⏳ Not Started | 0/5 sections | - |
-| Phase 4: Desktop UI | ⏳ Not Started | 0/5 sections | - |
-| Phase 5: Windows Service | ⏳ Not Started | 0/3 sections | - |
-| Phase 6: Testing & Polish | ⏳ Not Started | 0/4 sections | - |
+| Phase | Duration | Status | Progress | Key Deliverables |
+|-------|----------|--------|----------|------------------|
+| **Phase 1: Foundation & Infrastructure** | 2 weeks |  **4/6 complete** | Issues #1, #2, #3, #4  | Gradle, Database, REST API, Logging |
+| **Phase 2: Exchange Integration** | 3 weeks |  Not Started | 0/4 sections | Binance & Bitget connectors |
+| **Phase 3: AI Trading Engine** | 3 weeks |  Not Started | 0/5 sections | 3 AI traders with pattern storage |
+| **Phase 4: Desktop UI** | 3 weeks |  Not Started | 0/5 sections | Complete JavaFX application |
+| **Phase 5: Windows Service** | 2 weeks |  Not Started | 0/3 sections | Windows Service wrapper |
+| **Phase 6: Testing & Polish** | 2 weeks |  Not Started | 0/4 sections | Testing, docs, release |
 
-**Overall Progress**: **4 GitHub Issues completed, ~67% of Phase 1 done**
+**Total Project**: 15 weeks estimated  27 major sections  ~50-80 GitHub issues
 
-**Last Milestone**: ✅ **Issue #4** - Logging Infrastructure (Oct 28, 2025)
+**Overall Progress**: **4 GitHub Issues completed (~67% of Phase 1)**
 
-**Next Up**: 🔜 **Phase 1 Remaining**: Core Data Models & Configuration Management
+**Last Milestone**:  **Issue #4** - Logging Infrastructure (Oct 28, 2025)
 
----
+**Next Up**:  **Issue #5** - Core Data Models, then **Issue #6** - Configuration Management
 
-## 📊 **Project Structure Clarification**
+###  **Phase 1 Breakdown** (4/6 sections complete)
 
-### What are the "79 issues"?
-
-The original "79 issues" was an **estimate** of the total number of GitHub issues we might create across the entire project. However, **not every task will become a GitHub issue**. The actual structure is:
-
-**6 Phases → 27 Major Sections → Multiple Tasks per Section**
-
-### Phase 1 Breakdown (Foundation & Infrastructure)
-
-| Section | Type | Status | Details |
-|---------|------|--------|---------|
-| 5.1 Project Setup |  **Issue #1** | Complete | Gradle multi-module, CI/CD, structure |
-| 5.2 Core Data Models |  **Issue #5** | **TO DO** | Data classes, enums, validation |
-| 5.3 Database Setup |  **Issue #2** | Complete | Exposed ORM, migrations, repositories |
-| 5.4 Configuration Mgmt |  **Issue #6** | **TO DO** | Config files, env variables, validation |
-| 5.5 Logging Setup |  **Issue #4** | Complete | SLF4J, Logback, MDC, metrics |
-| 5.6 REST API Server |  **Issue #3** | Complete | Ktor, 34 endpoints, WebSocket |
-
-**Phase 1 Status**: 4/6 sections complete (2 sections remaining)
-
-### What's Next?
-
-**Option 1: Complete Phase 1** (Recommended)
-- Implement section 5.2: Core Data Models
-- Implement section 5.4: Configuration Management
-- Then move to Phase 2: Exchange Integration
-
-**Option 2: Jump to Phase 2**
-- Start Exchange Integration now
-- Come back to 5.2 and 5.4 as needed
-
-**Recommendation**: Complete Phase 1 first for a solid foundation.
-
-### All Phases Overview
-
-| Phase | Duration | Sections | Status | Key Deliverables |
-|-------|----------|----------|--------|------------------|
-| **Phase 1** | 2 weeks | 6 sections | 🏗️ **4/6 complete** | Foundation, DB, API, Logging ✅ |
-| **Phase 2** | 3 weeks | 4 sections | ⏳ Not Started | Exchange connectors (Binance, Bitget) |
-| **Phase 3** | 3 weeks | 5 sections | ⏳ Not Started | AI Trading Engine, 3 traders |
-| **Phase 4** | 3 weeks | 5 sections | ⏳ Not Started | Desktop UI (JavaFX) |
-| **Phase 5** | 2 weeks | 3 sections | ⏳ Not Started | Windows Service wrapper |
-| **Phase 6** | 2 weeks | 4 sections | ⏳ Not Started | Testing, docs, release |
-
-**Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues (estimated)
+| Section | Issue | Status | Description |
+|---------|-------|--------|-------------|
+| 5.1 Project Setup |  **#1** | Complete | Gradle multi-module, CI/CD, structure |
+| 5.2 Core Data Models |  **#5** | **TO DO** | Data classes, enums, validation |
+| 5.3 Database Setup |  **#2** | Complete | Exposed ORM, migrations, repositories |
+| 5.4 Configuration Mgmt |  **#6** | **TO DO** | Config files, env variables, validation |
+| 5.5 Logging Setup |  **#4** | Complete | SLF4J, Logback, MDC, metrics |
+| 5.6 REST API Server |  **#3** | Complete | Ktor, 34 endpoints, WebSocket |
 
 ---
-
-## 📌 **Document Control**
+## ðŸ“Œ **Document Control**
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
@@ -89,35 +52,35 @@ The original "79 issues" was an **estimate** of the total number of GitHub issue
 | **2.6** | **Oct 28, 2025** | **Issue renumbering: Phase 1 now starts with Issue #1 (all issues renumbered -1)** | **AI Assistant** |
 
 **Changes from v2.5:**
-- ✅ Issue renumbering: All issues renumbered to start from #1 (was starting from #2)
-- ✅ File renames: Issue_02→Issue_01, Issue_03→Issue_02, Issue_04→Issue_03, Issue_05→Issue_04
-- ✅ Created Issue_05_Core_Data_Models.md with complete specification
-- ✅ Updated all cross-references and dependencies throughout documentation
-- ✅ All issue documentation files now correctly numbered and aligned
+- âœ… Issue renumbering: All issues renumbered to start from #1 (was starting from #2)
+- âœ… File renames: Issue_02â†’Issue_01, Issue_03â†’Issue_02, Issue_04â†’Issue_03, Issue_05â†’Issue_04
+- âœ… Created Issue_05_Core_Data_Models.md with complete specification
+- âœ… Updated all cross-references and dependencies throughout documentation
+- âœ… All issue documentation files now correctly numbered and aligned
 
 **Changes from v2.4:**
-- ✅ Issue #4 completed: Comprehensive logging infrastructure with SLF4J + Logback (was #5)
-- ✅ Project reorganization: Development_Handbook/ and Artifacts/ folders created
-- ✅ Progress tracking updated: 4/6 sections of Phase 1 complete (~67%)
-- ✅ Clarified phase structure: 6 phases with 27 total sections (not 79 "issues")
-- ✅ Updated "Next Up" to show remaining Phase 1 work
+- âœ… Issue #4 completed: Comprehensive logging infrastructure with SLF4J + Logback (was #5)
+- âœ… Project reorganization: Development_Handbook/ and Artifacts/ folders created
+- âœ… Progress tracking updated: 4/6 sections of Phase 1 complete (~67%)
+- âœ… Clarified phase structure: 6 phases with 27 total sections (not 79 "issues")
+- âœ… Updated "Next Up" to show remaining Phase 1 work
 
 **Changes from v2.2:**
-- ✅ Issue #4 completed: REST API Server with Ktor framework (was Issue #3)
-- ✅ 34 REST API endpoints (AI Traders, Trades, Patterns, Configurations, Health)
-- ✅ Complete DTO layer with kotlinx.serialization
-- ✅ Entity-to-DTO mappers
-- ✅ Error handling and validation
-- ✅ CORS and request logging configured
-- ✅ Project builds successfully
+- âœ… Issue #4 completed: REST API Server with Ktor framework (was Issue #3)
+- âœ… 34 REST API endpoints (AI Traders, Trades, Patterns, Configurations, Health)
+- âœ… Complete DTO layer with kotlinx.serialization
+- âœ… Entity-to-DTO mappers
+- âœ… Error handling and validation
+- âœ… CORS and request logging configured
+- âœ… Project builds successfully
 
 **Changes from v1.0:**
-- ✅ Client-server architecture instead of monolithic
-- ✅ Maximum 3 AI traders (not unlimited)
-- ✅ Demo-only for v1.0 (real money deferred)
-- ✅ Simple pattern storage (no ML)
-- ✅ Desktop-only for v1.0 (mobile deferred)
-- ✅ Updated timeline: 16-18 weeks (simplified scope)
+- âœ… Client-server architecture instead of monolithic
+- âœ… Maximum 3 AI traders (not unlimited)
+- âœ… Demo-only for v1.0 (real money deferred)
+- âœ… Simple pattern storage (no ML)
+- âœ… Desktop-only for v1.0 (mobile deferred)
+- âœ… Updated timeline: 16-18 weeks (simplified scope)
 
 ---
 
@@ -130,22 +93,22 @@ The FMPS AutoTrader Application is an **on-premises desktop application** for Wi
 ### 1.2 Key Features (v1.0 Scope)
 
 **Core Capabilities:**
-- ✅ **Client-Server Architecture**: Core runs as Windows service (24/7)
-- ✅ **Desktop UI**: Windows application connecting to Core via REST API
-- ✅ **3 AI Trader Instances**: Up to 3 concurrent AI traders
-- ✅ **Multi-Exchange Support**: Binance and Bitget connectors
-- ✅ **Demo Trading Only**: Virtual money simulation (no real money)
-- ✅ **Technical Analysis**: RSI, MACD, SMA, EMA indicators
-- ✅ **Pattern Storage**: SQLite database for successful patterns
-- ✅ **Real-Time Monitoring**: Live market data and position tracking
-- ✅ **Risk Management**: Stop-loss, leverage limits, budget controls
+- âœ… **Client-Server Architecture**: Core runs as Windows service (24/7)
+- âœ… **Desktop UI**: Windows application connecting to Core via REST API
+- âœ… **3 AI Trader Instances**: Up to 3 concurrent AI traders
+- âœ… **Multi-Exchange Support**: Binance and Bitget connectors
+- âœ… **Demo Trading Only**: Virtual money simulation (no real money)
+- âœ… **Technical Analysis**: RSI, MACD, SMA, EMA indicators
+- âœ… **Pattern Storage**: SQLite database for successful patterns
+- âœ… **Real-Time Monitoring**: Live market data and position tracking
+- âœ… **Risk Management**: Stop-loss, leverage limits, budget controls
 
 **Explicitly Deferred to v1.1+:**
-- ⏳ Real money trading
-- ⏳ Mobile/tablet applications
-- ⏳ More than 3 AI traders
-- ⏳ Machine learning capabilities
-- ⏳ Advanced rule-based systems
+- â³ Real money trading
+- â³ Mobile/tablet applications
+- â³ More than 3 AI traders
+- â³ Machine learning capabilities
+- â³ Advanced rule-based systems
 
 ### 1.3 Target Platform
 
@@ -162,66 +125,66 @@ The FMPS AutoTrader Application is an **on-premises desktop application** for Wi
 ### 2.1 System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    DESKTOP UI APPLICATION                        │
-│                      (JavaFX Client)                             │
-│                                                                   │
-│  ┌────────────┐  ┌──────────────┐  ┌──────────────────┐        │
-│  │ Dashboard  │  │  AI Trader   │  │   Configuration  │        │
-│  │   View     │  │  Management  │  │      View        │        │
-│  └────────────┘  └──────────────┘  └──────────────────┘        │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    DESKTOP UI APPLICATION                        â”‚
+â”‚                      (JavaFX Client)                             â”‚
+â”‚                                                                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”‚
+â”‚  â”‚ Dashboard  â”‚  â”‚  AI Trader   â”‚  â”‚   Configuration  â”‚        â”‚
+â”‚  â”‚   View     â”‚  â”‚  Management  â”‚  â”‚      View        â”‚        â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                           â”‚
                     REST API + WebSocket
-                           │
-┌──────────────────────────┴──────────────────────────────────────┐
-│              CORE APPLICATION (Windows Service)                  │
-│                    Runs 24/7 in background                       │
-│                                                                   │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │                    REST API Server                         │  │
-│  │              (Ktor Server + WebSocket)                     │  │
-│  └───────────────────────────┬───────────────────────────────┘  │
-│                              │                                   │
-│  ┌───────────────────────────┴───────────────────────────────┐  │
-│  │              AI Trader Manager                             │  │
-│  │         (Manages up to 3 AI Trader instances)              │  │
-│  └───────────────────────────┬───────────────────────────────┘  │
-│                              │                                   │
-│  ┌──────────────┬────────────┴────────────┬──────────────────┐  │
-│  │  AI Trader 1 │      AI Trader 2        │   AI Trader 3    │  │
-│  │              │                          │                  │  │
-│  │ - Analysis   │     - Analysis           │  - Analysis      │  │
-│  │ - Trading    │     - Trading            │  - Trading       │  │
-│  │ - Monitoring │     - Monitoring         │  - Monitoring    │  │
-│  └──────────────┴─────────────────────────┴──────────────────┘  │
-│                              │                                   │
-│  ┌───────────────────────────┴───────────────────────────────┐  │
-│  │          Exchange Connector Framework                      │  │
-│  │   ┌──────────────┐           ┌──────────────┐             │  │
-│  │   │   Binance    │           │    Bitget    │             │  │
-│  │   │  Connector   │           │  Connector   │             │  │
-│  │   │ (Demo API)   │           │ (Demo API)   │             │  │
-│  │   └──────────────┘           └──────────────┘             │  │
-│  └───────────────────────────┬───────────────────────────────┘  │
-│                              │                                   │
-│  ┌───────────────────────────┴───────────────────────────────┐  │
-│  │              Pattern Storage Database                      │  │
-│  │                  (SQLite)                                  │  │
-│  │  - Trade history                                           │  │
-│  │  - Successful patterns                                     │  │
-│  │  - Performance metrics                                     │  │
-│  └────────────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────────┘
-                              │
-           ┌──────────────────┴──────────────────┐
-           │                                     │
+                           â”‚
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              CORE APPLICATION (Windows Service)                  â”‚
+â”‚                    Runs 24/7 in background                       â”‚
+â”‚                                                                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚                    REST API Server                         â”‚  â”‚
+â”‚  â”‚              (Ktor Server + WebSocket)                     â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                              â”‚                                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚              AI Trader Manager                             â”‚  â”‚
+â”‚  â”‚         (Manages up to 3 AI Trader instances)              â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                              â”‚                                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚  AI Trader 1 â”‚      AI Trader 2        â”‚   AI Trader 3    â”‚  â”‚
+â”‚  â”‚              â”‚                          â”‚                  â”‚  â”‚
+â”‚  â”‚ - Analysis   â”‚     - Analysis           â”‚  - Analysis      â”‚  â”‚
+â”‚  â”‚ - Trading    â”‚     - Trading            â”‚  - Trading       â”‚  â”‚
+â”‚  â”‚ - Monitoring â”‚     - Monitoring         â”‚  - Monitoring    â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                              â”‚                                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚          Exchange Connector Framework                      â”‚  â”‚
+â”‚  â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”           â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”             â”‚  â”‚
+â”‚  â”‚   â”‚   Binance    â”‚           â”‚    Bitget    â”‚             â”‚  â”‚
+â”‚  â”‚   â”‚  Connector   â”‚           â”‚  Connector   â”‚             â”‚  â”‚
+â”‚  â”‚   â”‚ (Demo API)   â”‚           â”‚ (Demo API)   â”‚             â”‚  â”‚
+â”‚  â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜           â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜             â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                              â”‚                                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚              Pattern Storage Database                      â”‚  â”‚
+â”‚  â”‚                  (SQLite)                                  â”‚  â”‚
+â”‚  â”‚  - Trade history                                           â”‚  â”‚
+â”‚  â”‚  - Successful patterns                                     â”‚  â”‚
+â”‚  â”‚  - Performance metrics                                     â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                              â”‚
+           â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+           â”‚                                     â”‚
     [Binance Testnet]                    [Bitget Testnet]
 ```
 
 ### 2.2 Communication
 
-**UI ↔ Core Communication:**
+**UI â†” Core Communication:**
 - **REST API**: Commands and queries (Ktor Server)
 - **WebSocket**: Real-time updates (prices, positions, status)
 - **Port**: 8080 (HTTP), 8081 (WebSocket)
@@ -369,12 +332,12 @@ dependencies {
 
 ## 5. PHASE 1: Foundation & Infrastructure (Weeks 1-2)
 
-**Status**: 🏗️ **In Progress** (Started: Oct 23, 2025)
+**Status**: ðŸ—ï¸ **In Progress** (Started: Oct 23, 2025)
 
-### 5.1 Project Setup ✅ **COMPLETE**
+### 5.1 Project Setup âœ… **COMPLETE**
 
 **Issue**: #2 - Set up Gradle multi-module project structure  
-**Status**: ✅ **Completed** (Oct 23, 2025)  
+**Status**: âœ… **Completed** (Oct 23, 2025)  
 **Commit**: `906c2c3` - feat(core): set up Gradle multi-module project structure  
 **Documentation**: `Issue_01_Gradle_MultiModule_Setup.md`
 
@@ -391,18 +354,18 @@ dependencies {
 - [x] ~~Create placeholder Main.kt files~~
 - [x] ~~Configure integration test source sets~~
 
-**Deliverable**: ✅ Clean project structure with all modules - **BUILD SUCCESSFUL**
+**Deliverable**: âœ… Clean project structure with all modules - **BUILD SUCCESSFUL**
 
 **What was accomplished:**
-- ✅ Root `build.gradle.kts` with Kotlin 1.9.21
-- ✅ `settings.gradle.kts` declaring 3 modules
-- ✅ Shared module with Kotlinx serialization
-- ✅ Core-service with Ktor 2.3.7, Exposed ORM, SQLite
-- ✅ Desktop-ui with JavaFX 21, TornadoFX
-- ✅ Gradle wrapper 8.5 (Windows + Linux)
-- ✅ GitHub Actions CI/CD working
-- ✅ Helper scripts (`build.ps1`, `test.ps1`)
-- ✅ Development environment setup script
+- âœ… Root `build.gradle.kts` with Kotlin 1.9.21
+- âœ… `settings.gradle.kts` declaring 3 modules
+- âœ… Shared module with Kotlinx serialization
+- âœ… Core-service with Ktor 2.3.7, Exposed ORM, SQLite
+- âœ… Desktop-ui with JavaFX 21, TornadoFX
+- âœ… Gradle wrapper 8.5 (Windows + Linux)
+- âœ… GitHub Actions CI/CD working
+- âœ… Helper scripts (`build.ps1`, `test.ps1`)
+- âœ… Development environment setup script
 
 ### 5.2 Core Data Models
 
@@ -423,10 +386,10 @@ dependencies {
 
 **Deliverable**: Complete data model library
 
-### 5.3 Database Setup ✅ **COMPLETE**
+### 5.3 Database Setup âœ… **COMPLETE**
 
 **Issue**: #3 - Configure database layer with Exposed ORM  
-**Status**: ✅ **Completed** (Oct 24, 2025)  
+**Status**: âœ… **Completed** (Oct 24, 2025)  
 **Commit**: `df6e2dd` - feat: Implement database layer with Exposed ORM, migrations, and repositories  
 **Documentation**: `Issue_02_Database_Layer.md`
 
@@ -447,7 +410,7 @@ dependencies {
 - [x] ~~Add connection pooling (HikariCP)~~
 - [x] ~~Write database tests (24 tests passing)~~
 
-**Deliverable**: ✅ Working database layer with comprehensive tests
+**Deliverable**: âœ… Working database layer with comprehensive tests
 
 ### 5.4 Configuration Management
 
@@ -464,10 +427,10 @@ dependencies {
 
 **Deliverable**: Configuration system ready
 
-### 5.5 Logging Setup ✅ **COMPLETE**
+### 5.5 Logging Setup âœ… **COMPLETE**
 
 **Issue**: #5 - Implement logging infrastructure  
-**Status**: ✅ **Completed** (Oct 28, 2025)  
+**Status**: âœ… **Completed** (Oct 28, 2025)  
 **Commit**: `8a3234b` - feat: Issue #5 - Implement Logging Infrastructure  
 **Documentation**: `Issue_04_Logging_Infrastructure.md`
 
@@ -481,12 +444,12 @@ dependencies {
 - [x] ~~Add MDC for request tracing~~
 - [x] ~~Create comprehensive LOGGING_GUIDE.md (543 lines)~~
 
-**Deliverable**: ✅ Logging infrastructure operational with 4 environment configs
+**Deliverable**: âœ… Logging infrastructure operational with 4 environment configs
 
-### 5.6 REST API Server ✅ **COMPLETE**
+### 5.6 REST API Server âœ… **COMPLETE**
 
 **Issue**: #4 - Set up REST API server with Ktor  
-**Status**: ✅ **Completed** (Oct 24, 2025)  
+**Status**: âœ… **Completed** (Oct 24, 2025)  
 **Commits**: `ec0a49a`, `1aec787` - feat: Implement REST API server with Ktor + WebSocket support  
 **Documentation**: `Issue_03_REST_API_Server.md`
 
@@ -506,7 +469,7 @@ dependencies {
 - [x] ~~Integration with Main.kt~~
 - [x] ~~39 tests passing~~
 
-**Deliverable**: ✅ Complete REST API with 34 endpoints + WebSocket
+**Deliverable**: âœ… Complete REST API with 34 endpoints + WebSocket
 
 ---
 
@@ -823,9 +786,9 @@ dependencies {
 
 **Tasks:**
 - [ ] End-to-end workflow testing
-  - [ ] Create AI Trader → Start → Execute trades → Monitor → Stop
-- [ ] Test Core Service ↔ UI communication
-- [ ] Test Core Service ↔ Exchange communication
+  - [ ] Create AI Trader â†’ Start â†’ Execute trades â†’ Monitor â†’ Stop
+- [ ] Test Core Service â†” UI communication
+- [ ] Test Core Service â†” Exchange communication
 - [ ] Test multi-trader scenarios (3 concurrent)
 - [ ] Test error scenarios and recovery
 - [ ] Test state persistence and recovery
@@ -895,93 +858,93 @@ dependencies {
 
 ```
 FMPS_AutoTraderApplication/
-├── 03_Development/
-│   └── Application_OnPremises/
-│       ├── build.gradle.kts              # Root build file
-│       ├── settings.gradle.kts            # Module configuration
-│       │
-│       ├── shared/                        # Shared module
-│       │   └── src/main/kotlin/
-│       │       └── com/fmps/autotrader/shared/
-│       │           ├── models/            # Data models
-│       │           │   ├── AITrader.kt
-│       │           │   ├── Position.kt
-│       │           │   ├── Order.kt
-│       │           │   ├── Candlestick.kt
-│       │           │   ├── TradeSignal.kt
-│       │           │   └── TradePattern.kt
-│       │           ├── enums/             # Enumerations
-│       │           │   ├── TradeAction.kt
-│       │           │   ├── PositionSide.kt
-│       │           │   └── OrderType.kt
-│       │           └── utils/             # Shared utilities
-│       │               ├── DateTimeUtils.kt
-│       │               └── CryptoUtils.kt
-│       │
-│       ├── core-service/                  # Core Service module
-│       │   └── src/main/kotlin/
-│       │       └── com/fmps/autotrader/core/
-│       │           ├── CoreApplication.kt # Main entry point
-│       │           ├── api/               # REST API
-│       │           │   ├── routes/
-│       │           │   │   ├── TraderRoutes.kt
-│       │           │   │   ├── PositionRoutes.kt
-│       │           │   │   └── ConfigRoutes.kt
-│       │           │   └── websocket/
-│       │           │       └── WebSocketHandler.kt
-│       │           ├── traders/           # AI Trading
-│       │           │   ├── AITrader.kt
-│       │           │   ├── AITraderManager.kt
-│       │           │   ├── PositionManager.kt
-│       │           │   ├── RiskManager.kt
-│       │           │   └── strategies/
-│       │           │       ├── TrendFollowingStrategy.kt
-│       │           │       ├── MeanReversionStrategy.kt
-│       │           │       └── BreakoutStrategy.kt
-│       │           ├── connectors/        # Exchange connectors
-│       │           │   ├── IExchangeConnector.kt
-│       │           │   ├── ConnectorFactory.kt
-│       │           │   ├── BinanceConnector.kt
-│       │           │   └── BitgetConnector.kt
-│       │           ├── indicators/        # Technical indicators
-│       │           │   ├── TechnicalIndicators.kt
-│       │           │   ├── RSI.kt
-│       │           │   ├── MACD.kt
-│       │           │   └── SMA.kt
-│       │           ├── patterns/          # Pattern storage
-│       │           │   ├── PatternService.kt
-│       │           │   └── PatternMatcher.kt
-│       │           ├── database/          # Database layer
-│       │           │   ├── DatabaseManager.kt
-│       │           │   └── repositories/
-│       │           │       ├── AITraderRepository.kt
-│       │           │       ├── TradeHistoryRepository.kt
-│       │           │       └── PatternRepository.kt
-│       │           └── config/            # Configuration
-│       │               └── ConfigManager.kt
-│       │
-│       └── desktop-ui/                    # Desktop UI module
-│           └── src/main/kotlin/
-│               └── com/fmps/autotrader/ui/
-│                   ├── DesktopApplication.kt # UI entry point
-│                   ├── views/              # Views
-│                   │   ├── MainView.kt
-│                   │   ├── DashboardView.kt
-│                   │   ├── TraderManagementView.kt
-│                   │   ├── TradingMonitorView.kt
-│                   │   ├── ConfigurationView.kt
-│                   │   └── PatternAnalyticsView.kt
-│                   ├── viewmodels/         # View Models
-│                   │   ├── DashboardViewModel.kt
-│                   │   ├── TraderViewModel.kt
-│                   │   └── MonitoringViewModel.kt
-│                   ├── components/         # Reusable components
-│                   │   ├── ChartComponent.kt
-│                   │   ├── TraderCard.kt
-│                   │   └── StatusIndicator.kt
-│                   └── services/           # UI services
-│                       ├── ApiClient.kt
-│                       └── WebSocketClient.kt
+â”œâ”€â”€ 03_Development/
+â”‚   â””â”€â”€ Application_OnPremises/
+â”‚       â”œâ”€â”€ build.gradle.kts              # Root build file
+â”‚       â”œâ”€â”€ settings.gradle.kts            # Module configuration
+â”‚       â”‚
+â”‚       â”œâ”€â”€ shared/                        # Shared module
+â”‚       â”‚   â””â”€â”€ src/main/kotlin/
+â”‚       â”‚       â””â”€â”€ com/fmps/autotrader/shared/
+â”‚       â”‚           â”œâ”€â”€ models/            # Data models
+â”‚       â”‚           â”‚   â”œâ”€â”€ AITrader.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ Position.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ Order.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ Candlestick.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ TradeSignal.kt
+â”‚       â”‚           â”‚   â””â”€â”€ TradePattern.kt
+â”‚       â”‚           â”œâ”€â”€ enums/             # Enumerations
+â”‚       â”‚           â”‚   â”œâ”€â”€ TradeAction.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ PositionSide.kt
+â”‚       â”‚           â”‚   â””â”€â”€ OrderType.kt
+â”‚       â”‚           â””â”€â”€ utils/             # Shared utilities
+â”‚       â”‚               â”œâ”€â”€ DateTimeUtils.kt
+â”‚       â”‚               â””â”€â”€ CryptoUtils.kt
+â”‚       â”‚
+â”‚       â”œâ”€â”€ core-service/                  # Core Service module
+â”‚       â”‚   â””â”€â”€ src/main/kotlin/
+â”‚       â”‚       â””â”€â”€ com/fmps/autotrader/core/
+â”‚       â”‚           â”œâ”€â”€ CoreApplication.kt # Main entry point
+â”‚       â”‚           â”œâ”€â”€ api/               # REST API
+â”‚       â”‚           â”‚   â”œâ”€â”€ routes/
+â”‚       â”‚           â”‚   â”‚   â”œâ”€â”€ TraderRoutes.kt
+â”‚       â”‚           â”‚   â”‚   â”œâ”€â”€ PositionRoutes.kt
+â”‚       â”‚           â”‚   â”‚   â””â”€â”€ ConfigRoutes.kt
+â”‚       â”‚           â”‚   â””â”€â”€ websocket/
+â”‚       â”‚           â”‚       â””â”€â”€ WebSocketHandler.kt
+â”‚       â”‚           â”œâ”€â”€ traders/           # AI Trading
+â”‚       â”‚           â”‚   â”œâ”€â”€ AITrader.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ AITraderManager.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ PositionManager.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ RiskManager.kt
+â”‚       â”‚           â”‚   â””â”€â”€ strategies/
+â”‚       â”‚           â”‚       â”œâ”€â”€ TrendFollowingStrategy.kt
+â”‚       â”‚           â”‚       â”œâ”€â”€ MeanReversionStrategy.kt
+â”‚       â”‚           â”‚       â””â”€â”€ BreakoutStrategy.kt
+â”‚       â”‚           â”œâ”€â”€ connectors/        # Exchange connectors
+â”‚       â”‚           â”‚   â”œâ”€â”€ IExchangeConnector.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ ConnectorFactory.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ BinanceConnector.kt
+â”‚       â”‚           â”‚   â””â”€â”€ BitgetConnector.kt
+â”‚       â”‚           â”œâ”€â”€ indicators/        # Technical indicators
+â”‚       â”‚           â”‚   â”œâ”€â”€ TechnicalIndicators.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ RSI.kt
+â”‚       â”‚           â”‚   â”œâ”€â”€ MACD.kt
+â”‚       â”‚           â”‚   â””â”€â”€ SMA.kt
+â”‚       â”‚           â”œâ”€â”€ patterns/          # Pattern storage
+â”‚       â”‚           â”‚   â”œâ”€â”€ PatternService.kt
+â”‚       â”‚           â”‚   â””â”€â”€ PatternMatcher.kt
+â”‚       â”‚           â”œâ”€â”€ database/          # Database layer
+â”‚       â”‚           â”‚   â”œâ”€â”€ DatabaseManager.kt
+â”‚       â”‚           â”‚   â””â”€â”€ repositories/
+â”‚       â”‚           â”‚       â”œâ”€â”€ AITraderRepository.kt
+â”‚       â”‚           â”‚       â”œâ”€â”€ TradeHistoryRepository.kt
+â”‚       â”‚           â”‚       â””â”€â”€ PatternRepository.kt
+â”‚       â”‚           â””â”€â”€ config/            # Configuration
+â”‚       â”‚               â””â”€â”€ ConfigManager.kt
+â”‚       â”‚
+â”‚       â””â”€â”€ desktop-ui/                    # Desktop UI module
+â”‚           â””â”€â”€ src/main/kotlin/
+â”‚               â””â”€â”€ com/fmps/autotrader/ui/
+â”‚                   â”œâ”€â”€ DesktopApplication.kt # UI entry point
+â”‚                   â”œâ”€â”€ views/              # Views
+â”‚                   â”‚   â”œâ”€â”€ MainView.kt
+â”‚                   â”‚   â”œâ”€â”€ DashboardView.kt
+â”‚                   â”‚   â”œâ”€â”€ TraderManagementView.kt
+â”‚                   â”‚   â”œâ”€â”€ TradingMonitorView.kt
+â”‚                   â”‚   â”œâ”€â”€ ConfigurationView.kt
+â”‚                   â”‚   â””â”€â”€ PatternAnalyticsView.kt
+â”‚                   â”œâ”€â”€ viewmodels/         # View Models
+â”‚                   â”‚   â”œâ”€â”€ DashboardViewModel.kt
+â”‚                   â”‚   â”œâ”€â”€ TraderViewModel.kt
+â”‚                   â”‚   â””â”€â”€ MonitoringViewModel.kt
+â”‚                   â”œâ”€â”€ components/         # Reusable components
+â”‚                   â”‚   â”œâ”€â”€ ChartComponent.kt
+â”‚                   â”‚   â”œâ”€â”€ TraderCard.kt
+â”‚                   â”‚   â””â”€â”€ StatusIndicator.kt
+â”‚                   â””â”€â”€ services/           # UI services
+â”‚                       â”œâ”€â”€ ApiClient.kt
+â”‚                       â””â”€â”€ WebSocketClient.kt
 ```
 
 ---
@@ -1106,59 +1069,59 @@ FMPS_AutoTraderApplication/
 **Directory Organization:**
 ```
 Application_OnPremises/
-├── shared/
-│   └── src/test/kotlin/
-│       └── com/fmps/autotrader/shared/
-│           ├── models/           # Model validation tests
-│           └── utils/            # Utility function tests
-│
-├── core-service/
-│   └── src/test/kotlin/
-│       └── com/fmps/autotrader/core/
-│           ├── api/              # API endpoint tests
-│           │   ├── TraderRoutesTest.kt
-│           │   ├── PositionRoutesTest.kt
-│           │   └── WebSocketTest.kt
-│           ├── traders/          # Trading logic tests
-│           │   ├── AITraderTest.kt
-│           │   ├── AITraderManagerTest.kt
-│           │   ├── PositionManagerTest.kt
-│           │   ├── RiskManagerTest.kt
-│           │   └── strategies/
-│           │       ├── TrendFollowingStrategyTest.kt
-│           │       ├── MeanReversionStrategyTest.kt
-│           │       └── BreakoutStrategyTest.kt
-│           ├── connectors/       # Exchange connector tests
-│           │   ├── BinanceConnectorTest.kt
-│           │   ├── BitgetConnectorTest.kt
-│           │   └── integration/  # Integration tests
-│           │       ├── BinanceIntegrationTest.kt
-│           │       └── BitgetIntegrationTest.kt
-│           ├── indicators/       # Technical indicator tests
-│           │   ├── RSITest.kt
-│           │   ├── MACDTest.kt
-│           │   └── SMATest.kt
-│           ├── patterns/         # Pattern storage tests
-│           │   ├── PatternServiceTest.kt
-│           │   └── PatternMatcherTest.kt
-│           └── database/         # Database tests
-│               └── repositories/
-│                   ├── AITraderRepositoryTest.kt
-│                   ├── TradeHistoryRepositoryTest.kt
-│                   └── PatternRepositoryTest.kt
-│
-└── desktop-ui/
-    └── src/test/kotlin/
-        └── com/fmps/autotrader/ui/
-            ├── viewmodels/       # ViewModel tests
-            │   ├── DashboardViewModelTest.kt
-            │   └── TraderViewModelTest.kt
-            ├── services/         # Service tests
-            │   ├── ApiClientTest.kt
-            │   └── WebSocketClientTest.kt
-            └── e2e/              # End-to-end tests
-                ├── TraderCreationE2ETest.kt
-                └── TradingWorkflowE2ETest.kt
+â”œâ”€â”€ shared/
+â”‚   â””â”€â”€ src/test/kotlin/
+â”‚       â””â”€â”€ com/fmps/autotrader/shared/
+â”‚           â”œâ”€â”€ models/           # Model validation tests
+â”‚           â””â”€â”€ utils/            # Utility function tests
+â”‚
+â”œâ”€â”€ core-service/
+â”‚   â””â”€â”€ src/test/kotlin/
+â”‚       â””â”€â”€ com/fmps/autotrader/core/
+â”‚           â”œâ”€â”€ api/              # API endpoint tests
+â”‚           â”‚   â”œâ”€â”€ TraderRoutesTest.kt
+â”‚           â”‚   â”œâ”€â”€ PositionRoutesTest.kt
+â”‚           â”‚   â””â”€â”€ WebSocketTest.kt
+â”‚           â”œâ”€â”€ traders/          # Trading logic tests
+â”‚           â”‚   â”œâ”€â”€ AITraderTest.kt
+â”‚           â”‚   â”œâ”€â”€ AITraderManagerTest.kt
+â”‚           â”‚   â”œâ”€â”€ PositionManagerTest.kt
+â”‚           â”‚   â”œâ”€â”€ RiskManagerTest.kt
+â”‚           â”‚   â””â”€â”€ strategies/
+â”‚           â”‚       â”œâ”€â”€ TrendFollowingStrategyTest.kt
+â”‚           â”‚       â”œâ”€â”€ MeanReversionStrategyTest.kt
+â”‚           â”‚       â””â”€â”€ BreakoutStrategyTest.kt
+â”‚           â”œâ”€â”€ connectors/       # Exchange connector tests
+â”‚           â”‚   â”œâ”€â”€ BinanceConnectorTest.kt
+â”‚           â”‚   â”œâ”€â”€ BitgetConnectorTest.kt
+â”‚           â”‚   â””â”€â”€ integration/  # Integration tests
+â”‚           â”‚       â”œâ”€â”€ BinanceIntegrationTest.kt
+â”‚           â”‚       â””â”€â”€ BitgetIntegrationTest.kt
+â”‚           â”œâ”€â”€ indicators/       # Technical indicator tests
+â”‚           â”‚   â”œâ”€â”€ RSITest.kt
+â”‚           â”‚   â”œâ”€â”€ MACDTest.kt
+â”‚           â”‚   â””â”€â”€ SMATest.kt
+â”‚           â”œâ”€â”€ patterns/         # Pattern storage tests
+â”‚           â”‚   â”œâ”€â”€ PatternServiceTest.kt
+â”‚           â”‚   â””â”€â”€ PatternMatcherTest.kt
+â”‚           â””â”€â”€ database/         # Database tests
+â”‚               â””â”€â”€ repositories/
+â”‚                   â”œâ”€â”€ AITraderRepositoryTest.kt
+â”‚                   â”œâ”€â”€ TradeHistoryRepositoryTest.kt
+â”‚                   â””â”€â”€ PatternRepositoryTest.kt
+â”‚
+â””â”€â”€ desktop-ui/
+    â””â”€â”€ src/test/kotlin/
+        â””â”€â”€ com/fmps/autotrader/ui/
+            â”œâ”€â”€ viewmodels/       # ViewModel tests
+            â”‚   â”œâ”€â”€ DashboardViewModelTest.kt
+            â”‚   â””â”€â”€ TraderViewModelTest.kt
+            â”œâ”€â”€ services/         # Service tests
+            â”‚   â”œâ”€â”€ ApiClientTest.kt
+            â”‚   â””â”€â”€ WebSocketClientTest.kt
+            â””â”€â”€ e2e/              # End-to-end tests
+                â”œâ”€â”€ TraderCreationE2ETest.kt
+                â””â”€â”€ TradingWorkflowE2ETest.kt
 ```
 
 ### 14.4 Test Coverage Requirements
@@ -1272,26 +1235,26 @@ jobs:
 ```
 
 **On Pull Request:**
-- ✅ Build all modules
-- ✅ Run all unit tests
-- ✅ Run integration tests
-- ✅ Generate coverage report
-- ✅ Enforce 80% minimum coverage
-- ✅ Code style check (ktlint)
-- ✅ Static analysis (detekt)
-- ✅ Comment results on PR
+- âœ… Build all modules
+- âœ… Run all unit tests
+- âœ… Run integration tests
+- âœ… Generate coverage report
+- âœ… Enforce 80% minimum coverage
+- âœ… Code style check (ktlint)
+- âœ… Static analysis (detekt)
+- âœ… Comment results on PR
 
 **On Merge to Develop:**
-- ✅ All PR checks
-- ✅ Additional integration tests
-- ✅ Upload coverage to Codecov
-- ✅ SonarCloud analysis
+- âœ… All PR checks
+- âœ… Additional integration tests
+- âœ… Upload coverage to Codecov
+- âœ… SonarCloud analysis
 
 **On Merge to Main:**
-- ✅ All develop checks
-- ✅ Create release candidate
-- ✅ Generate changelog
-- ✅ Tag release
+- âœ… All develop checks
+- âœ… Create release candidate
+- âœ… Generate changelog
+- âœ… Tag release
 
 ---
 
@@ -1302,24 +1265,24 @@ jobs:
 **Contents:**
 ```
 FMPSAutoTrader/
-├── bin/
-│   ├── core-service.exe          # Core service executable
-│   ├── desktop-ui.exe             # Desktop UI executable
-│   └── service-manager.exe        # Service installer
-├── lib/
-│   └── *.jar                      # All dependencies
-├── config/
-│   ├── core-service.conf          # Default Core configuration
-│   ├── exchanges.conf             # Exchange settings
-│   └── logging.xml                # Logback configuration
-├── data/                          # Created on first run
-│   └── autotrader.db              # SQLite database
-├── logs/                          # Created on first run
-│   └── application.log
-├── jre/                           # Bundled JRE 17
-├── install.bat                    # Installation script
-├── uninstall.bat                  # Uninstallation script
-└── README.txt
+â”œâ”€â”€ bin/
+â”‚   â”œâ”€â”€ core-service.exe          # Core service executable
+â”‚   â”œâ”€â”€ desktop-ui.exe             # Desktop UI executable
+â”‚   â””â”€â”€ service-manager.exe        # Service installer
+â”œâ”€â”€ lib/
+â”‚   â””â”€â”€ *.jar                      # All dependencies
+â”œâ”€â”€ config/
+â”‚   â”œâ”€â”€ core-service.conf          # Default Core configuration
+â”‚   â”œâ”€â”€ exchanges.conf             # Exchange settings
+â”‚   â””â”€â”€ logging.xml                # Logback configuration
+â”œâ”€â”€ data/                          # Created on first run
+â”‚   â””â”€â”€ autotrader.db              # SQLite database
+â”œâ”€â”€ logs/                          # Created on first run
+â”‚   â””â”€â”€ application.log
+â”œâ”€â”€ jre/                           # Bundled JRE 17
+â”œâ”€â”€ install.bat                    # Installation script
+â”œâ”€â”€ uninstall.bat                  # Uninstallation script
+â””â”€â”€ README.txt
 ```
 
 ### 15.2 Installation Process
@@ -1351,28 +1314,28 @@ FMPSAutoTrader/
 
 ### 16.1 Functional Criteria
 
-- ✅ Core Service runs as Windows service (24/7)
-- ✅ Desktop UI connects to Core Service successfully
-- ✅ User can create up to 3 AI traders
-- ✅ AI traders connect to Binance and Bitget testnets
-- ✅ AI traders execute demo trades based on technical analysis
-- ✅ Positions are tracked accurately with real-time P&L
-- ✅ Patterns are stored and retrieved correctly
-- ✅ Risk management prevents invalid trades
-- ✅ Real-time monitoring dashboard works correctly
-- ✅ System recovers gracefully from errors
+- âœ… Core Service runs as Windows service (24/7)
+- âœ… Desktop UI connects to Core Service successfully
+- âœ… User can create up to 3 AI traders
+- âœ… AI traders connect to Binance and Bitget testnets
+- âœ… AI traders execute demo trades based on technical analysis
+- âœ… Positions are tracked accurately with real-time P&L
+- âœ… Patterns are stored and retrieved correctly
+- âœ… Risk management prevents invalid trades
+- âœ… Real-time monitoring dashboard works correctly
+- âœ… System recovers gracefully from errors
 
 ### 16.2 Non-Functional Criteria
 
-- ✅ 99% uptime during operation
-- ✅ < 100ms latency for trading decisions
-- ✅ < 500ms UI response time
-- ✅ Handles 3 concurrent traders without performance degradation
-- ✅ < 500MB memory footprint per AI trader
-- ✅ 80%+ code coverage
-- ✅ Zero critical security vulnerabilities
-- ✅ Core Service startup time < 5 seconds
-- ✅ Desktop UI startup time < 10 seconds
+- âœ… 99% uptime during operation
+- âœ… < 100ms latency for trading decisions
+- âœ… < 500ms UI response time
+- âœ… Handles 3 concurrent traders without performance degradation
+- âœ… < 500MB memory footprint per AI trader
+- âœ… 80%+ code coverage
+- âœ… Zero critical security vulnerabilities
+- âœ… Core Service startup time < 5 seconds
+- âœ… Desktop UI startup time < 10 seconds
 
 ---
 
@@ -1396,23 +1359,23 @@ FMPSAutoTrader/
 ## 18. FUTURE ROADMAP (v1.1+)
 
 ### Planned for v1.1
-- ✅ Real money trading mode (with extensive safety)
-- ✅ Increase AI trader limit to 5-10
-- ✅ Advanced rule-based pattern learning
-- ✅ Additional exchanges (Kraken, Coinbase)
-- ✅ More trading strategies
+- âœ… Real money trading mode (with extensive safety)
+- âœ… Increase AI trader limit to 5-10
+- âœ… Advanced rule-based pattern learning
+- âœ… Additional exchanges (Kraken, Coinbase)
+- âœ… More trading strategies
 
 ### Planned for v1.2
-- ✅ Mobile companion app (monitoring only)
-- ✅ Telegram/Discord notifications
-- ✅ Advanced analytics and reporting
-- ✅ Portfolio management features
+- âœ… Mobile companion app (monitoring only)
+- âœ… Telegram/Discord notifications
+- âœ… Advanced analytics and reporting
+- âœ… Portfolio management features
 
 ### Planned for v2.0
-- ✅ Machine learning capabilities
-- ✅ Cloud sync option
-- ✅ Multi-user support
-- ✅ Professional trading features
+- âœ… Machine learning capabilities
+- âœ… Cloud sync option
+- âœ… Multi-user support
+- âœ… Professional trading features
 
 ---
 
@@ -1452,12 +1415,12 @@ FMPSAutoTrader/
 
 ### 20.1 Key Changes from v1.0 Plan
 
-1. **Architecture**: Monolithic → Client-Server
-2. **AI Traders**: Unlimited → Maximum 3
-3. **Trading Mode**: Both demo & real → Demo only
-4. **Knowledge DB**: Vague → Simple pattern storage
-5. **Devices**: Multi-device → Desktop only
-6. **Timeline**: 14 weeks → 16 weeks (more realistic)
+1. **Architecture**: Monolithic â†’ Client-Server
+2. **AI Traders**: Unlimited â†’ Maximum 3
+3. **Trading Mode**: Both demo & real â†’ Demo only
+4. **Knowledge DB**: Vague â†’ Simple pattern storage
+5. **Devices**: Multi-device â†’ Desktop only
+6. **Timeline**: 14 weeks â†’ 16 weeks (more realistic)
 
 ### 20.2 Glossary
 
