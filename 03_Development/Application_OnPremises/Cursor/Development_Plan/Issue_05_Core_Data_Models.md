@@ -5,7 +5,7 @@
 **Created**: October 28, 2025  
 **Started**: October 28, 2025  
 **Completed**: October 28, 2025  
-**Epic**: Foundation & Infrastructure (Phase 1)  
+**Epic**: Foundation & Infrastructure (Epic 1)  
 **Priority**: P1 (High)  
 **Dependencies**: Issue #1 (Gradle) ✅, Issue #2 (Database) ✅ 
 
@@ -29,25 +29,25 @@ Define and implement core domain models and DTOs that will be shared across the 
 
 ##  **Task Breakdown**
 
-### Phase 1: Market Data Models
+### Task 1: Market Data Models
 - [x] Create MarketData domain model
 - [x] Create Candlestick data class
 - [x] Create OrderBook data class (with PriceLevel)
 - [x] Create Ticker data class
 - [x] Add validation logic
 
-### Phase 2: Trading Models
+### Task 2: Trading Models
 - [x] Create TradingStrategy abstract class
 - [x] Create Order domain model (with OrderStatus enum)
 - [x] Create Position domain model
 - [x] Create TradingSignal data class
 
-### Phase 3: Configuration Models
+### Task 3: Configuration Models
 - [x] Create ExchangeConfig data class
 - [x] Create StrategyConfig data class
 - [x] Create RiskConfig data class
 
-### Phase 4: Enums & Core Types
+### Task 4: Enums & Core Types
 - [x] Create TradeAction enum
 - [x] Create OrderType enum
 - [x] Create TradeStatus enum
@@ -55,13 +55,13 @@ Define and implement core domain models and DTOs that will be shared across the 
 - [x] Create Exchange enum
 - [x] Create TimeFrame enum
 
-### Phase 5: Serialization & Validation
+### Task 5: Serialization & Validation
 - [x] Add @Serializable annotations
 - [x] Create InstantSerializer for java.time.Instant
 - [x] Add validation logic in init blocks
 - [x] Add business logic methods
 
-### Phase 6: Testing
+### Task 6: Testing
 - [x] Write unit tests for enums (TradeActionTest, OrderTypeTest)
 - [x] Write unit tests for models (CandlestickTest, OrderTest, PositionTest)
 - [x] Write unit tests for configs (RiskConfigTest)

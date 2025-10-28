@@ -2,31 +2,31 @@
 
 **Version**: 2.6  
 **Date**: October 28, 2025  
-**Status**: 🚀 In Development - Phase 1 Nearly Complete  
+**Status**: 🚀 In Development - Epic 1 Nearly Complete  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
 ---
 
 ## 🎯 **Current Development Status**
 
-| Phase | Duration | Status | Progress | Key Deliverables |
-|-------|----------|--------|----------|------------------|
-| **Phase 1: Foundation & Infrastructure** | 2 weeks | 🏗️ **5/6 complete** | Issues #1, #2, #3, #4, #5 ✅ | Gradle, Database, REST API, Logging, Models |
-| **Phase 2: Exchange Integration** | 3 weeks | ⏳ Not Started | 0/4 sections | Binance & Bitget connectors |
-| **Phase 3: AI Trading Engine** | 3 weeks | ⏳ Not Started | 0/5 sections | 3 AI traders with pattern storage |
-| **Phase 4: Desktop UI** | 3 weeks | ⏳ Not Started | 0/5 sections | Complete JavaFX application |
-| **Phase 5: Windows Service** | 2 weeks | ⏳ Not Started | 0/3 sections | Windows Service wrapper |
-| **Phase 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
+| Epic | Duration | Status | Progress | Key Deliverables |
+|------|----------|--------|----------|------------------|
+| **Epic 1: Foundation & Infrastructure** | 2 weeks | 🏗️ **5/6 complete** | Issues #1, #2, #3, #4, #5 ✅ | Gradle, Database, REST API, Logging, Models |
+| **Epic 2: Exchange Integration** | 3 weeks | ⏳ Not Started | 0/4 sections | Binance & Bitget connectors |
+| **Epic 3: AI Trading Engine** | 3 weeks | ⏳ Not Started | 0/5 sections | 3 AI traders with pattern storage |
+| **Epic 4: Desktop UI** | 3 weeks | ⏳ Not Started | 0/5 sections | Complete JavaFX application |
+| **Epic 5: Windows Service** | 2 weeks | ⏳ Not Started | 0/3 sections | Windows Service wrapper |
+| **Epic 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
 
 **Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues
 
-**Overall Progress**: **5 GitHub Issues completed (~83% of Phase 1)**
+**Overall Progress**: **5 GitHub Issues completed (~83% of Epic 1)**
 
 **Last Milestone**: ✅ **Issue #5** - Core Data Models (Oct 28, 2025)
 
-**Next Up**: 🔜 **Issue #6** - Configuration Management (final Phase 1 task!)
+**Next Up**: 🔜 **Issue #6** - Configuration Management (final Epic 1 task!)
 
-### 📋 **Phase 1 Breakdown** (5/6 sections complete)
+### 📋 **Epic 1 Breakdown** (5/6 sections complete)
 
 | Section | Issue | Status | Description |
 |---------|-------|--------|-------------|
@@ -50,7 +50,7 @@
 | 2.3 | Oct 24, 2025 | Issue #3 complete: REST API Server with Ktor (was #4) | AI Assistant |
 | 2.4 | Oct 24, 2025 | Issue numbering realigned with GitHub structure | AI Assistant |
 | 2.5 | Oct 28, 2025 | Issue #4 complete: Logging Infrastructure + Progress clarification (was #5) | AI Assistant |
-| **2.6** | **Oct 28, 2025** | **Issue renumbering: Phase 1 now starts with Issue #1 (all issues renumbered -1)** | **AI Assistant** |
+| **2.6** | **Oct 28, 2025** | **Issue renumbering: Epic 1 now starts with Issue #1 (all issues renumbered -1)** | **AI Assistant** |
 
 **Changes from v2.5:**
 - ✅ Issue renumbering: All issues renumbered to start from #1 (was starting from #2)
@@ -62,9 +62,9 @@
 **Changes from v2.4:**
 - ✅ Issue #4 completed: Comprehensive logging infrastructure with SLF4J + Logback (was #5)
 - ✅ Project reorganization: Development_Handbook/ and Artifacts/ folders created
-- ✅ Progress tracking updated: 4/6 sections of Phase 1 complete (~67%)
-- ✅ Clarified phase structure: 6 phases with 27 total sections (not 79 "issues")
-- ✅ Updated "Next Up" to show remaining Phase 1 work
+- ✅ Progress tracking updated: 4/6 sections of Epic 1 complete (~67%)
+- ✅ Clarified epic structure: 6 epics with 27 total sections (not 79 "issues")
+- ✅ Updated "Next Up" to show remaining Epic 1 work
 
 **Changes from v2.2:**
 - ✅ Issue #4 completed: REST API Server with Ktor framework (was Issue #3)
@@ -314,24 +314,24 @@ dependencies {
 
 ---
 
-## 4. DEVELOPMENT PHASES
+## 4. DEVELOPMENT EPICS
 
 ### Overview
 
-| Phase | Duration | Focus | Key Deliverables |
-|-------|----------|-------|------------------|
-| **Phase 1** | 2 weeks | Foundation | Core service scaffold, data models, database |
-| **Phase 2** | 3 weeks | Exchange Integration | Binance & Bitget connectors working |
-| **Phase 3** | 3 weeks | AI Trading Engine | 3 AI traders with pattern storage |
-| **Phase 4** | 3 weeks | Desktop UI | Complete JavaFX application |
-| **Phase 5** | 3 weeks | Integration & Testing | End-to-end testing, bug fixes |
-| **Phase 6** | 2 weeks | Polish & Release | Documentation, installer, v1.0 release |
+| Epic | Duration | Focus | Key Deliverables |
+|------|----------|-------|------------------|
+| **Epic 1** | 2 weeks | Foundation | Core service scaffold, data models, database |
+| **Epic 2** | 3 weeks | Exchange Integration | Binance & Bitget connectors working |
+| **Epic 3** | 3 weeks | AI Trading Engine | 3 AI traders with pattern storage |
+| **Epic 4** | 3 weeks | Desktop UI | Complete JavaFX application |
+| **Epic 5** | 3 weeks | Integration & Testing | End-to-end testing, bug fixes |
+| **Epic 6** | 2 weeks | Polish & Release | Documentation, installer, v1.0 release |
 
 **Total**: 16 weeks (4 months)
 
 ---
 
-## 5. PHASE 1: Foundation & Infrastructure (Weeks 1-2)
+## 5. EPIC 1: Foundation & Infrastructure (Weeks 1-2)
 
 **Status**: 🏗️ **In Progress** (Started: Oct 23, 2025)
 
@@ -474,7 +474,7 @@ dependencies {
 
 ---
 
-## 6. PHASE 2: Exchange Integration (Weeks 3-5)
+## 6. EPIC 2: Exchange Integration (Weeks 3-5)
 
 ### 6.1 Exchange Connector Framework
 
@@ -545,7 +545,7 @@ dependencies {
 
 ---
 
-## 7. PHASE 3: AI Trading Engine (Weeks 6-8)
+## 7. EPIC 3: AI Trading Engine (Weeks 6-8)
 
 ### 7.1 AI Trader Core
 
@@ -624,7 +624,7 @@ dependencies {
 
 ---
 
-## 8. PHASE 4: Core Service & API (Weeks 9-11)
+## 8. EPIC 4: Core Service & API (Weeks 9-11)
 
 ### 8.1 REST API Server
 
@@ -680,7 +680,7 @@ dependencies {
 
 ---
 
-## 9. PHASE 5: Desktop UI Application (Weeks 12-14)
+## 9. EPIC 5: Desktop UI Application (Weeks 12-14)
 
 ### 9.1 UI Foundation
 
@@ -781,7 +781,7 @@ dependencies {
 
 ---
 
-## 10. PHASE 6: Integration & Testing (Weeks 15-16)
+## 10. EPIC 6: Integration & Testing (Weeks 15-16)
 
 ### 10.1 Integration Testing
 
@@ -1342,14 +1342,14 @@ FMPSAutoTrader/
 
 ## 17. TIMELINE SUMMARY
 
-| Phase | Duration | Start | End | Key Deliverables |
-|-------|----------|-------|-----|------------------|
-| **Phase 1** | 2 weeks | Week 1 | Week 2 | Foundation: data models, database, config |
-| **Phase 2** | 3 weeks | Week 3 | Week 5 | Exchange connectors, indicators |
-| **Phase 3** | 3 weeks | Week 6 | Week 8 | AI Trading engine, patterns |
-| **Phase 4** | 3 weeks | Week 9 | Week 11 | Core Service + API |
-| **Phase 5** | 3 weeks | Week 12 | Week 14 | Desktop UI |
-| **Phase 6** | 2 weeks | Week 15 | Week 16 | Testing, polish, release |
+| Epic | Duration | Start | End | Key Deliverables |
+|------|----------|-------|-----|------------------|
+| **Epic 1** | 2 weeks | Week 1 | Week 2 | Foundation: data models, database, config |
+| **Epic 2** | 3 weeks | Week 3 | Week 5 | Exchange connectors, indicators |
+| **Epic 3** | 3 weeks | Week 6 | Week 8 | AI Trading engine, patterns |
+| **Epic 4** | 3 weeks | Week 9 | Week 11 | Core Service + API |
+| **Epic 5** | 3 weeks | Week 12 | Week 14 | Desktop UI |
+| **Epic 6** | 2 weeks | Week 15 | Week 16 | Testing, polish, release |
 
 **Total Duration**: 16 weeks (4 months)
 

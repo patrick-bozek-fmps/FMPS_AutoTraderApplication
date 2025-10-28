@@ -4,7 +4,7 @@
 **Created**: October 24, 2025  
 **Started**: October 28, 2025  
 **Completed**: October 28, 2025  
-**Epic**: Foundation & Infrastructure (Phase 1)  
+**Epic**: Foundation & Infrastructure (Epic 1)  
 **Priority**: P1 (High)  
 **Dependencies**: Issue #1 (Gradle) ✅
 
@@ -31,7 +31,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
 
 ## 📝 **Tasks Breakdown**
 
-### **Phase 1: Dependency Configuration** ⏳ PENDING
+### **Task 1: Dependency Configuration** ⏳ PENDING
 - [ ] Verify SLF4J API dependency in all modules
 - [ ] Add Logback Classic dependency to core-service
 - [ ] Add Logback dependencies to desktop-ui
@@ -40,7 +40,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
 - [ ] Add logstash-logback-encoder for JSON output
 - [ ] Update build.gradle.kts files
 
-### **Phase 2: Logback Configuration** ⏳ PENDING
+### **Task 2: Logback Configuration** ⏳ PENDING
 - [ ] Create `core-service/src/main/resources/logback.xml`
 - [ ] Configure root logger level (INFO default)
 - [ ] Set up console appender:
@@ -62,7 +62,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
   - [ ] Same rotation policy
 - [ ] Configure async appenders for performance
 
-### **Phase 3: Environment-Specific Configuration** ⏳ PENDING
+### **Task 3: Environment-Specific Configuration** ⏳ PENDING
 - [ ] Create `logback-dev.xml` for development:
   - [ ] DEBUG level for application packages
   - [ ] Colored console output
@@ -78,7 +78,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
   - [ ] No file appenders
 - [ ] Configure environment selection via system property
 
-### **Phase 4: Structured Logging** ⏳ PENDING
+### **Task 4: Structured Logging** ⏳ PENDING
 - [ ] Configure JSON encoder for production logs
 - [ ] Define JSON log format:
   - [ ] timestamp (ISO 8601)
@@ -94,7 +94,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
 - [ ] Add request ID to MDC
 - [ ] Configure JSON pretty-print for dev
 
-### **Phase 5: MDC Implementation** ⏳ PENDING
+### **Task 5: MDC Implementation** ⏳ PENDING
 - [ ] Create `LoggingContext.kt` utility class
 - [ ] Implement `withContext()` extension function
 - [ ] Add `generateRequestId()` helper
@@ -115,7 +115,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
   - [ ] side (LONG/SHORT)
 - [ ] Add MDC cleanup in finally blocks
 
-### **Phase 6: Logger Wrapper (Optional)** ⏳ PENDING
+### **Task 6: Logger Wrapper (Optional)** ⏳ PENDING
 - [ ] Create `AppLogger.kt` facade class
 - [ ] Implement convenience methods:
   - [ ] `trace()`, `debug()`, `info()`, `warn()`, `error()`
@@ -130,7 +130,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
   - [ ] `logEvent()`
 - [ ] Create logger factory method
 
-### **Phase 7: Package-Specific Logging** ⏳ PENDING
+### **Task 7: Package-Specific Logging** ⏳ PENDING
 - [ ] Configure logging levels per package:
   - [ ] `com.fmps.autotrader.core` → INFO
   - [ ] `com.fmps.autotrader.core.database` → DEBUG (dev), INFO (prod)
@@ -143,7 +143,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
 - [ ] Add separate appender for security logs
 - [ ] Add separate appender for audit logs
 
-### **Phase 8: Performance Metrics Logging** ⏳ PENDING
+### **Task 8: Performance Metrics Logging** ⏳ PENDING
 - [ ] Create `MetricsLogger.kt` class
 - [ ] Implement method timing logging:
   - [ ] Database query times
@@ -160,7 +160,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
 - [ ] Configure metrics log file: `logs/metrics.log`
 - [ ] Add metrics aggregation format
 
-### **Phase 9: Integration with Existing Code** ⏳ PENDING
+### **Task 9: Integration with Existing Code** ⏳ PENDING
 - [ ] Update `Main.kt`:
   - [ ] Add startup logging
   - [ ] Log configuration loaded
@@ -181,7 +181,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
   - [ ] Log responses with timing
 - [ ] Add error logging with stack traces
 
-### **Phase 10: Testing** ⏳ PENDING
+### **Task 10: Testing** ⏳ PENDING
 - [ ] Create `LoggingTest.kt`:
   - [ ] Test console appender works
   - [ ] Test file appender creates files
@@ -201,7 +201,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
   - [ ] Check JSON format in production mode
   - [ ] Verify colored output in console
 
-### **Phase 11: Documentation** ⏳ PENDING
+### **Task 11: Documentation** ⏳ PENDING
 - [ ] Create `LOGGING_GUIDE.md`:
   - [ ] Logging standards and conventions
   - [ ] When to use each log level
@@ -215,7 +215,7 @@ Implement a comprehensive logging infrastructure using SLF4J and Logback to prov
 - [ ] Document rotation policies
 - [ ] Add troubleshooting section
 
-### **Phase 12: Build & Commit** ⏳ PENDING
+### **Task 12: Build & Commit** ⏳ PENDING
 - [ ] Run all tests: `./gradlew test`
 - [ ] Build project: `./gradlew build`
 - [ ] Fix any compilation errors
@@ -575,20 +575,20 @@ logger.debug { "Complex calc: ${expensiveOperation()}" }
 
 ## 📅 **Estimated Timeline**
 
-| Phase | Estimated Time |
+| Task | Estimated Time |
 |-------|---------------|
-| Phase 1: Dependencies | 0.5 hours |
-| Phase 2: Logback Config | 1 hour |
-| Phase 3: Environment Configs | 1 hour |
-| Phase 4: Structured Logging | 1 hour |
-| Phase 5: MDC Implementation | 1.5 hours |
-| Phase 6: Logger Wrapper | 1 hour |
-| Phase 7: Package Logging | 0.5 hours |
-| Phase 8: Metrics Logging | 1.5 hours |
-| Phase 9: Integration | 2 hours |
-| Phase 10: Testing | 1.5 hours |
-| Phase 11: Documentation | 1 hour |
-| Phase 12: Build & Commit | 0.5 hours |
+| Task 1: Dependencies | 0.5 hours |
+| Task 2: Logback Config | 1 hour |
+| Task 3: Environment Configs | 1 hour |
+| Task 4: Structured Logging | 1 hour |
+| Task 5: MDC Implementation | 1.5 hours |
+| Task 6: Logger Wrapper | 1 hour |
+| Task 7: Package Logging | 0.5 hours |
+| Task 8: Metrics Logging | 1.5 hours |
+| Task 9: Integration | 2 hours |
+| Task 10: Testing | 1.5 hours |
+| Task 11: Documentation | 1 hour |
+| Task 12: Build & Commit | 0.5 hours |
 | **Total** | **~1 day (13 hours)** |
 
 ---
@@ -604,7 +604,7 @@ Follow the development workflow from `DEVELOPMENT_WORKFLOW.md`:
 
 Example commits:
 ```
-feat: Add Logback configuration with file rotation (Issue #5 Phase 1-2)
+feat: Add Logback configuration with file rotation (Issue #5 Task 1-2)
 feat: Implement MDC and structured logging (Issue #5 Phase 4-5)
 feat: Integrate logging across all modules (Issue #5 Phase 9)
 feat: Complete Issue #5 - Logging infrastructure
@@ -621,7 +621,7 @@ feat: Complete Issue #5 - Logging infrastructure
 
 **Next Steps**:
 1. Review this plan with team/stakeholder
-2. Begin Phase 1: Add dependencies
+2. Begin Task 1: Add dependencies
 3. Follow DEVELOPMENT_WORKFLOW.md throughout
 4. Integrate logging into existing code from Issues #2, #3, #4
 
