@@ -514,72 +514,123 @@ dependencies {
 
 ## 6. EPIC 2: Exchange Integration (Weeks 3-5)
 
-### 6.1 Exchange Connector Framework
+**Status**: 📋 **PLANNED** (0/4 complete)  
+**Duration**: ~3-4 weeks  
+**Dependencies**: Epic 1 ✅ COMPLETE
+
+### 6.1 Exchange Connector Framework ⏳ **NEXT**
+
+**Issue**: #7 - Exchange Connector Framework  
+**Status**: 📋 **PLANNED** (Ready to start)  
+**Priority**: P0 (Critical - Blocks #8 and #9)  
+**Duration**: ~3-4 days  
+**Documentation**: `Issue_07_Exchange_Connector_Framework.md`
 
 **Tasks:**
 - [ ] Design `IExchangeConnector` interface
-  - [ ] Connection management
-  - [ ] Market data methods
-  - [ ] Order management methods
-  - [ ] Position management methods
-- [ ] Create `ConnectorFactory`
-- [ ] Implement error handling and retry logic
-- [ ] Add rate limiting
-- [ ] Create connection health monitoring
-- [ ] Implement WebSocket streaming support
+  - [ ] Connection management (connect, disconnect, isConnected)
+  - [ ] Market data methods (getCandles, getTicker, getOrderBook)
+  - [ ] Order management methods (placeOrder, cancelOrder, getOrder)
+  - [ ] Position management methods (getPositions)
+  - [ ] WebSocket streaming methods (subscribe/unsubscribe)
+- [ ] Create `ConnectorFactory` with singleton pattern
+- [ ] Implement exception hierarchy (`ExchangeException`, `ConnectionException`, etc.)
+- [ ] Implement `RateLimiter` with token bucket algorithm
+- [ ] Implement `RetryPolicy` with exponential backoff
+- [ ] Create `AbstractExchangeConnector` base class
+- [ ] Create `ConnectionHealthMonitor` with auto-reconnect
+- [ ] Implement `WebSocketManager` and `SubscriptionManager`
+- [ ] Create mock connector for testing
+- [ ] Write comprehensive tests
 
-**Deliverable**: Exchange connector framework
+**Deliverable**: ✅ Exchange connector framework ready for Binance and Bitget implementations
 
-### 6.2 Binance Connector (Demo/Testnet)
+### 6.2 Binance Connector (Demo/Testnet) ⏳ **PENDING**
 
-**Tasks:**
-- [ ] Implement Binance testnet connector
-- [ ] REST API endpoints:
-  - [ ] Market data (candlesticks, ticker)
-  - [ ] Account information
-  - [ ] Order management (create, cancel, query)
-  - [ ] Demo account balance
-- [ ] WebSocket streaming:
-  - [ ] Candlestick streams
-  - [ ] Order update streams
-- [ ] Add proper error handling
-- [ ] Implement authentication (demo API keys)
-- [ ] Write unit tests
-- [ ] Write integration tests
-
-**Deliverable**: Working Binance testnet connector
-
-### 6.3 Bitget Connector (Demo/Testnet)
+**Issue**: #8 - Binance Connector Implementation  
+**Status**: 📋 **PLANNED** (Waiting for Issue #7)  
+**Priority**: P1 (High)  
+**Duration**: ~5-6 days  
+**Dependencies**: Issue #7 ⏳  
+**Documentation**: `Issue_08_Binance_Connector.md`
 
 **Tasks:**
-- [ ] Implement Bitget testnet connector
-- [ ] REST API endpoints:
-  - [ ] Market data
-  - [ ] Account information
-  - [ ] Order management
-  - [ ] Demo positions
-- [ ] WebSocket support
-- [ ] Error handling
-- [ ] Authentication
-- [ ] Tests (unit + integration)
+- [ ] Setup Binance testnet account and API keys
+- [ ] Implement `BinanceConnector` extending `AbstractExchangeConnector`
+- [ ] Implement `BinanceAuthenticator` (HMAC SHA256 signatures)
+- [ ] Implement REST API methods:
+  - [ ] Market data (candlesticks, ticker, order book)
+  - [ ] Account information (balance, positions)
+  - [ ] Order management (place, cancel, query orders)
+- [ ] Implement `BinanceWebSocketManager`:
+  - [ ] Candlestick streams (`wss://testnet.binance.vision/ws/{symbol}@kline_{interval}`)
+  - [ ] Ticker streams
+  - [ ] Order update streams (user data stream with listen key)
+- [ ] Implement error code mapping (Binance → framework exceptions)
+- [ ] Configure rate limiting (1200 req/min, weight-based)
+- [ ] Write unit tests and integration tests (with testnet)
+- [ ] Create BINANCE_CONNECTOR.md documentation
 
-**Deliverable**: Working Bitget testnet connector
+**Deliverable**: ✅ Working Binance testnet connector with REST + WebSocket
 
-### 6.4 Technical Indicators Module
+### 6.3 Bitget Connector (Demo/Testnet) ⏳ **PENDING**
+
+**Issue**: #9 - Bitget Connector Implementation  
+**Status**: 📋 **PLANNED** (Waiting for Issue #7)  
+**Priority**: P1 (High)  
+**Duration**: ~4-5 days  
+**Dependencies**: Issue #7 ⏳, Issue #8 ⏳ (for pattern reuse)  
+**Documentation**: `Issue_09_Bitget_Connector.md`
 
 **Tasks:**
-- [ ] Refactor and clean up indicators
-- [ ] Implement with tests:
-  - [ ] RSI (Relative Strength Index)
-  - [ ] MACD (Moving Average Convergence Divergence)
-  - [ ] SMA (Simple Moving Average)
-  - [ ] EMA (Exponential Moving Average)
-  - [ ] Bollinger Bands
-- [ ] Create `IndicatorCalculator` interface
-- [ ] Optimize for real-time calculation
-- [ ] Add caching where appropriate
+- [ ] Setup Bitget testnet account and API keys (Key + Secret + Passphrase)
+- [ ] Implement `BitgetConnector` extending `AbstractExchangeConnector`
+- [ ] Implement `BitgetAuthenticator` (with passphrase requirement)
+- [ ] Handle symbol format conversion if needed (BTC_USDT vs BTCUSDT)
+- [ ] Implement REST API methods:
+  - [ ] Market data (candlesticks, ticker, order book)
+  - [ ] Account information (balance, positions)
+  - [ ] Order management (place, cancel, query orders)
+- [ ] Implement `BitgetWebSocketManager` with Bitget-specific streaming
+- [ ] Implement error code mapping (Bitget → framework exceptions)
+- [ ] Configure rate limiting (Bitget-specific limits)
+- [ ] Write unit tests and integration tests (with testnet)
+- [ ] Create BITGET_CONNECTOR.md documentation
+- [ ] Document differences from Binance
 
-**Deliverable**: Complete technical indicators library
+**Deliverable**: ✅ Working Bitget testnet connector with REST + WebSocket
+
+**Note**: Can leverage patterns from Binance connector to accelerate development (estimated 1 day faster)
+
+### 6.4 Technical Indicators Module ⏳ **CAN START NOW**
+
+**Issue**: #10 - Technical Indicators Module  
+**Status**: 📋 **PLANNED** (Can start in parallel with #7)  
+**Priority**: P1 (High - Required for Epic 3)  
+**Duration**: ~3-4 days  
+**Dependencies**: Issue #5 ✅ (Core Data Models)  
+**Documentation**: `Issue_10_Technical_Indicators.md`
+
+**Tasks:**
+- [ ] Design `ITechnicalIndicator<T>` interface
+- [ ] Implement 5 core indicators with tests:
+  - [ ] **SMA** (Simple Moving Average) - Formula: Sum(close) / N
+  - [ ] **EMA** (Exponential Moving Average) - Formula: EMA = (Close - Prev EMA) × α + Prev EMA
+  - [ ] **RSI** (Relative Strength Index) - Formula: RSI = 100 - (100 / (1 + RS))
+  - [ ] **MACD** (Moving Average Convergence Divergence) - 3 values: MACD line, Signal line, Histogram
+  - [ ] **Bollinger Bands** - Upper/Middle/Lower bands with standard deviation
+- [ ] Create result types (`SingleValueResult`, `MACDResult`, `BollingerBandsResult`)
+- [ ] Implement `IndicatorCache` with LRU caching
+- [ ] Add extension functions for ergonomic API (e.g., `List<Candlestick>.sma(period)`)
+- [ ] Create validation and utility functions
+- [ ] Implement interpretation helpers (e.g., `isOverbought`, `isBullishCrossover`)
+- [ ] Optimize for performance (< 1ms single, < 100ms batch for 10k candles)
+- [ ] Validate accuracy against TradingView and TA-Lib with real market data
+- [ ] Create TECHNICAL_INDICATORS_GUIDE.md documentation
+
+**Deliverable**: ✅ Complete technical indicators library ready for AI Trading Engine
+
+**Note**: Independent of connector work - can be developed in parallel to accelerate Epic 2 timeline
 
 ---
 
