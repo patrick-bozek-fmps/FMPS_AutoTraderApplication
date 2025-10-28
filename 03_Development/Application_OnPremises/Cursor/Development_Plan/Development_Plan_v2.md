@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 2.5  
+**Version**: 2.6  
 **Date**: October 28, 2025  
 **Status**: 🚀 In Development - Phase 1 Nearly Complete  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -81,14 +81,22 @@ The original "79 issues" was an **estimate** of the total number of GitHub issue
 |---------|------|---------|--------|
 | 1.0 | Oct 23, 2025 | Initial plan based on assumptions | AI Assistant |
 | 2.0 | Oct 23, 2025 | Updated with actual requirements & decisions | AI Assistant |
-| 2.1 | Oct 23, 2025 | Added progress tracking, Issue #2 complete | AI Assistant |
-| 2.2 | Oct 24, 2025 | Issue #3 complete: Database layer implemented | AI Assistant |
-| 2.3 | Oct 24, 2025 | Issue #4 complete: REST API Server with Ktor | AI Assistant |
+| 2.1 | Oct 23, 2025 | Added progress tracking, Issue #1 complete (was #2) | AI Assistant |
+| 2.2 | Oct 24, 2025 | Issue #2 complete: Database layer implemented (was #3) | AI Assistant |
+| 2.3 | Oct 24, 2025 | Issue #3 complete: REST API Server with Ktor (was #4) | AI Assistant |
 | 2.4 | Oct 24, 2025 | Issue numbering realigned with GitHub structure | AI Assistant |
-| **2.5** | **Oct 28, 2025** | **Issue #5 complete: Logging Infrastructure + Progress clarification** | **AI Assistant** |
+| 2.5 | Oct 28, 2025 | Issue #4 complete: Logging Infrastructure + Progress clarification (was #5) | AI Assistant |
+| **2.6** | **Oct 28, 2025** | **Issue renumbering: Phase 1 now starts with Issue #1 (all issues renumbered -1)** | **AI Assistant** |
+
+**Changes from v2.5:**
+- ✅ Issue renumbering: All issues renumbered to start from #1 (was starting from #2)
+- ✅ File renames: Issue_02→Issue_01, Issue_03→Issue_02, Issue_04→Issue_03, Issue_05→Issue_04
+- ✅ Created Issue_05_Core_Data_Models.md with complete specification
+- ✅ Updated all cross-references and dependencies throughout documentation
+- ✅ All issue documentation files now correctly numbered and aligned
 
 **Changes from v2.4:**
-- ✅ Issue #5 completed: Comprehensive logging infrastructure with SLF4J + Logback
+- ✅ Issue #4 completed: Comprehensive logging infrastructure with SLF4J + Logback (was #5)
 - ✅ Project reorganization: Development_Handbook/ and Artifacts/ folders created
 - ✅ Progress tracking updated: 4/6 sections of Phase 1 complete (~67%)
 - ✅ Clarified phase structure: 6 phases with 27 total sections (not 79 "issues")
