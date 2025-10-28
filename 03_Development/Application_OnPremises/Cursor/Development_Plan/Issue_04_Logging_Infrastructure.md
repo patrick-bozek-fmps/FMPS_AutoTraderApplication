@@ -5,6 +5,7 @@
 **Created**: October 24, 2025  
 **Started**: Not Started  
 **Completed**: Not Completed  
+**Duration**: ~1 day (estimated)  
 **Epic**: Foundation & Infrastructure (Epic 1)  
 **Priority**: P1 (High)  
 **Dependencies**: Issue #1 (Gradle) ✅

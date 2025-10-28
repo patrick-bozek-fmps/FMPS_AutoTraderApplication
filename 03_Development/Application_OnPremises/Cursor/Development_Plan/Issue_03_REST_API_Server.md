@@ -1,9 +1,11 @@
 # Issue #3: Set up REST API Server with Ktor
 
-**Status**: ✅ **COMPLETE** (API Implementation: 100%, Tests: Partial)  
+**Status**: ✅ **COMPLETED** (API Implementation: 100%, Tests: Partial)  
 **Assigned**: AI Assistant  
+**Created**: October 23, 2025  
 **Started**: October 24, 2025  
 **Completed**: October 24, 2025  
+**Duration**: ~4 hours  
 **Epic**: Foundation & Infrastructure (Epic 1)  
 **Priority**: P0 (Critical)  
 **Dependencies**: Issue #1 (Gradle) ✅, Issue #2 (Database Layer) ✅

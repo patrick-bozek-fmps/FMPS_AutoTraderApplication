@@ -5,6 +5,7 @@
 **Created**: October 28, 2025  
 **Started**: October 28, 2025  
 **Completed**: October 28, 2025  
+**Duration**: ~6 hours  
 **Epic**: Foundation & Infrastructure (Epic 1)  
 **Priority**: P1 (High)  
 **Dependencies**: Issue #1 (Gradle) ✅, Issue #2 (Database) ✅ 
