@@ -11,7 +11,7 @@
 
 | Phase | Status | Progress | Completed |
 |-------|--------|----------|-----------|
-| **Phase 1: Foundation & Infrastructure** | 🏗️ **Nearly Complete** | 4/6 sections | Issues #2, #3, #4, #5 ✅ |
+| **Phase 1: Foundation & Infrastructure** | 🏗️ **Nearly Complete** | 4/6 sections | Issues #1, #2, #3, #4 ✅ |
 | Phase 2: Exchange Integration | ⏳ Not Started | 0/4 sections | - |
 | Phase 3: AI Trading Engine | ⏳ Not Started | 0/5 sections | - |
 | Phase 4: Desktop UI | ⏳ Not Started | 0/5 sections | - |
@@ -20,7 +20,7 @@
 
 **Overall Progress**: **4 GitHub Issues completed, ~67% of Phase 1 done**
 
-**Last Milestone**: ✅ **Issue #5** - Logging Infrastructure (Oct 28, 2025)
+**Last Milestone**: ✅ **Issue #4** - Logging Infrastructure (Oct 28, 2025)
 
 **Next Up**: 🔜 **Phase 1 Remaining**: Core Data Models & Configuration Management
 
@@ -38,12 +38,12 @@ The original "79 issues" was an **estimate** of the total number of GitHub issue
 
 | Section | Type | Status | Details |
 |---------|------|--------|---------|
-| 5.1 Project Setup | ✅ **Issue #2** | Complete | Gradle multi-module, CI/CD, structure |
-| 5.2 Core Data Models | 📝 **Tasks** | **TO DO** | Data classes, enums, validation |
-| 5.3 Database Setup | ✅ **Issue #3** | Complete | Exposed ORM, migrations, repositories |
-| 5.4 Configuration Mgmt | 📝 **Tasks** | **TO DO** | Config files, env variables, validation |
-| 5.5 Logging Setup | ✅ **Issue #5** | Complete | SLF4J, Logback, MDC, metrics |
-| 5.6 REST API Server | ✅ **Issue #4** | Complete | Ktor, 34 endpoints, WebSocket |
+| 5.1 Project Setup |  **Issue #1** | Complete | Gradle multi-module, CI/CD, structure |
+| 5.2 Core Data Models |  **Issue #5** | **TO DO** | Data classes, enums, validation |
+| 5.3 Database Setup |  **Issue #2** | Complete | Exposed ORM, migrations, repositories |
+| 5.4 Configuration Mgmt |  **Issue #6** | **TO DO** | Config files, env variables, validation |
+| 5.5 Logging Setup |  **Issue #4** | Complete | SLF4J, Logback, MDC, metrics |
+| 5.6 REST API Server |  **Issue #3** | Complete | Ktor, 34 endpoints, WebSocket |
 
 **Phase 1 Status**: 4/6 sections complete (2 sections remaining)
 
@@ -368,7 +368,7 @@ dependencies {
 **Issue**: #2 - Set up Gradle multi-module project structure  
 **Status**: ✅ **Completed** (Oct 23, 2025)  
 **Commit**: `906c2c3` - feat(core): set up Gradle multi-module project structure  
-**Documentation**: `Issue_02_Gradle_MultiModule_Setup.md`
+**Documentation**: `Issue_01_Gradle_MultiModule_Setup.md`
 
 **Tasks:**
 - [x] ~~Clean up existing codebase structure~~
@@ -420,7 +420,7 @@ dependencies {
 **Issue**: #3 - Configure database layer with Exposed ORM  
 **Status**: ✅ **Completed** (Oct 24, 2025)  
 **Commit**: `df6e2dd` - feat: Implement database layer with Exposed ORM, migrations, and repositories  
-**Documentation**: `Issue_03_Database_Layer.md`
+**Documentation**: `Issue_02_Database_Layer.md`
 
 **Tasks:**
 - [x] ~~Design SQLite database schema~~
@@ -461,7 +461,7 @@ dependencies {
 **Issue**: #5 - Implement logging infrastructure  
 **Status**: ✅ **Completed** (Oct 28, 2025)  
 **Commit**: `8a3234b` - feat: Issue #5 - Implement Logging Infrastructure  
-**Documentation**: `Issue_05_Logging_Infrastructure.md`
+**Documentation**: `Issue_04_Logging_Infrastructure.md`
 
 **Tasks:**
 - [x] ~~Configure SLF4J + Logback~~
@@ -480,7 +480,7 @@ dependencies {
 **Issue**: #4 - Set up REST API server with Ktor  
 **Status**: ✅ **Completed** (Oct 24, 2025)  
 **Commits**: `ec0a49a`, `1aec787` - feat: Implement REST API server with Ktor + WebSocket support  
-**Documentation**: `Issue_04_REST_API_Server.md`
+**Documentation**: `Issue_03_REST_API_Server.md`
 
 **Tasks:**
 - [x] ~~Set up Ktor server with Netty~~
@@ -1488,4 +1488,6 @@ FMPSAutoTrader/
 ---
 
 **End of Development Plan v2**
+
+
 
