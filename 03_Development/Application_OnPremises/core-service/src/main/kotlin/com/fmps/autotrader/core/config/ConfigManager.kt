@@ -298,9 +298,9 @@ object ConfigManager {
     private fun validateConfig(config: AppConfig) {
         val errors = mutableListOf<String>()
         
-        // Validate server configuration
-        if (config.server.port !in 1..65535) {
-            errors.add("Server port must be between 1 and 65535, got: ${config.server.port}")
+        // Validate server configuration (port 0 allowed for random port in testing)
+        if (config.server.port !in 0..65535) {
+            errors.add("Server port must be between 0 and 65535, got: ${config.server.port}")
         }
         
         // Validate database configuration
