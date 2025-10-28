@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 2.6  
+**Version**: 2.7  
 **Date**: October 28, 2025  
 **Status**: 🚀 In Development - Epic 1 Nearly Complete  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -51,6 +51,17 @@
 | 2.4 | Oct 24, 2025 | Issue numbering realigned with GitHub structure | AI Assistant |
 | 2.5 | Oct 28, 2025 | Issue #4 complete: Logging Infrastructure + Progress clarification (was #5) | AI Assistant |
 | **2.6** | **Oct 28, 2025** | **Issue renumbering: Epic 1 now starts with Issue #1 (all issues renumbered -1)** | **AI Assistant** |
+| **2.7** | **Oct 28, 2025** | **Fixed issue number references in Epic 1 section + terminology Phase→Epic/Task** | **AI Assistant** |
+
+**Changes from v2.6:**
+- ✅ Fixed all issue number references in Epic 1 detailed sections (5.1-5.6)
+- ✅ Section 5.1: Issue #2 → Issue #1 (Gradle)
+- ✅ Section 5.2: Added Issue #5 reference (Core Data Models) + marked complete
+- ✅ Section 5.3: Issue #3 → Issue #2 (Database)
+- ✅ Section 5.4: Added Issue #6 reference (Configuration Management)
+- ✅ Section 5.5: Issue #5 → Issue #4 (Logging)
+- ✅ Section 5.6: Issue #4 → Issue #3 (REST API)
+- ✅ Terminology improvement: All "Phase" → "Epic" (6 epics) and "Task" (in issues)
 
 **Changes from v2.5:**
 - ✅ Issue renumbering: All issues renumbered to start from #1 (was starting from #2)
@@ -337,7 +348,7 @@ dependencies {
 
 ### 5.1 Project Setup ✅ **COMPLETE**
 
-**Issue**: #2 - Set up Gradle multi-module project structure  
+**Issue**: #1 - Set up Gradle multi-module project structure  
 **Status**: ✅ **Completed** (Oct 23, 2025)  
 **Commit**: `906c2c3` - feat(core): set up Gradle multi-module project structure  
 **Documentation**: `Issue_01_Gradle_MultiModule_Setup.md`
@@ -368,28 +379,31 @@ dependencies {
 - ✅ Helper scripts (`build.ps1`, `test.ps1`)
 - ✅ Development environment setup script
 
-### 5.2 Core Data Models
+### 5.2 Core Data Models ✅ **COMPLETE**
+
+**Issue**: #5 - Core Data Models  
+**Status**: ✅ **Completed** (Oct 28, 2025)  
+**Commit**: `8784424` - feat: Issue #5 - Core Data Models Implementation  
+**Documentation**: `Issue_05_Core_Data_Models.md`
 
 **Tasks:**
-- [ ] Define all data classes in `:shared` module
-  - [ ] `AITrader` - Configuration and state
-  - [ ] `Position` - Open position data
-  - [ ] `Order` - Order information
-  - [ ] `Candlestick` - Market data
-  - [ ] `TradeSignal` - Trading decision
-  - [ ] `TradePattern` - Stored pattern
-  - [ ] `TradingConfig` - Configuration
-- [ ] Create enum classes
-  - [ ] `TradeAction`, `PositionSide`, `OrderType`, etc.
-- [ ] Implement value objects with validation
-- [ ] Create domain exceptions hierarchy
-- [ ] Document all models with KDoc
+- [x] ~~Define all data classes in `:shared` module~~
+  - [x] ~~Market data models (Candlestick, OrderBook, Ticker, MarketData)~~
+  - [x] ~~Trading models (Order, Position, TradingStrategy)~~
+  - [x] ~~Configuration models (ExchangeConfig, StrategyConfig, RiskConfig)~~
+- [x] ~~Create enum classes~~
+  - [x] ~~`TradeAction`, `OrderType`, `TradeStatus`, `AITraderStatus`, `Exchange`, `TimeFrame`~~
+- [x] ~~Implement value objects with validation~~
+- [x] ~~Add business logic methods (50+ helper methods)~~
+- [x] ~~Document all models with KDoc~~
+- [x] ~~Create InstantSerializer for java.time.Instant~~
+- [x] ~~Write unit tests (6 test classes with 40+ tests)~~
 
-**Deliverable**: Complete data model library
+**Deliverable**: ✅ Complete data model library with 24 source files
 
 ### 5.3 Database Setup ✅ **COMPLETE**
 
-**Issue**: #3 - Configure database layer with Exposed ORM  
+**Issue**: #2 - Configure database layer with Exposed ORM  
 **Status**: ✅ **Completed** (Oct 24, 2025)  
 **Commit**: `df6e2dd` - feat: Implement database layer with Exposed ORM, migrations, and repositories  
 **Documentation**: `Issue_02_Database_Layer.md`
@@ -413,7 +427,11 @@ dependencies {
 
 **Deliverable**: ✅ Working database layer with comprehensive tests
 
-### 5.4 Configuration Management
+### 5.4 Configuration Management 📋 **NEXT**
+
+**Issue**: #6 - Configuration Management  
+**Status**: 📋 **Planned** (Not Started)  
+**Documentation**: `Issue_06_Configuration_Management.md`
 
 **Tasks:**
 - [ ] Design configuration schema (HOCON)
@@ -430,9 +448,9 @@ dependencies {
 
 ### 5.5 Logging Setup ✅ **COMPLETE**
 
-**Issue**: #5 - Implement logging infrastructure  
+**Issue**: #4 - Implement logging infrastructure  
 **Status**: ✅ **Completed** (Oct 28, 2025)  
-**Commit**: `8a3234b` - feat: Issue #5 - Implement Logging Infrastructure  
+**Commit**: `8a3234b` - feat: Issue #4 - Implement Logging Infrastructure  
 **Documentation**: `Issue_04_Logging_Infrastructure.md`
 
 **Tasks:**
@@ -449,7 +467,7 @@ dependencies {
 
 ### 5.6 REST API Server ✅ **COMPLETE**
 
-**Issue**: #4 - Set up REST API server with Ktor  
+**Issue**: #3 - Set up REST API server with Ktor  
 **Status**: ✅ **Completed** (Oct 24, 2025)  
 **Commits**: `ec0a49a`, `1aec787` - feat: Implement REST API server with Ktor + WebSocket support  
 **Documentation**: `Issue_03_REST_API_Server.md`
