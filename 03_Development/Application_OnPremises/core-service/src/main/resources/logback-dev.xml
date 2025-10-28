@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Development configuration - more verbose logging -->
+    
+    <property name="LOG_DIR" value="${LOG_DIR:-./logs}" />
+    <property name="APP_NAME" value="fmps-autotrader" />
+    
+    <!-- Console Appender with colored output and more details -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%thread] %cyan(%logger{40}) - %msg%n%ex{short}</pattern>
+        </encoder>
+    </appender>
+    
+    <!-- Minimal file logging for development -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP_NAME}-dev.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} [%X{requestId}] - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${APP_NAME}-dev.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>3</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    
+    <!-- Logger configurations for development -->
+    
+    <!-- Application loggers - DEBUG level for detailed debugging -->
+    <logger name="com.fmps.autotrader" level="DEBUG" />
+    <logger name="com.fmps.autotrader.core.api" level="DEBUG" />
+    <logger name="com.fmps.autotrader.core.database" level="DEBUG" />
+    <logger name="com.fmps.autotrader.core.config" level="DEBUG" />
+    
+    <!-- Database logging - show SQL queries -->
+    <logger name="Exposed" level="DEBUG" />
+    <logger name="com.zaxxer.hikari" level="DEBUG" />
+    <logger name="org.flywaydb" level="DEBUG" />
+    
+    <!-- Ktor logging - detailed request/response -->
+    <logger name="io.ktor" level="DEBUG" />
+    <logger name="io.ktor.server" level="DEBUG" />
+    <logger name="io.ktor.application" level="TRACE" />
+    <logger name="io.ktor.routing" level="DEBUG" />
+    
+    <!-- Show HTTP request/response details -->
+    <logger name="io.ktor.request" level="TRACE" />
+    <logger name="io.ktor.response" level="TRACE" />
+    
+    <!-- Reduce noise from network libraries -->
+    <logger name="io.netty" level="INFO" />
+    <logger name="org.eclipse.jetty" level="INFO" />
+    
+    <!-- Root logger - DEBUG level -->
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>
+

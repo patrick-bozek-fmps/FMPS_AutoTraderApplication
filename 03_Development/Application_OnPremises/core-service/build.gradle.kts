@@ -60,7 +60,10 @@ dependencies {
     
     // Logging
     implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("ch.qos.logback:logback-core:1.4.14")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     
     // Testing
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")

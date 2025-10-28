@@ -1,13 +1,14 @@
 package com.fmps.autotrader.core.api
 
 import com.fmps.autotrader.core.api.plugins.*
+import com.fmps.autotrader.core.logging.LoggingContext
 import com.typesafe.config.ConfigFactory
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 
-private val logger = LoggerFactory.getLogger("Application")
+private val logger = KotlinLogging.logger {}
 
 /**
  * Starts the Ktor REST API server
@@ -22,21 +23,40 @@ fun startApiServer(
     port: Int = 8080,
     wait: Boolean = false
 ): ApplicationEngine {
-    logger.info("Starting FMPS AutoTrader API Server...")
-    logger.info("Host: $host")
-    logger.info("Port: $port")
+    logger.info { "Starting FMPS AutoTrader API Server..." }
+    logger.info { "Configuration: host=$host, port=$port, wait=$wait" }
     
-    val server = embeddedServer(
-        Netty,
-        port = port,
-        host = host,
-        module = Application::module
-    )
+    // Set operation context for startup logging
+    LoggingContext.setOperation("server_startup")
     
-    server.start(wait = wait)
-    logger.info("✓ API Server started successfully on http://$host:$port")
-    
-    return server
+    try {
+        val server = embeddedServer(
+            Netty,
+            port = port,
+            host = host,
+            module = Application::module
+        )
+        
+        // Add shutdown hook
+        Runtime.getRuntime().addShutdownHook(Thread {
+            logger.info { "Shutting down API Server..." }
+            LoggingContext.setOperation("server_shutdown")
+            server.stop(1000, 5000)
+            logger.info { "✓ API Server stopped successfully" }
+            LoggingContext.clear()
+        })
+        
+        server.start(wait = wait)
+        logger.info { "✓ API Server started successfully on http://$host:$port" }
+        logger.info { "Environment: ${System.getProperty("app.env", "development")}" }
+        
+        return server
+    } catch (e: Exception) {
+        logger.error(e) { "✗ Failed to start API Server" }
+        throw e
+    } finally {
+        LoggingContext.remove("operation")
+    }
 }
 
 /**
@@ -44,23 +64,51 @@ fun startApiServer(
  * Useful for development and testing
  */
 fun main() {
-    val config = ConfigFactory.load()
-    val host = config.getString("app.host")
-    val port = config.getInt("app.port")
+    logger.info { "=== FMPS AutoTrader Application ===" }
+    logger.info { "Version: 1.0.0-SNAPSHOT" }
+    logger.info { "Loading configuration..." }
     
-    startApiServer(host = host, port = port, wait = true)
+    try {
+        val config = ConfigFactory.load()
+        val host = config.getString("app.host")
+        val port = config.getInt("app.port")
+        
+        logger.info { "Configuration loaded successfully" }
+        startApiServer(host = host, port = port, wait = true)
+    } catch (e: Exception) {
+        logger.error(e) { "Failed to start application" }
+        throw e
+    }
 }
 
 /**
  * Configure Ktor application with all plugins and routes
  */
 fun Application.module() {
-    // Configure server features/plugins
-    configureMonitoring()
-    configureSerialization()
-    configureHTTP()
-    configureWebSockets()
-    configureRouting()
+    logger.info { "Configuring Ktor application modules..." }
+    
+    try {
+        // Configure server features/plugins
+        logger.debug { "Configuring monitoring..." }
+        configureMonitoring()
+        
+        logger.debug { "Configuring serialization..." }
+        configureSerialization()
+        
+        logger.debug { "Configuring HTTP features..." }
+        configureHTTP()
+        
+        logger.debug { "Configuring WebSockets..." }
+        configureWebSockets()
+        
+        logger.debug { "Configuring routing..." }
+        configureRouting()
+        
+        logger.info { "✓ Ktor application configured successfully" }
+    } catch (e: Exception) {
+        logger.error(e) { "✗ Failed to configure Ktor application" }
+        throw e
+    }
 }
 
 
