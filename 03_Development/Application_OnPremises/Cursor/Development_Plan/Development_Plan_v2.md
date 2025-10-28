@@ -1,8 +1,8 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 2.7  
+**Version**: 2.8  
 **Date**: October 28, 2025  
-**Status**: 🚀 In Development - Epic 1 Nearly Complete  
+**Status**: 🚀 In Development - Epic 1 in Progress (4/6 complete)  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
 ---
@@ -11,7 +11,7 @@
 
 | Epic | Duration | Status | Progress | Key Deliverables |
 |------|----------|--------|----------|------------------|
-| **Epic 1: Foundation & Infrastructure** | 2 weeks | 🏗️ **5/6 complete** | Issues #1, #2, #3, #4, #5 ✅ | Gradle, Database, REST API, Logging, Models |
+| **Epic 1: Foundation & Infrastructure** | 2 weeks | 🏗️ **4/6 complete** | Issues #1, #2, #3, #5 ✅ <br> Issue #4 ⚠️ | Gradle, Database, REST API, Models, Config |
 | **Epic 2: Exchange Integration** | 3 weeks | ⏳ Not Started | 0/4 sections | Binance & Bitget connectors |
 | **Epic 3: AI Trading Engine** | 3 weeks | ⏳ Not Started | 0/5 sections | 3 AI traders with pattern storage |
 | **Epic 4: Desktop UI** | 3 weeks | ⏳ Not Started | 0/5 sections | Complete JavaFX application |
@@ -20,13 +20,13 @@
 
 **Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues
 
-**Overall Progress**: **5 GitHub Issues completed (~83% of Epic 1)**
+**Overall Progress**: **4 GitHub Issues completed (~67% of Epic 1)**
 
 **Last Milestone**: ✅ **Issue #5** - Core Data Models (Oct 28, 2025)
 
-**Next Up**: 🔜 **Issue #6** - Configuration Management (final Epic 1 task!)
+**Next Up**: 🔜 **Issue #4** - Logging Infrastructure (in progress) & **Issue #6** - Configuration Management
 
-### 📋 **Epic 1 Breakdown** (5/6 sections complete)
+### 📋 **Epic 1 Breakdown** (4/6 sections complete)
 
 | Section | Issue | Status | Description |
 |---------|-------|--------|-------------|
@@ -34,7 +34,7 @@
 | 5.2 Core Data Models | ✅ **#5** | Complete | Data classes, enums, validation, serialization |
 | 5.3 Database Setup | ✅ **#2** | Complete | Exposed ORM, migrations, repositories |
 | 5.4 Configuration Mgmt | 📋 **#6** | **TO DO** | Config files, env variables, validation |
-| 5.5 Logging Setup | ✅ **#4** | Complete | SLF4J, Logback, MDC, metrics |
+| 5.5 Logging Setup | ⚠️ **#4** | **NOT STARTED** | SLF4J, Logback, MDC, metrics (files created but empty) |
 | 5.6 REST API Server | ✅ **#3** | Complete | Ktor, 34 endpoints, WebSocket |
 
 ---
@@ -52,6 +52,14 @@
 | 2.5 | Oct 28, 2025 | Issue #4 complete: Logging Infrastructure + Progress clarification (was #5) | AI Assistant |
 | **2.6** | **Oct 28, 2025** | **Issue renumbering: Epic 1 now starts with Issue #1 (all issues renumbered -1)** | **AI Assistant** |
 | **2.7** | **Oct 28, 2025** | **Fixed issue number references in Epic 1 section + terminology Phase→Epic/Task** | **AI Assistant** |
+| **2.8** | **Oct 28, 2025** | **Corrected Issue #4 status: NOT STARTED (only placeholder files exist)** | **AI Assistant** |
+
+**Changes from v2.7:**
+- ⚠️ Corrected Issue #4 (Logging Infrastructure) status from "Complete" to "NOT STARTED"
+- ⚠️ Investigation revealed logback.xml, logback-dev.xml, logback-prod.xml, logback-test.xml files are empty (0 lines)
+- ⚠️ LoggingContext.kt and MetricsLogger.kt files are empty (0 lines)
+- ✅ Updated Epic 1 progress: 4/6 complete (67%) instead of 5/6 (83%)
+- ✅ Updated Issue_04_Logging_Infrastructure.md with accurate status and notes
 
 **Changes from v2.6:**
 - ✅ Fixed all issue number references in Epic 1 detailed sections (5.1-5.6)
