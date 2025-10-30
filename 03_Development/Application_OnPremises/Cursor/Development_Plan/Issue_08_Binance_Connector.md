@@ -374,6 +374,72 @@ Implement a fully functional Binance exchange connector for the testnet/demo env
 └────────────────────┘
 ```
 
+### **Connection Flow** (Improved after bug fix)
+
+```
+┌────────────────────┐
+│  Application Call  │
+│ connector.connect()│
+└────────┬───────────┘
+         │
+         ▼
+┌────────────────────┐
+│ BinanceConnector   │
+│ .connect()         │
+└────────┬───────────┘
+         │
+         ▼
+┌────────────────────┐
+│ super.connect()    │  ◄─── Calls AbstractExchangeConnector.connect()
+│ (from Abstract)    │
+└────────┬───────────┘
+         │
+         ├──────────────────────────────────────┐
+         │                                      │
+         ▼                                      ▼
+┌────────────────────┐              ┌────────────────────┐
+│ testConnectivity() │              │  Check configured  │
+│                    │              │  and not connected │
+│ • Ping endpoint    │              └────────────────────┘
+│ • Verify response  │
+└────────┬───────────┘
+         │
+         ▼
+┌────────────────────┐
+│ onConnect()        │  ◄─── BinanceConnector override
+│                    │
+│ • Get server time  │
+│ • Sync timestamp   │
+│ • Update offset    │
+└────────┬───────────┘
+         │
+         ▼
+┌────────────────────┐
+│ connected = true   │  ◄─── Critical: Flag set by AbstractExchangeConnector
+└────────┬───────────┘
+         │
+         ▼
+┌────────────────────┐
+│ ✅ Connection Ready │
+│                    │
+│ Now can call:      │
+│ • getBalance()     │
+│ • getCandles()     │
+│ • placeOrder()     │
+│ • etc.             │
+└────────────────────┘
+```
+
+**Key Points**:
+- ✅ Uses `super.connect()` to leverage framework's connection management
+- ✅ `testConnectivity()` performs basic ping test
+- ✅ `onConnect()` handles Binance-specific initialization (server time sync)
+- ✅ `connected` flag set by framework before returning
+- ✅ All API methods can now safely call `ensureConnected()`
+- ✅ No circular dependencies
+
+**Bug Fix**: Previously, `connect()` tried to call `getBalance()` before setting the `connected` flag, causing a circular dependency where `getBalance()` → `ensureConnected()` → throw exception because `connected` was still `false`.
+
 ---
 
 ## ⏱️ **Estimated Timeline**
@@ -528,15 +594,42 @@ feat: Complete Issue #8 - Binance Connector Implementation
 
 ### **Test Results**:
 - Unit Tests: 123 passed, 8 skipped (0 failures)
-- Integration Tests: Ready (API keys configured by user)
+- **Integration Tests: ✅ 7/7 PASSING** (3.956s)
+  - test 1: API keys availability ✅
+  - test 2: connector initialization and connectivity ✅
+  - test 3: fetch candlestick data (BTCUSDT) ✅
+  - test 4: fetch ticker data (BTCUSDT) ✅
+  - test 5: fetch order book (BTCUSDT) ✅
+  - test 6: fetch account balance ✅
+  - test 7: summary and recommendations ✅
 - Build: Successful
-- CI Pipeline: Passed ✅ (Commit: 26bbfa5)
+- CI Pipeline: Passed ✅
+
+### **Critical Bugs Fixed During Testing**:
+1. **RetryPolicy.NONE Validation Bug** ⚠️ CRITICAL
+   - `baseDelayMs = 0` failed validation (requires > 0)
+   - Fixed: Changed to `baseDelayMs = 1` (unused since maxRetries = 0)
+   - Impact: Was preventing ALL integration tests from running
+
+2. **Environment Variable Passing**
+   - Gradle `integrationTest` task didn't pass env vars to test JVM
+   - Fixed: Added `environment()` calls in `build.gradle.kts`
+   - Now properly passes: BINANCE_API_KEY, BINANCE_API_SECRET, BITGET_* vars
+
+3. **BinanceConnector Connection Flow** ⚠️ CRITICAL
+   - `connect()` method didn't call `super.connect()` or set connected flag
+   - Tried to call `getBalance()` which requires `ensureConnected()` check
+   - Created circular dependency causing connection failure
+   - Fixed: Refactored to use `super.connect()` + implemented `onConnect()` for time sync
 
 ### **Impact**:
-- Binance testnet fully supported for demo trading
-- Exchange Connector Framework validated with real implementation
-- Foundation for Bitget connector (Issue #9)
-- Production-ready architecture with authentication, error handling, rate limiting, and WebSocket support
+- ✅ **Binance testnet FULLY OPERATIONAL** with real API connectivity
+- ✅ All REST API methods validated (market data, account info, balance)
+- ✅ Authentication working with HMAC SHA256 signatures
+- ✅ Server time synchronization functioning correctly
+- ✅ Exchange Connector Framework validated with real implementation
+- ✅ Foundation for Bitget connector (Issue #9)
+- ✅ **Production-ready** for demo trading with comprehensive error handling, rate limiting, and WebSocket support
 
 ---
 
