@@ -67,8 +67,10 @@ class ConnectorFactory private constructor() {
             BinanceConnector()
         }
         
-        // TODO: Register Bitget connector when implemented
-        // registerConnector(Exchange.BITGET) { config -> BitgetConnector() }
+        // Register Bitget connector
+        registerConnector(Exchange.BITGET) { _ ->
+            com.fmps.autotrader.core.connectors.bitget.BitgetConnector()
+        }
         
         logger.info { "Registered ${connectorRegistry.size} exchange connectors" }
     }

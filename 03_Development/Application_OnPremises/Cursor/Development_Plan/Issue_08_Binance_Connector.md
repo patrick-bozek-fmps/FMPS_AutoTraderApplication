@@ -276,59 +276,59 @@ Implement a fully functional Binance exchange connector for the testnet/demo env
 ### **Binance Connector Architecture**
 
 ```
-┌───────────────────────────────────────────────────────────────────┐
-│                        BinanceConnector                           │
-│                                                                   │
-│  extends AbstractExchangeConnector                                │
-│  implements IExchangeConnector                                    │
-│                                                                   │
+┌──────────────────────────────────────────────────────────────────┐
+│                        BinanceConnector                          │
+│                                                                  │
+│  extends AbstractExchangeConnector                               │
+│  implements IExchangeConnector                                   │
+│                                                                  │
 │  ┌───────────────────────────────────────────────────────────┐   │
 │  │                   REST API Methods                        │   │
 │  │                                                           │   │
-│  │  getCandles() ─────────┐                                 │   │
-│  │  getTicker() ──────────┼──▶ BinanceAuthenticator         │   │
-│  │  getOrderBook() ───────┤                                 │   │
-│  │  getBalance() ─────────┤         │                       │   │
-│  │  placeOrder() ─────────┤         ▼                       │   │
-│  │  cancelOrder() ────────┤   Sign Request                  │   │
-│  │  getOrder() ───────────┤   (HMAC SHA256)                 │   │
-│  └──────────────┬──────────┤         │                      │   │
-│                 │          └─────────┼──────────────────────┘   │
+│  │  getCandles() ─────────┐                                  │   │
+│  │  getTicker() ──────────┼──▶ BinanceAuthenticator          │   │
+│  │  getOrderBook() ───────┤                                  │   │
+│  │  getBalance() ─────────┤         │                        │   │
+│  │  placeOrder() ─────────┤         ▼                        │   │
+│  │  cancelOrder() ────────┤   Sign Request                   │   │
+│  │  getOrder() ───────────┤   (HMAC SHA256)                  │   │
+│  └──────────────┬──────────┤         │                       │   │
+│                 │          └─────────┼───────────────────────┘   │
 │                 │                    │                           │
-│                 │     ┌──────────────▼──────────────┐           │
-│                 │     │      HTTP Client             │           │
-│                 │     │   (Ktor Client CIO)          │           │
-│                 │     │                              │           │
-│                 │     │  GET /api/v3/klines          │           │
-│                 │     │  GET /api/v3/account         │           │
-│                 │     │  POST /api/v3/order          │           │
-│                 │     └──────────────┬───────────────┘           │
+│                 │     ┌──────────────▼────────────┐              │
+│                 │     │      HTTP Client          │              │
+│                 │     │   (Ktor Client CIO)       │              │
+│                 │     │                           │              │
+│                 │     │  GET /api/v3/klines       │              │
+│                 │     │  GET /api/v3/account      │              │
+│                 │     │  POST /api/v3/order       │              │
+│                 │     └──────────────┬────────────┘              │
 │                 │                    │                           │
 │                 │                    ▼                           │
-│                 │         Binance Testnet REST API              │
-│                 │     https://testnet.binance.vision            │
+│                 │         Binance Testnet REST API               │
+│                 │     https://testnet.binance.vision             │
 │                 │                                                │
-│  ┌──────────────▼────────────────────────────────────────────┐  │
+│  ┌──────────────▼─────────────────────────────────────────────┐  │
 │  │            WebSocket Streaming                             │  │
 │  │                                                            │  │
 │  │  BinanceWebSocketManager                                   │  │
 │  │                                                            │  │
-│  │  subscribeCandlesticks() ─────┐                           │  │
-│  │  subscribeTicker() ───────────┼──▶ ws://{symbol}@kline_1m │  │
-│  │  subscribeOrderUpdates() ─────┤                           │  │
+│  │  subscribeCandlesticks() ─────┐                            │  │
+│  │  subscribeTicker() ───────────┼──▶ ws://{symbol}@kline_1m  │  │
+│  │  subscribeOrderUpdates() ─────┤                            │  │
 │  │                                │                           │  │
 │  │                                ▼                           │  │
 │  │                    Binance WebSocket API                   │  │
 │  │                wss://testnet.binance.vision/ws             │  │
 │  └────────────────────────────────────────────────────────────┘  │
-│                                                                   │
-│  ┌───────────────────────────────────────────────────────────┐   │
-│  │              Error Handling & Rate Limiting               │   │
-│  │                                                           │   │
-│  │  BinanceErrorHandler ──▶ Map error codes                 │   │
-│  │  RateLimiter ──────────▶ 1200 req/min, weight-based      │   │
-│  └───────────────────────────────────────────────────────────┘   │
-└───────────────────────────────────────────────────────────────────┘
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │              Error Handling & Rate Limiting                │  │
+│  │                                                            │  │
+│  │  BinanceErrorHandler ──▶ Map error codes                   │  │
+│  │  RateLimiter ──────────▶ 1200 req/min, weight-based        │  │
+│  └────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ### **Signature Generation Flow**
@@ -377,57 +377,57 @@ Implement a fully functional Binance exchange connector for the testnet/demo env
 ### **Connection Flow** (Improved after bug fix)
 
 ```
-┌────────────────────┐
-│  Application Call  │
-│ connector.connect()│
-└────────┬───────────┘
+┌─────────────────────┐
+│  Application Call   │
+│ connector.connect() │
+└────────┬────────────┘
          │
          ▼
-┌────────────────────┐
-│ BinanceConnector   │
-│ .connect()         │
-└────────┬───────────┘
+┌─────────────────────┐
+│ BinanceConnector    │
+│ .connect()          │
+└────────┬────────────┘
          │
          ▼
-┌────────────────────┐
-│ super.connect()    │  ◄─── Calls AbstractExchangeConnector.connect()
-│ (from Abstract)    │
-└────────┬───────────┘
+┌─────────────────────┐
+│ super.connect()     │  ◄─── Calls AbstractExchangeConnector.connect()
+│ (from Abstract)     │
+└────────┬────────────┘
          │
          ├──────────────────────────────────────┐
          │                                      │
          ▼                                      ▼
-┌────────────────────┐              ┌────────────────────┐
-│ testConnectivity() │              │  Check configured  │
-│                    │              │  and not connected │
-│ • Ping endpoint    │              └────────────────────┘
-│ • Verify response  │
-└────────┬───────────┘
+┌─────────────────────┐              ┌────────────────────┐
+│ testConnectivity()  │              │  Check configured  │
+│                     │              │  and not connected │
+│ • Ping endpoint     │              └────────────────────┘
+│ • Verify response   │
+└────────┬────────────┘
          │
          ▼
-┌────────────────────┐
-│ onConnect()        │  ◄─── BinanceConnector override
-│                    │
-│ • Get server time  │
-│ • Sync timestamp   │
-│ • Update offset    │
-└────────┬───────────┘
+┌─────────────────────┐
+│ onConnect()         │  ◄─── BinanceConnector override
+│                     │
+│ • Get server time   │
+│ • Sync timestamp    │
+│ • Update offset     │
+└────────┬────────────┘
          │
          ▼
-┌────────────────────┐
-│ connected = true   │  ◄─── Critical: Flag set by AbstractExchangeConnector
-└────────┬───────────┘
+┌─────────────────────┐
+│ connected = true    │  ◄─── Critical: Flag set by AbstractExchangeConnector
+└────────┬────────────┘
          │
          ▼
-┌────────────────────┐
+┌─────────────────────┐
 │ ✅ Connection Ready │
-│                    │
-│ Now can call:      │
-│ • getBalance()     │
-│ • getCandles()     │
-│ • placeOrder()     │
-│ • etc.             │
-└────────────────────┘
+│                     │
+│ Now can call:       │
+│ • getBalance()      │
+│ • getCandles()      │
+│ • placeOrder()      │
+│ • etc.              │
+└─────────────────────┘
 ```
 
 **Key Points**:
