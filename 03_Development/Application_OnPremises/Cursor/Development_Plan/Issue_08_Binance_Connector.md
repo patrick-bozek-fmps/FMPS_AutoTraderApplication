@@ -286,27 +286,27 @@ Implement a fully functional Binance exchange connector for the testnet/demo env
 │  │                   REST API Methods                        │   │
 │  │                                                           │   │
 │  │  getCandles() ─────────┐                                 │   │
-│  │  getTicker() ──────────┼──▶ BinanceAuthenticator        │   │
+│  │  getTicker() ──────────┼──▶ BinanceAuthenticator         │   │
 │  │  getOrderBook() ───────┤                                 │   │
 │  │  getBalance() ─────────┤         │                       │   │
 │  │  placeOrder() ─────────┤         ▼                       │   │
 │  │  cancelOrder() ────────┤   Sign Request                  │   │
 │  │  getOrder() ───────────┤   (HMAC SHA256)                 │   │
-│  └──────────────┬──────────┤         │                       │   │
-│                 │          └─────────┼───────────────────────┘   │
+│  └──────────────┬──────────┤         │                      │   │
+│                 │          └─────────┼──────────────────────┘   │
 │                 │                    │                           │
 │                 │     ┌──────────────▼──────────────┐           │
-│                 │     │      HTTP Client            │           │
-│                 │     │   (Ktor Client CIO)         │           │
-│                 │     │                             │           │
-│                 │     │  GET /api/v3/klines         │           │
-│                 │     │  GET /api/v3/account        │           │
-│                 │     │  POST /api/v3/order         │           │
+│                 │     │      HTTP Client             │           │
+│                 │     │   (Ktor Client CIO)          │           │
+│                 │     │                              │           │
+│                 │     │  GET /api/v3/klines          │           │
+│                 │     │  GET /api/v3/account         │           │
+│                 │     │  POST /api/v3/order          │           │
 │                 │     └──────────────┬───────────────┘           │
 │                 │                    │                           │
 │                 │                    ▼                           │
-│                 │         Binance Testnet REST API             │
-│                 │     https://testnet.binance.vision           │
+│                 │         Binance Testnet REST API              │
+│                 │     https://testnet.binance.vision            │
 │                 │                                                │
 │  ┌──────────────▼────────────────────────────────────────────┐  │
 │  │            WebSocket Streaming                             │  │
@@ -323,7 +323,7 @@ Implement a fully functional Binance exchange connector for the testnet/demo env
 │  └────────────────────────────────────────────────────────────┘  │
 │                                                                   │
 │  ┌───────────────────────────────────────────────────────────┐   │
-│  │              Error Handling & Rate Limiting              │   │
+│  │              Error Handling & Rate Limiting               │   │
 │  │                                                           │   │
 │  │  BinanceErrorHandler ──▶ Map error codes                 │   │
 │  │  RateLimiter ──────────▶ 1200 req/min, weight-based      │   │

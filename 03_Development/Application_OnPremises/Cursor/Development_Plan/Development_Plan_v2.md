@@ -204,15 +204,15 @@ The FMPS AutoTrader Application is an **on-premises desktop application** for Wi
 │                     DESKTOP UI APPLICATION                        │
 │                       (JavaFX Client)                             │
 │                                                                   │
-│  ┌────────────┐  ┌──────────────┐  ┌──────────────────┐         │
-│  │ Dashboard  │  │  AI Trader   │  │   Configuration  │         │
-│  │   View     │  │  Management  │  │      View        │         │
-│  └────────────┘  └──────────────┘  └──────────────────┘         │
-└──────────────────────────┬────────────────────────────────────────┘
+│  ┌────────────┐  ┌──────────────┐  ┌──────────────────┐          │
+│  │ Dashboard  │  │  AI Trader   │  │   Configuration  │          │
+│  │   View     │  │  Management  │  │      View        │          │
+│  └────────────┘  └──────────────┘  └──────────────────┘          │
+└──────────────────────────┬─────────────────────────────────────────┘
                            │
                     REST API + WebSocket
                            │
-┌──────────────────────────┴────────────────────────────────────────┐
+┌──────────────────────────┴───────────────────────────────────────┐
 │              CORE APPLICATION (Windows Service)                   │
 │                     Runs 24/7 in background                       │
 │                                                                   │
