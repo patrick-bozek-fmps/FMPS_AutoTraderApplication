@@ -59,8 +59,8 @@ jobs:
         working-directory: 03_Development/Application_OnPremises
 
       - name: Skip integration tests (missing secrets)
-        if: ${{ ! (env.BINANCE_API_KEY != '' && env.BINANCE_API_SECRET != '' && env.BITGET_API_KEY != '' && env.BITGET_API_SECRET != '' && env.BITGET_API_PASSPHRASE != '') }}
-        run: echo "Skipping integration tests: required secrets are not set."
+        if: ${{ env.BINANCE_API_KEY == '' || env.BINANCE_API_SECRET == '' || env.BITGET_API_KEY == '' || env.BITGET_API_SECRET == '' || env.BITGET_API_PASSPHRASE == '' }}
+        run: echo 'Skipping integration tests: required secrets are not set.'
 
       - name: Run integration tests (only @integration)
         if: ${{ env.BINANCE_API_KEY != '' && env.BINANCE_API_SECRET != '' && env.BITGET_API_KEY != '' && env.BITGET_API_SECRET != '' && env.BITGET_API_PASSPHRASE != '' }}
