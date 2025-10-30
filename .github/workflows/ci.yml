@@ -40,11 +40,11 @@ jobs:
     
     - name: Run unit tests
       run: ./gradlew test
-      continue-on-error: true
+      # Fail the build if unit tests fail
     
     - name: Run integration tests
       run: ./gradlew integrationTest
-      continue-on-error: true
+      continue-on-error: true  # Integration tests require API keys (not available in CI)
     
     - name: Upload test reports
       uses: actions/upload-artifact@v4

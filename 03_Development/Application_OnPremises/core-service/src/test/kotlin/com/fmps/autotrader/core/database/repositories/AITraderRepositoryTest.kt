@@ -34,6 +34,10 @@ class AITraderRepositoryTest {
     
     @Test
     fun `should create AI trader`() = runBlocking {
+        // Clear existing traders first to avoid hitting max limit (3 traders)
+        val existing = repository.findAll()
+        existing.forEach { repository.delete(it.id) }
+        
         val traderId = repository.create(
             name = "Test Trader",
             exchange = "BINANCE",
@@ -42,7 +46,7 @@ class AITraderRepositoryTest {
             initialBalance = BigDecimal("10000")
         )
         
-        assertNotNull(traderId)
+        assertNotNull(traderId, "Trader creation should succeed after cleanup")
         assertTrue(traderId!! > 0)
     }
     
@@ -73,6 +77,10 @@ class AITraderRepositoryTest {
     
     @Test
     fun `should update AI trader status`() = runBlocking {
+        // Clear existing traders first to avoid hitting max limit
+        val existing = repository.findAll()
+        existing.forEach { repository.delete(it.id) }
+        
         val traderId = repository.create(
             name = "Test Trader 3",
             exchange = "BINANCE",
@@ -91,6 +99,10 @@ class AITraderRepositoryTest {
     
     @Test
     fun `should update AI trader balance`() = runBlocking {
+        // Clear existing traders first to avoid hitting max limit
+        val existing = repository.findAll()
+        existing.forEach { repository.delete(it.id) }
+        
         val traderId = repository.create(
             name = "Test Trader 4",
             exchange = "BINANCE",
