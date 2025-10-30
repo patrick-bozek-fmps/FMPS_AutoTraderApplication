@@ -64,29 +64,34 @@ data class WebSocketConfig(
  * Database configuration.
  */
 data class DatabaseConfig(
-    val path: String,
-    val pool: PoolConfig,
-    val migration: MigrationConfig
+    val driver: String,
+    val url: String,
+    val hikari: HikariPoolConfig,
+    val flyway: FlywayConfig
 )
 
 /**
  * Database connection pool configuration (HikariCP).
  */
-data class PoolConfig(
+data class HikariPoolConfig(
     val maximumPoolSize: Int,
     val minimumIdle: Int,
     val connectionTimeout: Long,
     val idleTimeout: Long,
-    val maxLifetime: Long
+    val maxLifetime: Long,
+    val autoCommit: Boolean,
+    val poolName: String
 )
 
 /**
  * Database migration configuration (Flyway).
  */
-data class MigrationConfig(
-    val enabled: Boolean,
-    val cleanOnValidationError: Boolean,
-    val validateOnMigrate: Boolean
+data class FlywayConfig(
+    val locations: List<String>,
+    val baselineOnMigrate: Boolean,
+    val baselineVersion: String,
+    val validateOnMigrate: Boolean,
+    val cleanDisabled: Boolean
 )
 
 /**

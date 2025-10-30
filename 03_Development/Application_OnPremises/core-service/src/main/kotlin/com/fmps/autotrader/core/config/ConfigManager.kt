@@ -153,18 +153,23 @@ object ConfigManager {
                 )
             ),
             database = DatabaseConfig(
-                path = config.getString("database.path"),
-                pool = PoolConfig(
-                    maximumPoolSize = config.getInt("database.pool.maximumPoolSize"),
-                    minimumIdle = config.getInt("database.pool.minimumIdle"),
-                    connectionTimeout = config.getLong("database.pool.connectionTimeout"),
-                    idleTimeout = config.getLong("database.pool.idleTimeout"),
-                    maxLifetime = config.getLong("database.pool.maxLifetime")
+                driver = config.getString("database.driver"),
+                url = config.getString("database.url"),
+                hikari = HikariPoolConfig(
+                    maximumPoolSize = config.getInt("database.hikari.maximumPoolSize"),
+                    minimumIdle = config.getInt("database.hikari.minimumIdle"),
+                    connectionTimeout = config.getLong("database.hikari.connectionTimeout"),
+                    idleTimeout = config.getLong("database.hikari.idleTimeout"),
+                    maxLifetime = config.getLong("database.hikari.maxLifetime"),
+                    autoCommit = config.getBoolean("database.hikari.autoCommit"),
+                    poolName = config.getString("database.hikari.poolName")
                 ),
-                migration = MigrationConfig(
-                    enabled = config.getBoolean("database.migration.enabled"),
-                    cleanOnValidationError = config.getBoolean("database.migration.cleanOnValidationError"),
-                    validateOnMigrate = config.getBoolean("database.migration.validateOnMigrate")
+                flyway = FlywayConfig(
+                    locations = config.getStringList("database.flyway.locations"),
+                    baselineOnMigrate = config.getBoolean("database.flyway.baselineOnMigrate"),
+                    baselineVersion = config.getString("database.flyway.baselineVersion"),
+                    validateOnMigrate = config.getBoolean("database.flyway.validateOnMigrate"),
+                    cleanDisabled = config.getBoolean("database.flyway.cleanDisabled")
                 )
             ),
             logging = LoggingConfig(
@@ -304,15 +309,15 @@ object ConfigManager {
         }
         
         // Validate database configuration
-        if (config.database.path.isBlank()) {
-            errors.add("Database path cannot be blank")
+        if (config.database.url.isBlank()) {
+            errors.add("Database URL cannot be blank")
         }
         
-        if (config.database.pool.maximumPoolSize < 1) {
+        if (config.database.hikari.maximumPoolSize < 1) {
             errors.add("Database pool maximum size must be at least 1")
         }
         
-        if (config.database.pool.minimumIdle > config.database.pool.maximumPoolSize) {
+        if (config.database.hikari.minimumIdle > config.database.hikari.maximumPoolSize) {
             errors.add("Database pool minimum idle cannot exceed maximum pool size")
         }
         

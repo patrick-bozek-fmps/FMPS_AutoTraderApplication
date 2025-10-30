@@ -91,10 +91,10 @@ class ConfigManagerTest {
             val config = ConfigManager.load(environment = "test")
             
             // Then
-            config.database.path shouldContain "test-db"
-            config.database.pool.maximumPoolSize shouldBe 2
-            config.database.pool.minimumIdle shouldBe 1
-            config.database.migration.enabled shouldBe true
+            config.database.url shouldContain "test-db"
+            config.database.hikari.maximumPoolSize shouldBe 2
+            config.database.hikari.minimumIdle shouldBe 1
+            config.database.flyway.validateOnMigrate shouldBe true
         }
     }
     
