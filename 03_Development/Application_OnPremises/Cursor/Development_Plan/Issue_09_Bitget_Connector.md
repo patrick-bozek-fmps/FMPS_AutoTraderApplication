@@ -275,59 +275,59 @@ Implement a fully functional Bitget exchange connector for the testnet/demo envi
 ### **Bitget Connector Architecture**
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        BitgetConnector                           │
-│                                                                   │
+┌──────────────────────────────────────────────────────────────────┐
+│                          BitgetConnector                         │
+│                                                                  │
 │  extends AbstractExchangeConnector                               │
 │  implements IExchangeConnector                                   │
-│                                                                   │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │                  REST API Methods                         │   │
-│  │                                                            │   │
-│  │  getCandles() ─────────┐                                  │   │
-│  │  getTicker() ──────────┼──▶ BitgetAuthenticator          │   │
-│  │  getOrderBook() ───────┤                                  │   │
-│  │  getBalance() ─────────┤         │                        │   │
-│  │  placeOrder() ─────────┤         ▼                        │   │
-│  │  cancelOrder() ────────┤   Sign Request                   │   │
-│  │  getOrder() ───────────┤   (API Key + Secret + Passphrase)│   │
-│  └──────────────┬──────────┤         │                        │   │
-│                 │          └─────────┼────────────────────────┘   │
-│                 │                    │                            │
-│                 │     ┌──────────────▼──────────────┐            │
-│                 │     │      HTTP Client              │            │
-│                 │     │   (Ktor Client CIO)           │            │
-│                 │     │                               │            │
-│                 │     │  GET /api/spot/v1/market/candles│         │
-│                 │     │  GET /api/spot/v1/account/assets│         │
-│                 │     │  POST /api/spot/v1/trade/orders │         │
-│                 │     └──────────────┬────────────────┘            │
-│                 │                    │                            │
-│                 │                    ▼                            │
-│                 │             Bitget API                          │
-│                 │         https://api.bitget.com                  │
-│                 │                                                 │
-│  ┌──────────────▼─────────────────────────────────────────────┐ │
-│  │            WebSocket Streaming                              │ │
-│  │                                                              │ │
-│  │  BitgetWebSocketManager                                     │ │
-│  │                                                              │ │
-│  │  subscribeCandlesticks() ─────┐                            │ │
-│  │  subscribeTicker() ───────────┼──▶ ws streams              │ │
-│  │  subscribeOrderUpdates() ─────┤                            │ │
-│  │                                │                            │ │
-│  │                                ▼                            │ │
-│  │                    Bitget WebSocket API                     │ │
-│  │                wss://ws.bitget.com/spot/v1/stream           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │              Error Handling & Rate Limiting                  ││
-│  │                                                               ││
-│  │  BitgetErrorHandler ──▶ Map error codes                     ││
-│  │  RateLimiter ──────────▶ Bitget-specific limits             ││
-│  └─────────────────────────────────────────────────────────────┘│
-└───────────────────────────────────────────────────────────────────┘
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │                  REST API Methods                          │  │
+│  │                                                            │  │
+│  │  getCandles() ─────────┐                                   │  │
+│  │  getTicker() ──────────┼──▶ BitgetAuthenticator            │  │
+│  │  getOrderBook() ───────┤                                   │  │
+│  │  getBalance() ─────────┤         │                         │  │
+│  │  placeOrder() ─────────┤         ▼                         │  │
+│  │  cancelOrder() ────────┤   Sign Request                    │  │
+│  │  getOrder() ───────────┤   (API Key + Secret + Passphrase) │  │
+│  └──────────────┬──────────┤         │                        │  │
+│                 │          └─────────┼────────────────────────┘  │
+│                 │                    │                           │
+│                 │     ┌──────────────▼───────────────────┐       │
+│                 │     │      HTTP Client                 │       │
+│                 │     │   (Ktor Client CIO)              │       │
+│                 │     │                                  │       │
+│                 │     │  GET /api/spot/v1/market/candles │       │
+│                 │     │  GET /api/spot/v1/account/assets │       │
+│                 │     │  POST /api/spot/v1/trade/orders  │       │
+│                 │     └──────────────┬───────────────────┘       │
+│                 │                    │                           │
+│                 │                    ▼                           │
+│                 │             Bitget API                         │
+│                 │         https://api.bitget.com                 │
+│                 │                                                │
+│  ┌──────────────▼─────────────────────────────────────────────┐  │
+│  │            WebSocket Streaming                             │  │
+│  │                                                            │  │
+│  │  BitgetWebSocketManager                                    │  │
+│  │                                                            │  │
+│  │  subscribeCandlesticks() ─────┐                            │  │
+│  │  subscribeTicker() ───────────┼──▶ ws streams              │  │
+│  │  subscribeOrderUpdates() ─────┤                            │  │
+│  │                                │                           │  │
+│  │                                ▼                           │  │
+│  │                    Bitget WebSocket API                    │  │
+│  │                wss://ws.bitget.com/spot/v1/stream          │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │              Error Handling & Rate Limiting                │  │
+│  │                                                            │  │
+│  │  BitgetErrorHandler ──▶ Map error codes                    │  │
+│  │  RateLimiter ──────────▶ Bitget-specific limits            │  │
+│  └────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ### **Key Differences from Binance**

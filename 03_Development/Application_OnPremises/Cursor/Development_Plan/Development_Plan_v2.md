@@ -219,8 +219,8 @@ The FMPS AutoTrader Application is an **on-premises desktop application** for Wi
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                     DESKTOP UI APPLICATION                       │
-│                       (JavaFX Client)                            │
+│                      DESKTOP UI APPLICATION                      │
+│                         (JavaFX Client)                          │
 │                                                                  │
 │    ┌───────────────┐   ┌───────────────┐   ┌────────────────┐    │
 │    │   Dashboard   │   │   AI Trader   │   │  Configuration │    │
@@ -235,35 +235,35 @@ The FMPS AutoTrader Application is an **on-premises desktop application** for Wi
 │                     Runs 24/7 in background                      │
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐  │
-│  │                    REST API Server                         │  │
-│  │               (Ktor Server + WebSocket)                    │  │
+│  │                     REST API Server                        │  │
+│  │                (Ktor Server + WebSocket)                   │  │
 │  └─────────────────────────────┬──────────────────────────────┘  │
 │                                │                                 │
 │  ┌─────────────────────────────┴──────────────────────────────┐  │
-│  │                   AI Trader Manager                        │  │
+│  │                    AI Trader Manager                       │  │
 │  │          (Manages up to 3 AI Trader instances)             │  │
 │  └─────────────────────────────┬──────────────────────────────┘  │
 │                                │                                 │
 │  ┌──────────────────┬──────────┴──────────┬───────────────────┐  │
-│  │   AI Trader 1    │     AI Trader 2     │   AI Trader 3     │  │
+│  │   AI Trader 1    │     AI Trader 2     │    AI Trader 3    │  │
 │  │                  │                     │                   │  │
-│  │   - Analysis     │    - Analysis       │  - Analysis       │  │
-│  │   - Trading      │    - Trading        │  - Trading        │  │
-│  │   - Monitoring   │    - Monitoring     │  - Monitoring     │  │
+│  │   - Analysis     │    - Analysis       │   - Analysis      │  │
+│  │   - Trading      │    - Trading        │   - Trading       │  │
+│  │   - Monitoring   │    - Monitoring     │   - Monitoring    │  │
 │  └──────────────────┴──────────┬──────────┴───────────────────┘  │
 │                                │                                 │
 │  ┌─────────────────────────────┴──────────────────────────────┐  │
-│  │                 Exchange Connector Framework               │  │
+│  │                Exchange Connector Framework                │  │
 │  │       ┌──────────────┐             ┌──────────────┐        │  │
-│  │       │   Binance    │             │    Bitget    │        │  │
-│  │       │  Connector   │             │  Connector   │        │  │
-│  │       │ (Demo API)   │             │ (Demo API)   │        │  │
+│  │       │    Binance   │             │    Bitget    │        │  │
+│  │       │   Connector  │             │  Connector   │        │  │
+│  │       │  (Demo API)  │             │  (Demo API)  │        │  │
 │  │       └──────────────┘             └──────────────┘        │  │
 │  └─────────────────────────────┬──────────────────────────────┘  │
 │                                │                                 │
 │  ┌─────────────────────────────┴──────────────────────────────┐  │
-│  │               Pattern Storage Database                     │  │
-│  │                   (SQLite)                                 │  │
+│  │                Pattern Storage Database                    │  │
+│  │                       (SQLite)                             │  │
 │  │  - Trade history                                           │  │
 │  │  - Successful patterns                                     │  │
 │  │  - Performance metrics                                     │  │

@@ -61,6 +61,7 @@ data class BitgetConfig(
                 exchange = com.fmps.autotrader.shared.enums.Exchange.BITGET,
                 apiKey = apiKey,
                 apiSecret = apiSecret,
+                passphrase = passphrase,  // Add passphrase parameter
                 baseUrl = "https://api.bitget.com",
                 testnet = true,
                 rateLimitConfig = RateLimitConfig(
@@ -108,6 +109,7 @@ data class BitgetConfig(
                 exchange = com.fmps.autotrader.shared.enums.Exchange.BITGET,
                 apiKey = apiKey,
                 apiSecret = apiSecret,
+                passphrase = passphrase,  // Add passphrase parameter
                 baseUrl = "https://api.bitget.com",
                 testnet = false,
                 rateLimitConfig = RateLimitConfig(

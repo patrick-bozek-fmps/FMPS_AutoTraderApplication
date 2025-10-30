@@ -282,18 +282,18 @@ Implement a fully functional Binance exchange connector for the testnet/demo env
 │  extends AbstractExchangeConnector                               │
 │  implements IExchangeConnector                                   │
 │                                                                  │
-│  ┌───────────────────────────────────────────────────────────┐   │
-│  │                   REST API Methods                        │   │
-│  │                                                           │   │
-│  │  getCandles() ─────────┐                                  │   │
-│  │  getTicker() ──────────┼──▶ BinanceAuthenticator          │   │
-│  │  getOrderBook() ───────┤                                  │   │
-│  │  getBalance() ─────────┤         │                        │   │
-│  │  placeOrder() ─────────┤         ▼                        │   │
-│  │  cancelOrder() ────────┤   Sign Request                   │   │
-│  │  getOrder() ───────────┤   (HMAC SHA256)                  │   │
-│  └──────────────┬──────────┤         │                       │   │
-│                 │          └─────────┼───────────────────────┘   │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │                   REST API Methods                         │  │
+│  │                                                            │  │
+│  │  getCandles() ─────────┐                                   │  │
+│  │  getTicker() ──────────┼──▶ BinanceAuthenticator           │  │
+│  │  getOrderBook() ───────┤                                   │  │
+│  │  getBalance() ─────────┤         │                         │  │
+│  │  placeOrder() ─────────┤         ▼                         │  │
+│  │  cancelOrder() ────────┤   Sign Request                    │  │
+│  │  getOrder() ───────────┤   (HMAC SHA256)                   │  │
+│  └──────────────┬──────────┤         │                        │  │
+│                 │          └─────────┼────────────────────────┘  │
 │                 │                    │                           │
 │                 │     ┌──────────────▼────────────┐              │
 │                 │     │      HTTP Client          │              │
