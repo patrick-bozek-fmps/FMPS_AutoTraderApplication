@@ -106,6 +106,13 @@ val integrationTest by tasks.registering(Test::class) {
     useJUnitPlatform {
         includeTags("integration")
     }
+    
+    // Pass environment variables to test JVM
+    environment("BINANCE_API_KEY", System.getenv("BINANCE_API_KEY") ?: "")
+    environment("BINANCE_API_SECRET", System.getenv("BINANCE_API_SECRET") ?: "")
+    environment("BITGET_API_KEY", System.getenv("BITGET_API_KEY") ?: "")
+    environment("BITGET_API_SECRET", System.getenv("BITGET_API_SECRET") ?: "")
+    environment("BITGET_API_PASSPHRASE", System.getenv("BITGET_API_PASSPHRASE") ?: "")
 }
 
 tasks.test {

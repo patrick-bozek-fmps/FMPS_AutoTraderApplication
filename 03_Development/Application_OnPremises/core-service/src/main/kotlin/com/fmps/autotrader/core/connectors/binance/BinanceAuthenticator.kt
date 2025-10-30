@@ -36,6 +36,12 @@ class BinanceAuthenticator(
     private val recvWindow: Long = 5000,
     private var timestampOffset: Long = 0
 ) {
+    init {
+        require(apiKey.isNotBlank()) { "Binance API key cannot be blank" }
+        require(apiSecret.isNotBlank()) { "Binance API secret cannot be blank" }
+        require(recvWindow > 0) { "recvWindow must be positive, got: $recvWindow" }
+    }
+    
     private val hmacAlgorithm = "HmacSHA256"
     private val mac: Mac = Mac.getInstance(hmacAlgorithm).apply {
         init(SecretKeySpec(apiSecret.toByteArray(), hmacAlgorithm))

@@ -65,20 +65,33 @@ class BinanceConnectorIntegrationTest {
             println()
 
             // Create test configuration
-            val config = BinanceConfig.testnet(
-                apiKey = apiKey!!,
-                apiSecret = apiSecret!!
-            )
+            println("Creating BinanceConfig with apiKey=${apiKey!!.take(5)}... and apiSecret=${apiSecret!!.take(5)}...")
+            try {
+                val config = BinanceConfig.testnet(
+                    apiKey = apiKey!!,
+                    apiSecret = apiSecret!!
+                )
+                println("✅ BinanceConfig created")
 
-            // Validate configuration
-            config.validate()
-            println("✅ Configuration validated")
+                // Validate configuration
+                println("Validating configuration...")
+                config.validate()
+                println("✅ Configuration validated")
 
-            // Create connector instance
-            connector = BinanceConnector()
-            connector.configure(config.baseExchangeConfig)
-            println("✅ Connector configured")
-            println()
+                // Create connector instance
+                println("Creating BinanceConnector...")
+                connector = BinanceConnector()
+                println("✅ BinanceConnector created")
+                
+                println("Configuring connector...")
+                connector.configure(config.baseExchangeConfig)
+                println("✅ Connector configured")
+                println()
+            } catch (e: Exception) {
+                println("❌ Error during setup: ${e.javaClass.simpleName}: ${e.message}")
+                e.printStackTrace()
+                throw e
+            }
         } else {
             println("⚠️  WARNING: Binance API keys not found!")
             println()

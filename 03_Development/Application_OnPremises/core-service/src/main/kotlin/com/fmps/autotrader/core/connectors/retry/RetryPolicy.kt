@@ -245,11 +245,12 @@ class RetryPolicy(
 
         /**
          * No retry policy - fail immediately on first error.
+         * Note: baseDelayMs must be > 0 due to validation, but it doesn't matter since maxRetries = 0
          */
         val NONE = RetryPolicy(
             maxRetries = 0,
-            baseDelayMs = 0,
-            maxDelayMs = 0,
+            baseDelayMs = 1,  // Must be > 0 for validation, but unused since maxRetries = 0
+            maxDelayMs = 1,   // Must be >= baseDelayMs
             exponentialBackoff = false,
             jitterFactor = 0.0
         )

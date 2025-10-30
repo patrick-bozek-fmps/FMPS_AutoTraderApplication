@@ -155,11 +155,17 @@ data class BinanceConfig(
      * Validates the configuration
      */
     fun validate() {
-        require(apiKey.isNotBlank()) { "API key cannot be blank" }
-        require(apiSecret.isNotBlank()) { "API secret cannot be blank" }
-        require(recvWindow in 1000..60000) { "recvWindow must be between 1000 and 60000 ms" }
-        require(timeout > 0) { "Timeout must be positive" }
-        require(weightMultiplier > 0) { "Weight multiplier must be positive" }
+        require(apiKey.isNotBlank()) { "Binance API key cannot be blank (got: '$apiKey')" }
+        require(apiSecret.isNotBlank()) { "Binance API secret cannot be blank (got: '${apiSecret.take(5)}...')" }
+        require(recvWindow in 1000..60000) { "recvWindow must be between 1000 and 60000 ms (got: $recvWindow)" }
+        require(timeout > 0) { "Timeout must be positive (got: $timeout)" }
+        require(weightMultiplier > 0) { "Weight multiplier must be positive (got: $weightMultiplier)" }
+        
+        // Validate base config too
+        baseExchangeConfig.let {
+            require(it.apiKey.isNotBlank()) { "Base config API key cannot be blank" }
+            require(it.apiSecret.isNotBlank()) { "Base config API secret cannot be blank" }
+        }
     }
 }
 
