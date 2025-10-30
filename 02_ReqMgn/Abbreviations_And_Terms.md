@@ -1,4 +1,4 @@
-# CommonDefinitionOfTermsAndAbbreviations
+# Abbreviations_And_Terms
 
 **Source File**: `CommonDefinitionOfTermsAndAbbreviations.xlsx`  
 **Converted**: 2025-10-23 13:44:00  
