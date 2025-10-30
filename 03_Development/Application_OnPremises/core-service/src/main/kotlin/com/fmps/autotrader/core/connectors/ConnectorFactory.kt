@@ -1,5 +1,7 @@
 package com.fmps.autotrader.core.connectors
 
+import com.fmps.autotrader.core.connectors.binance.BinanceConfig
+import com.fmps.autotrader.core.connectors.binance.BinanceConnector
 import com.fmps.autotrader.core.connectors.exceptions.UnsupportedExchangeException
 import com.fmps.autotrader.shared.enums.Exchange
 import com.fmps.autotrader.shared.model.ExchangeConfig
@@ -60,9 +62,13 @@ class ConnectorFactory private constructor() {
      * registered here.
      */
     private fun registerDefaultConnectors() {
-        // TODO: Register connectors as they are implemented
-        // registerConnector(Exchange.BINANCE) { config -> BinanceConnector(config) }
-        // registerConnector(Exchange.BITGET) { config -> BitgetConnector(config) }
+        // Register Binance connector
+        registerConnector(Exchange.BINANCE) { _ -> 
+            BinanceConnector()
+        }
+        
+        // TODO: Register Bitget connector when implemented
+        // registerConnector(Exchange.BITGET) { config -> BitgetConnector() }
         
         logger.info { "Registered ${connectorRegistry.size} exchange connectors" }
     }
