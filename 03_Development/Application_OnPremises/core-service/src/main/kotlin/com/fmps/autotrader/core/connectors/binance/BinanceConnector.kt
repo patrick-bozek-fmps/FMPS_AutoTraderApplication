@@ -80,23 +80,29 @@ class BinanceConnector : AbstractExchangeConnector(Exchange.BINANCE) {
     
     /**
      * Connects to Binance API and verifies connectivity
+     * 
+     * Uses the standard AbstractExchangeConnector.connect() flow which:
+     * 1. Calls testConnectivity() to verify basic connectivity
+     * 2. Calls onConnect() for exchange-specific setup  
+     * 3. Sets the connected flag to true
      */
     override suspend fun connect() {
-        logger.info { "Connecting to Binance (${config.baseUrl ?: "default URL"})..." }
-        
+        // Use the parent class's connect method which handles the connected flag properly
+        super.connect()
+    }
+    
+    /**
+     * Called after successful connection to perform Binance-specific initialization
+     * 
+     * Synchronizes server time to avoid timestamp errors in authenticated requests.
+     */
+    override suspend fun onConnect() {
         try {
             val baseUrl = config.baseUrl ?: if (config.testnet) {
                 "https://testnet.binance.vision"
             } else {
                 "https://api.binance.com"
             }
-            
-            // Test connectivity
-            val pingResponse = httpClient.get("$baseUrl/api/v3/ping")
-            if (pingResponse.status != HttpStatusCode.OK) {
-                throw ConnectionException("Ping test failed: ${pingResponse.status}")
-            }
-            logger.debug { "Connectivity test passed" }
             
             // Get server time and adjust timestamp offset
             val timeResponse = httpClient.get("$baseUrl/api/v3/time")
@@ -105,20 +111,12 @@ class BinanceConnector : AbstractExchangeConnector(Exchange.BINANCE) {
                 val serverTime = timeJson["serverTime"]?.jsonPrimitive?.long
                 if (serverTime != null) {
                     authenticator.updateTimestampOffset(serverTime)
-                    logger.debug { "Server time synchronized: $serverTime" }
+                    logger.info { "Synchronized with Binance server time (offset: ${authenticator.getTimestampOffset()}ms)" }
                 }
             }
-            
-            // Test authentication with account endpoint
-            val accountInfo = getBalance()
-            logger.info { "Binance connection successful. Account has ${accountInfo.size} non-zero balances." }
-            
-        } catch (e: ExchangeException) {
-            logger.error(e) { "Failed to connect to Binance" }
-            throw e
         } catch (e: Exception) {
-            logger.error(e) { "Unexpected error connecting to Binance" }
-            throw ConnectionException("Connection failed: ${e.message}", e)
+            logger.warn(e) { "Failed to synchronize server time, will use local time" }
+            // Non-fatal - can proceed with local time
         }
     }
     

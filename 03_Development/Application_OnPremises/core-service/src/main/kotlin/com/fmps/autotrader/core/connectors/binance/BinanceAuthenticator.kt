@@ -136,6 +136,13 @@ class BinanceAuthenticator(
     }
     
     /**
+     * Gets the current timestamp offset
+     * 
+     * @return Timestamp offset in milliseconds
+     */
+    fun getTimestampOffset(): Long = timestampOffset
+    
+    /**
      * Gets the current adjusted timestamp
      * 
      * @return Current timestamp + offset in milliseconds
