@@ -202,7 +202,7 @@ The FMPS AutoTrader Application is an **on-premises desktop application** for Wi
 ```
 ┌───────────────────────────────────────────────────────────────────┐
 │                     DESKTOP UI APPLICATION                        │
-│                       (JavaFX Client)                              │
+│                       (JavaFX Client)                             │
 │                                                                   │
 │  ┌────────────┐  ┌──────────────┐  ┌──────────────────┐         │
 │  │ Dashboard  │  │  AI Trader   │  │   Configuration  │         │
