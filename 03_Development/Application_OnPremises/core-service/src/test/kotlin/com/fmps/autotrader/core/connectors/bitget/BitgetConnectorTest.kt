@@ -68,16 +68,16 @@ class BitgetConnectorTest {
             passphrase = "test-passphrase"
         )
         
-        // Note: passphrase is in BitgetConfig, not baseExchangeConfig
         // Verify the BitgetConfig has passphrase
         assertNotNull(bitgetConfig.passphrase)
         assertEquals("test-passphrase", bitgetConfig.passphrase)
         
-        // Verify baseExchangeConfig has passphrase (it should be set by BitgetConfig.testnet)
+        // Verify baseExchangeConfig has passphrase
         assertNotNull(bitgetConfig.baseExchangeConfig.passphrase, 
             "BaseExchangeConfig should have passphrase set")
         
-        // Should handle BitgetConfig directly
+        // Should handle BitgetConfig - passphrase is already in baseExchangeConfig
+        // BitgetConfig.testnet() ensures the baseExchangeConfig has passphrase set
         connector.configure(bitgetConfig.baseExchangeConfig)
         
         assertNotNull(connector)
