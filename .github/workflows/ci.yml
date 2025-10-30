@@ -43,7 +43,6 @@ jobs:
       BITGET_API_KEY: ${{ secrets.BITGET_API_KEY }}
       BITGET_API_SECRET: ${{ secrets.BITGET_API_SECRET }}
       BITGET_API_PASSPHRASE: ${{ secrets.BITGET_API_PASSPHRASE }}
-    if: ${{ secrets.BINANCE_API_KEY != '' && secrets.BINANCE_API_SECRET != '' && secrets.BITGET_API_KEY != '' && secrets.BITGET_API_SECRET != '' && secrets.BITGET_API_PASSPHRASE != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,7 +58,12 @@ jobs:
         run: chmod +x gradlew
         working-directory: 03_Development/Application_OnPremises
 
+      - name: Skip integration tests (missing secrets)
+        if: ${{ ! (env.BINANCE_API_KEY != '' && env.BINANCE_API_SECRET != '' && env.BITGET_API_KEY != '' && env.BITGET_API_SECRET != '' && env.BITGET_API_PASSPHRASE != '') }}
+        run: echo "Skipping integration tests: required secrets are not set."
+
       - name: Run integration tests (only @integration)
+        if: ${{ env.BINANCE_API_KEY != '' && env.BINANCE_API_SECRET != '' && env.BITGET_API_KEY != '' && env.BITGET_API_SECRET != '' && env.BITGET_API_PASSPHRASE != '' }}
         run: |
           ./gradlew test --no-daemon -Djunit.jupiter.includeTags=integration \
             -DBINANCE_API_KEY="${BINANCE_API_KEY}" \
