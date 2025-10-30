@@ -121,9 +121,9 @@ class AITraderRepositoryTest {
     
     @Test
     fun `should enforce maximum 3 AI traders`() = runBlocking {
-        // Clear any existing traders
-        val existingTraders = repository.findAll()
-        existingTraders.forEach { repository.delete(it.id) }
+        // Clear existing traders first to avoid hitting max limit
+        val existing = repository.findAll()
+        existing.forEach { repository.delete(it.id) }
         
         // Create 3 traders
         val trader1 = repository.create("Trader 1", "BINANCE", "BTC/USDT", 10, BigDecimal("10000"))
@@ -148,9 +148,9 @@ class AITraderRepositoryTest {
     
     @Test
     fun `should find active traders`() = runBlocking {
-        // Clear existing traders
-        val existingTraders = repository.findAll()
-        existingTraders.forEach { repository.delete(it.id) }
+        // Clear existing traders first to avoid hitting max limit
+        val existing = repository.findAll()
+        existing.forEach { repository.delete(it.id) }
         
         // Create traders with different statuses
         val trader1 = repository.create("Active Trader 1", "BINANCE", "BTC/USDT", 10, BigDecimal("10000"))

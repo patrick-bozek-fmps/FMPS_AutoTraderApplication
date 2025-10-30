@@ -110,6 +110,43 @@
 
 ---
 
+## 📊 **Test Coverage Approach** (Optional)
+
+[Document the testing strategy for this issue. Include this section if the issue involves significant new code that requires testing.]
+
+### **What Was Tested**
+✅ **Component-Level Unit Tests**:
+- **[Component 1]**: [N tests] ([what they test - e.g., validation, state management, business logic])
+- **[Component 2]**: [N tests] ([what they test])
+- **[Component 3]**: [N tests] ([what they test])
+
+**Total**: [N] tests ✅
+
+✅ **Integration Tests** (if applicable):
+[Describe integration test scenarios - e.g., "11 scenarios with real API", "Database integration tests", etc.]
+1. [Integration test scenario 1]
+2. [Integration test scenario 2]
+3. [Integration test scenario 3]
+
+### **What Was NOT Unit Tested (By Design)** (Optional)
+❌ **[Category of untested code]**:
+- `[method/class]` - [Why not unit tested - e.g., "Tested via integration tests", "Abstract class tested via concrete implementations"]
+
+**Rationale**: 
+- [Explain why certain code wasn't unit tested]
+- [Explain alternative testing approach used]
+- [Justify the testing strategy]
+
+### **Test Strategy**
+**[N]-tier coverage for production confidence**:
+1. **Unit Tests**: [What's covered at unit level] ✅
+2. **Integration Tests**: [What's covered at integration level] ✅
+3. **[Other test level]**: [Additional test coverage] ✅
+
+**Result**: ✅ [Summary of overall coverage - e.g., "All functionality covered through strategic test layering"]
+
+---
+
 ## 🔧 **Key Technologies**
 
 | Technology | Version | Purpose |
