@@ -35,19 +35,21 @@ Design and implement a comprehensive technical indicators library supporting RSI
 
 ## 📝 **Task Breakdown**
 
-### **Task 1: Design Technical Indicator Framework** [Status: ⏳ PENDING]
-- [ ] Create `ITechnicalIndicator<T>` interface:
-  - [ ] `calculate(data: List<Candlestick>): T` - Main calculation method
-  - [ ] `getName(): String` - Indicator name
-  - [ ] `getRequiredDataPoints(): Int` - Minimum data points needed
-  - [ ] `reset()` - Clear internal state/cache
-- [ ] Create `IndicatorResult` sealed class hierarchy:
-  - [ ] `SingleValueResult(value: Double)` - For RSI, SMA, EMA
-  - [ ] `MultiValueResult(values: Map<String, Double>)` - For MACD
-  - [ ] `BandResult(upper: Double, middle: Double, lower: Double)` - For Bollinger Bands
-- [ ] Create `IndicatorException` for calculation errors
-- [ ] Add validation helpers for input data
-- [ ] Document design patterns
+### **Task 1: Design Technical Indicator Framework** [Status: ✅ COMPLETE]
+- [x] Create `ITechnicalIndicator<T>` interface:
+  - [x] `calculate(data: List<Candlestick>): T` - Main calculation method
+  - [x] `getName(): String` - Indicator name
+  - [x] `getRequiredDataPoints(): Int` - Minimum data points needed
+  - [x] `reset()` - Clear internal state/cache
+  - [x] `validateData(data: List<Candlestick>): Boolean` - Additional validation method
+  - [x] `calculateAll(data: List<Candlestick>): List<T?>` - Series calculation
+- [x] Create specific result types (design decision: specific classes instead of sealed hierarchy):
+  - [x] `MACDResult` data class with helper methods
+  - [x] `BollingerBandsResult` data class with helper methods
+  - Note: SMA/EMA/RSI return `Double?` directly (simpler design)
+- [x] Create `IndicatorException` for calculation errors
+- [x] Add validation helpers for input data (`IndicatorValidator`)
+- [x] Document design patterns (in KDoc and TECHNICAL_INDICATORS_GUIDE.md)
 
 ### **Task 2: Implement SMA (Simple Moving Average)** [Status: ⏳ PENDING]
 - [ ] Create `SMAIndicator` class implementing `ITechnicalIndicator<Double>`
