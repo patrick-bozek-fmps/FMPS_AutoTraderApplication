@@ -276,58 +276,58 @@ Implement a fully functional Binance exchange connector for the testnet/demo env
 ### **Binance Connector Architecture**
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                       BinanceConnector                           │
+┌───────────────────────────────────────────────────────────────────┐
+│                        BinanceConnector                           │
 │                                                                   │
-│  extends AbstractExchangeConnector                               │
-│  implements IExchangeConnector                                   │
+│  extends AbstractExchangeConnector                                │
+│  implements IExchangeConnector                                    │
 │                                                                   │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │                  REST API Methods                         │   │
-│  │                                                            │   │
-│  │  getCandles() ─────────┐                                  │   │
-│  │  getTicker() ──────────┼──▶ BinanceAuthenticator        │   │
-│  │  getOrderBook() ───────┤                                  │   │
-│  │  getBalance() ─────────┤         │                        │   │
-│  │  placeOrder() ─────────┤         ▼                        │   │
-│  │  cancelOrder() ────────┤   Sign Request                   │   │
-│  │  getOrder() ───────────┤   (HMAC SHA256)                  │   │
-│  └──────────────┬──────────┤         │                        │   │
-│                 │          └─────────┼────────────────────────┘   │
-│                 │                    │                            │
-│                 │     ┌──────────────▼──────────────┐            │
-│                 │     │      HTTP Client              │            │
-│                 │     │   (Ktor Client CIO)           │            │
-│                 │     │                               │            │
-│                 │     │  GET /api/v3/klines          │            │
-│                 │     │  GET /api/v3/account          │            │
-│                 │     │  POST /api/v3/order           │            │
-│                 │     └──────────────┬────────────────┘            │
-│                 │                    │                            │
-│                 │                    ▼                            │
-│                 │         Binance Testnet REST API               │
-│                 │     https://testnet.binance.vision             │
-│                 │                                                 │
-│  ┌──────────────▼─────────────────────────────────────────────┐ │
-│  │            WebSocket Streaming                              │ │
-│  │                                                              │ │
-│  │  BinanceWebSocketManager                                    │ │
-│  │                                                              │ │
-│  │  subscribeCandlesticks() ─────┐                            │ │
-│  │  subscribeTicker() ───────────┼──▶ ws://{symbol}@kline_1m │ │
-│  │  subscribeOrderUpdates() ─────┤                            │ │
-│  │                                │                            │ │
-│  │                                ▼                            │ │
-│  │                    Binance WebSocket API                    │ │
-│  │                wss://testnet.binance.vision/ws              │ │
-│  └─────────────────────────────────────────────────────────────┘ │
+│  ┌───────────────────────────────────────────────────────────┐   │
+│  │                   REST API Methods                        │   │
+│  │                                                           │   │
+│  │  getCandles() ─────────┐                                 │   │
+│  │  getTicker() ──────────┼──▶ BinanceAuthenticator         │   │
+│  │  getOrderBook() ───────┤                                 │   │
+│  │  getBalance() ─────────┤         │                       │   │
+│  │  placeOrder() ─────────┤         ▼                       │   │
+│  │  cancelOrder() ────────┤   Sign Request                  │   │
+│  │  getOrder() ───────────┤   (HMAC SHA256)                 │   │
+│  └──────────────┬──────────┤         │                       │   │
+│                 │          └─────────┼───────────────────────┘   │
+│                 │                    │                           │
+│                 │     ┌──────────────▼──────────────┐           │
+│                 │     │      HTTP Client             │           │
+│                 │     │   (Ktor Client CIO)          │           │
+│                 │     │                              │           │
+│                 │     │  GET /api/v3/klines          │           │
+│                 │     │  GET /api/v3/account         │           │
+│                 │     │  POST /api/v3/order          │           │
+│                 │     └──────────────┬───────────────┘           │
+│                 │                    │                           │
+│                 │                    ▼                           │
+│                 │         Binance Testnet REST API              │
+│                 │     https://testnet.binance.vision            │
+│                 │                                                │
+│  ┌──────────────▼────────────────────────────────────────────┐  │
+│  │            WebSocket Streaming                             │  │
+│  │                                                            │  │
+│  │  BinanceWebSocketManager                                   │  │
+│  │                                                            │  │
+│  │  subscribeCandlesticks() ─────┐                           │  │
+│  │  subscribeTicker() ───────────┼──▶ ws://{symbol}@kline_1m │  │
+│  │  subscribeOrderUpdates() ─────┤                           │  │
+│  │                                │                           │  │
+│  │                                ▼                           │  │
+│  │                    Binance WebSocket API                   │  │
+│  │                wss://testnet.binance.vision/ws             │  │
+│  └────────────────────────────────────────────────────────────┘  │
 │                                                                   │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │              Error Handling & Rate Limiting                  ││
-│  │                                                               ││
-│  │  BinanceErrorHandler ──▶ Map error codes                    ││
-│  │  RateLimiter ──────────▶ 1200 req/min, weight-based         ││
-│  └─────────────────────────────────────────────────────────────┘│
+│  ┌───────────────────────────────────────────────────────────┐   │
+│  │              Error Handling & Rate Limiting               │   │
+│  │                                                           │   │
+│  │  BinanceErrorHandler ──▶ Map error codes                 │   │
+│  │  RateLimiter ──────────▶ 1200 req/min, weight-based      │   │
+│  └───────────────────────────────────────────────────────────┘   │
 └───────────────────────────────────────────────────────────────────┘
 ```
 
