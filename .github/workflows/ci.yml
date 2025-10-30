@@ -43,7 +43,7 @@ jobs:
       BITGET_API_KEY: ${{ secrets.BITGET_API_KEY }}
       BITGET_API_SECRET: ${{ secrets.BITGET_API_SECRET }}
       BITGET_API_PASSPHRASE: ${{ secrets.BITGET_API_PASSPHRASE }}
-    if: ${{ env.BINANCE_API_KEY != '' && env.BINANCE_API_SECRET != '' && env.BITGET_API_KEY != '' && env.BITGET_API_SECRET != '' && env.BITGET_API_PASSPHRASE != '' }}
+    if: ${{ secrets.BINANCE_API_KEY != '' && secrets.BINANCE_API_SECRET != '' && secrets.BITGET_API_KEY != '' && secrets.BITGET_API_SECRET != '' && secrets.BITGET_API_PASSPHRASE != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,70 +68,3 @@ jobs:
             -DBITGET_API_SECRET="${BITGET_API_SECRET}" \
             -DBITGET_API_PASSPHRASE="${BITGET_API_PASSPHRASE}"
         working-directory: 03_Development/Application_OnPremises
-
-name: CI Pipeline
-
-on:
-  push:
-    branches: [ main, develop, feature/*, bugfix/* ]
-  pull_request:
-    branches: [ main, develop ]
-
-jobs:
-  build-and-test:
-    name: Build and Test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: 03_Development/Application_OnPremises
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    
-    - name: Setup Gradle
-      uses: gradle/gradle-build-action@v2
-      with:
-        build-root-directory: 03_Development/Application_OnPremises
-        # Cache configuration to reduce warnings
-        cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-        gradle-home-cache-cleanup: true
-    
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    
-    - name: Build all modules
-      run: ./gradlew build -x test
-    
-    - name: Run unit tests
-      run: ./gradlew test
-      # Fail the build if unit tests fail
-    
-    - name: Run integration tests
-      run: ./gradlew integrationTest
-      continue-on-error: true  # Integration tests require API keys (not available in CI)
-    
-    - name: Upload test reports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-reports
-        path: |
-          **/build/reports/
-          **/build/test-results/
-        retention-days: 30
-    
-    - name: Archive build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifacts
-        path: |
-          **/build/libs/*.jar
-        retention-days: 7
-
