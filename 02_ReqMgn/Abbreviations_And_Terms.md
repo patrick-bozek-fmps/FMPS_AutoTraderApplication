@@ -7,6 +7,7 @@
 | ID | Identifier |
 | M | Milestone |
 | R | Release |
+| SF | System Function |
 | SR | System Requirement |
 | SRS | System Requirement Specification |
 | SAS | System Architectur Specification |
