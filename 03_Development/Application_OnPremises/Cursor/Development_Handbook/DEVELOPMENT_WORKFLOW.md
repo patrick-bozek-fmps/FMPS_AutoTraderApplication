@@ -350,20 +350,30 @@ WIP
 ## 🚀 **CI/CD Pipeline Details**
 
 ### **What CI Tests**
-1. **Build**: Compiles all modules
-2. **Unit Tests**: Runs all test suites
-3. **Code Quality** (when configured):
+1. **Build**: Compiles all modules (no tests)
+2. **Unit Tests**: Runs all tests EXCLUDING `@integration` tag
+   - Fast execution (~1-2 minutes)
+   - No external dependencies required
+   - Should always pass ✅
+3. **Integration Tests**: Runs only `@integration` tagged tests
+   - Only runs if API keys are configured in GitHub secrets
+   - Requires exchange API credentials (Binance, Bitget)
+   - Optional - workflow still passes if secrets not configured
+4. **Code Quality** (when configured):
    - ktlint (code style)
    - detekt (static analysis)
    - JaCoCo (code coverage)
-4. **Security Scan** (when configured):
+5. **Security Scan** (when configured):
    - OWASP dependency check
 
 ### **CI Configuration**
 - **Location**: `.github/workflows/ci.yml`
-- **Trigger**: Every push to main
-- **Runtime**: ~2-3 minutes
-- **Parallel Jobs**: Build, test, quality checks
+- **Trigger**: Every push to main and pull requests
+- **Runtime**: ~2-3 minutes (unit tests), +1-2 minutes (integration if secrets present)
+- **Job Structure**:
+  - `unit-tests`: Always runs, must pass
+  - `integration-tests`: Runs only if secrets configured, depends on `unit-tests`
+- **Test Separation**: Uses JUnit tags (`@integration`) to separate test types
 
 ### **Viewing CI Results**
 1. Go to GitHub repository

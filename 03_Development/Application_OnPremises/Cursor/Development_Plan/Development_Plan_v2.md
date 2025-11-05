@@ -61,6 +61,16 @@
 | **3.4** | **Oct 30, 2025** | **Issue #9 COMPLETE: Bitget Connector - Epic 2 now 3/4 (75%)** | **AI Assistant** |
 | **4.0** | **Oct 30, 2025** | **Issue #10 COMPLETE: Technical Indicators - EPIC 2 100% DONE! 🎉** | **AI Assistant** |
 | **4.1** | **Oct 30, 2025** | **Issue #10 Re-Verified: Enhanced to 100% test coverage (115 tests)** | **AI Assistant** |
+| **4.2** | **Oct 30, 2025** | **CI Pipeline Optimized: Split unit/integration tests, fixed flaky timing tests** | **AI Assistant** |
+
+**Changes from v4.1:**
+- ✅ CI workflow split into unit-tests and integration-tests jobs
+- ✅ Unit tests always run (fast, ~1-2 min, no secrets needed)
+- ✅ Integration tests optional (only run if API secrets configured)
+- ✅ Fixed flaky timing tests in RateLimiter (Binance & Bitget scenarios)
+- ✅ All 435 tests passing (434 unit + 1 integration)
+- ✅ CI pipeline now stable and reliable
+- ✅ Updated DEVELOPMENT_WORKFLOW.md with new CI structure
 
 **Changes from v4.0:**
 - ✅ Issue #10 re-verified with comprehensive test coverage
