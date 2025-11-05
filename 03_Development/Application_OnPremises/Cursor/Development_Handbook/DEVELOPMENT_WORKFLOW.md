@@ -23,7 +23,8 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
 │  • Convert Excel requirements to Markdown (if needed)   │
 │    - Navigate to: Cursor\Artifacts\                     │
 │    - Run: convert_excel.bat (Windows)                    │
-│    - Or: python excel_to_markdown_converter.py          │
+│    - Or: py excel_to_markdown_converter.py (Windows)    │
+│    - Or: python excel_to_markdown_converter.py (Linux)  │
 │    - Ensures latest requirements are available          │
 │  • Review requirements documents                        │
 │    - Check 02_ReqMgn\*.md files                        │
@@ -526,15 +527,17 @@ cd 03_Development\Application_OnPremises\Cursor\Artifacts
 .\convert_excel.bat
 ```
 
-**Manual Method**:
+**Manual Method (Windows)**:
 ```powershell
 # Install dependencies (first time only)
-pip install pandas openpyxl watchdog tabulate
+py -m pip install pandas openpyxl watchdog tabulate
 
-# Run converter
-cd 03_Development\Application_OnPremises\Cursor\Artifacts
-python excel_to_markdown_converter.py
+# Run converter from project root
+cd C:\PABLO\AI_Projects\FMPS_AutoTraderApplication
+py 03_Development\Application_OnPremises\Cursor\Artifacts\excel_to_markdown_converter.py --source 02_ReqMgn
 ```
+
+**Note**: On Windows, use `py` launcher instead of `python` if `python` command is not available.
 
 **Watch Mode** (for active requirements development):
 ```powershell
