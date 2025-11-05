@@ -97,10 +97,9 @@ class RelevanceCalculator {
         var totalScore = 0.0
         var count = 0
         
-        // RSI comparison
-        val patternRSI = pattern.conditions["RSI"] as? Double
+        // RSI comparison - check for range first, then single value
         val currentRSI = conditions.getRSI()
-        if (patternRSI != null && currentRSI != null) {
+        if (currentRSI != null) {
             val rsiRange = pattern.conditions["RSI_Range"] as? Pair<Double, Double>
             if (rsiRange != null) {
                 // Pattern has RSI range
@@ -120,19 +119,45 @@ class RelevanceCalculator {
                 count++
             } else {
                 // Pattern has single RSI value
-                val score = calculateValueSimilarity(patternRSI, currentRSI, tolerance = 5.0, maxRange = 100.0)
-                totalScore += score
-                count++
+                val patternRSI = pattern.conditions["RSI"] as? Double
+                if (patternRSI != null) {
+                    val score = calculateValueSimilarity(patternRSI, currentRSI, tolerance = 5.0, maxRange = 100.0)
+                    totalScore += score
+                    count++
+                }
             }
         }
         
-        // MACD comparison
-        val patternMACD = pattern.conditions["MACD"] as? MACDResult
+        // MACD comparison - check for range first, then single value
         val currentMACD = conditions.getMACD()
-        if (patternMACD != null && currentMACD != null) {
-            val macdScore = calculateMACDSimilarity(patternMACD, currentMACD)
-            totalScore += macdScore
-            count++
+        if (currentMACD != null) {
+            val macdRange = pattern.conditions["MACD_Range"] as? Pair<Double, Double>
+            if (macdRange != null) {
+                // Pattern has MACD range - compare MACD line value
+                val macdValue = currentMACD.macd
+                val score = if (macdValue in macdRange.first..macdRange.second) {
+                    1.0
+                } else {
+                    // Calculate distance from range
+                    val distance = when {
+                        macdValue < macdRange.first -> macdRange.first - macdValue
+                        macdValue > macdRange.second -> macdValue - macdRange.second
+                        else -> 0.0
+                    }
+                    // Score decreases with distance (max 0.01 = 0 score)
+                    (1.0 - (distance / 0.01)).coerceIn(0.0, 1.0)
+                }
+                totalScore += score
+                count++
+            } else {
+                // Pattern has single MACD value
+                val patternMACD = pattern.conditions["MACD"] as? MACDResult
+                if (patternMACD != null) {
+                    val macdScore = calculateMACDSimilarity(patternMACD, currentMACD)
+                    totalScore += macdScore
+                    count++
+                }
+            }
         }
         
         // SMA comparison
@@ -334,6 +359,8 @@ class RelevanceCalculator {
      * Calculate similarity for a specific indicator value.
      * 
      * Used by pattern matching to compare individual indicators.
+     * 
+     * @param tolerance If > 1.0, treated as absolute tolerance. If <= 1.0, treated as percentage (multiplied by max value).
      */
     fun calculateIndicatorSimilarity(
         patternValue: Any,
@@ -342,8 +369,11 @@ class RelevanceCalculator {
     ): Double {
         return when {
             patternValue is Double && currentValue is Double -> {
+                // If tolerance > 1.0, treat as absolute; otherwise treat as percentage
                 val maxValue = maxOf(abs(patternValue), abs(currentValue), 1.0)
-                calculateValueSimilarity(patternValue, currentValue, tolerance * maxValue, maxValue * 0.2)
+                val absoluteTolerance = if (tolerance > 1.0) tolerance else tolerance * maxValue
+                val maxRange = if (tolerance > 1.0) tolerance * 4.0 else maxValue * 0.2
+                calculateValueSimilarity(patternValue, currentValue, absoluteTolerance, maxRange)
             }
             patternValue is MACDResult && currentValue is MACDResult -> {
                 calculateMACDSimilarity(patternValue, currentValue)
@@ -358,7 +388,9 @@ class RelevanceCalculator {
                     val patternNum = (patternValue as? Number)?.toDouble() ?: return 0.0
                     val currentNum = (currentValue as? Number)?.toDouble() ?: return 0.0
                     val maxValue = maxOf(abs(patternNum), abs(currentNum), 1.0)
-                    calculateValueSimilarity(patternNum, currentNum, tolerance * maxValue, maxValue * 0.2)
+                    val absoluteTolerance = if (tolerance > 1.0) tolerance else tolerance * maxValue
+                    val maxRange = if (tolerance > 1.0) tolerance * 4.0 else maxValue * 0.2
+                    calculateValueSimilarity(patternNum, currentNum, absoluteTolerance, maxRange)
                 } catch (e: Exception) {
                     logger.warn("Cannot calculate similarity for ${patternValue::class.simpleName} and ${currentValue::class.simpleName}")
                     0.0

@@ -22,7 +22,11 @@ class RelevanceCalculatorTest {
             conditions = mapOf(
                 "RSI_Range" to Pair(60.0, 70.0),
                 "MACD_Range" to Pair(0.001, 0.002)
-            )
+            ),
+            // Set performance metrics to make this a "perfect match" scenario
+            successRate = 0.8,
+            usageCount = 10,
+            lastUsedAt = Instant.now().minusSeconds(3600) // Recently used
         )
         
         val conditions = createMarketConditions(
@@ -36,7 +40,7 @@ class RelevanceCalculatorTest {
         
         val relevance = calculator.calculateRelevance(pattern, conditions)
         
-        assertTrue(relevance > 0.7, "Relevance should be high for perfect match")
+        assertTrue(relevance > 0.7, "Relevance should be high for perfect match (got: $relevance)")
         assertTrue(relevance <= 1.0, "Relevance should not exceed 1.0")
     }
     
