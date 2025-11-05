@@ -27,11 +27,21 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
 │    - Ensures latest requirements are available          │
 │  • Review requirements documents                        │
 │    - Check 02_ReqMgn\*.md files                        │
-│    - Identify relevant requirements for this issue      │
+│    - Identify relevant requirements                      │
 │    - Note any new or updated requirements               │
+│  • For NEW EPIC: Create Epic status document            │
+│    - Create EPIC_[N]_STATUS.md                          │
+│    - Use EPIC_STATUS_TEMPLATE.md as reference           │
+│    - Run deviation analysis (EPIC_[N]_DEVIATION_ANALYSIS)│
+│    - Document epic goals and issues                     │
+│  • For EXISTING EPIC: Update Epic status                │
+│    - Update EPIC_[N]_STATUS.md                          │
+│    - Mark completed issues                              │
+│    - Update progress and blockers                       │
 │  • Create Issue_XX plan document                        │
 │    - Use ISSUE_TEMPLATE.md as reference                 │
 │    - Include requirements traceability                  │
+│    - Link to Epic if part of one                        │
 │  • Review and approve plan                              │
 │  • Commit plan to repository                            │
 └────────────────────┬────────────────────────────────────┘
@@ -565,30 +575,45 @@ grep -i "AI.*trad" 02_ReqMgn/*.md
 grep -i "ATP_ProdSpec_5" 02_ReqMgn/*.md
 ```
 
-#### **3. Check for Deviations (For Epic Planning)**
+#### **3. Epic Creation/Update (Before Creating Issues)**
 
-When planning a new Epic:
+**For NEW EPIC** (e.g., starting Epic 3):
 
-1. **Review Requirements**:
-   - Convert Excel files first
-   - Review all relevant requirements
-   - Identify new/updated requirements
+1. **Create Epic Status Document**:
+   - Create `Development_Plan/EPIC_[N]_STATUS.md`
+   - Use `Development_Handbook/EPIC_STATUS_TEMPLATE.md` as reference
+   - Fill in epic overview, goals, and issue breakdown
 
-2. **Compare with Development Plan**:
-   - Check `Development_Plan_v2.md` for planned scope
-   - Compare requirements vs. planned implementation
-   - Identify any deviations
+2. **Run Deviation Analysis**:
+   - Create `Development_Plan/EPIC_[N]_DEVIATION_ANALYSIS.md`
+   - Review requirements vs. `Development_Plan_v2.md`
+   - Compare planned scope with actual requirements
+   - Document any deviations found
+   - **If deviations found**: Review and decide on approach
+   - **If no deviations**: Proceed with planning
 
-3. **Document Deviations**:
-   - Create `EPIC_[N]_DEVIATION_ANALYSIS.md`
-   - Document any differences found
-   - If no deviations: proceed with planning
-   - If deviations: review and decide on approach
-
-4. **Plan Epic**:
-   - Create `EPIC_[N]_STATUS.md` using `EPIC_STATUS_TEMPLATE.md`
-   - Create detailed Issue files using `ISSUE_TEMPLATE.md`
+3. **Plan Epic Issues**:
+   - Break epic into detailed issues
+   - Create `Issue_XX_*.md` files using `ISSUE_TEMPLATE.md`
    - Include requirements traceability in each issue
+   - Link issues to Epic in both directions
+
+4. **Update Development Plan**:
+   - Update `Development_Plan_v2.md` with epic details
+   - Document issue breakdown and dependencies
+
+**For EXISTING EPIC** (when creating a new issue in ongoing epic):
+
+1. **Update Epic Status**:
+   - Open `Development_Plan/EPIC_[N]_STATUS.md`
+   - Add new issue to "Planned Issues" section
+   - Update progress counters
+   - Note any blockers or dependencies
+
+2. **Check Epic Goals**:
+   - Verify new issue aligns with epic goals
+   - Update epic success criteria if needed
+   - Document any scope changes
 
 #### **4. Requirements Traceability in Issues**
 
@@ -671,6 +696,7 @@ STOP → Fix → Test → Push → Wait → Verify ✅
 **Changes in v1.1**:
 - ✅ Added requirements review process to Step 1
 - ✅ Added Excel to Markdown conversion steps
+- ✅ Added Epic creation/update steps (before creating issues)
 - ✅ Added deviation analysis process for Epic planning
 - ✅ Added requirements traceability guidelines
 
