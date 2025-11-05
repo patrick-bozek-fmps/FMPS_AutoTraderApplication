@@ -20,7 +20,18 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Step 1: Plan & Document                                │
+│  • Convert Excel requirements to Markdown (if needed)   │
+│    - Navigate to: Cursor\Artifacts\                     │
+│    - Run: convert_excel.bat (Windows)                    │
+│    - Or: python excel_to_markdown_converter.py          │
+│    - Ensures latest requirements are available          │
+│  • Review requirements documents                        │
+│    - Check 02_ReqMgn\*.md files                        │
+│    - Identify relevant requirements for this issue      │
+│    - Note any new or updated requirements               │
 │  • Create Issue_XX plan document                        │
+│    - Use ISSUE_TEMPLATE.md as reference                 │
+│    - Include requirements traceability                  │
 │  • Review and approve plan                              │
 │  • Commit plan to repository                            │
 └────────────────────┬────────────────────────────────────┘
@@ -486,6 +497,117 @@ When team grows, consider:
 
 ---
 
+## 📋 **Requirements Review Process** (Step 1 Detailed)
+
+### **When Starting a New Issue or Epic**
+
+Before creating issue documentation, ensure requirements are up-to-date:
+
+#### **1. Convert Excel Requirements to Markdown**
+
+**Purpose**: Excel files in `02_ReqMgn/` are the source of truth, but AI assistants and version control work better with Markdown.
+
+**Quick Method (Windows)**:
+```powershell
+# Navigate to Artifacts folder
+cd 03_Development\Application_OnPremises\Cursor\Artifacts
+
+# Run converter (checks dependencies, installs if needed)
+.\convert_excel.bat
+```
+
+**Manual Method**:
+```powershell
+# Install dependencies (first time only)
+pip install pandas openpyxl watchdog tabulate
+
+# Run converter
+cd 03_Development\Application_OnPremises\Cursor\Artifacts
+python excel_to_markdown_converter.py
+```
+
+**Watch Mode** (for active requirements development):
+```powershell
+# Auto-converts when Excel files change
+.\convert_excel_watch.bat
+```
+
+**What Gets Converted**:
+- `02_ReqMgn/FMPS_AutoTraderApplication_Customer_Specification.xlsx` → `.md`
+- `02_ReqMgn/FMPS_AutoTraderApplication_System_Specification.xlsx` → `.md`
+- `02_ReqMgn/CommonDefinitionOfTermsAndAbbreviations.xlsx` → `.md`
+- Other Excel files in `02_ReqMgn/`
+
+**Output**: Markdown files in `02_ReqMgn/` with same name as Excel files
+
+#### **2. Review Requirements Documents**
+
+**Check These Files**:
+- `02_ReqMgn/FMPS_AutoTraderApplication_Customer_Specification.md`
+  - Customer requirements (ATP_ProdSpec_XX)
+  - Functional requirements
+  - Non-functional requirements
+- `02_ReqMgn/FMPS_AutoTraderApplication_System_Specification.md`
+  - System requirements (ATP_SysSpec_XX)
+  - Architecture requirements
+  - Test cases
+
+**Identify Relevant Requirements**:
+- Search for requirement IDs related to your issue/epic
+- Note any new requirements not yet implemented
+- Check for updated requirements that might affect implementation
+- Document requirement traceability in issue plan
+
+**Example Search**:
+```bash
+# Search for AI Trading requirements
+grep -i "AI.*trad" 02_ReqMgn/*.md
+grep -i "ATP_ProdSpec_5" 02_ReqMgn/*.md
+```
+
+#### **3. Check for Deviations (For Epic Planning)**
+
+When planning a new Epic:
+
+1. **Review Requirements**:
+   - Convert Excel files first
+   - Review all relevant requirements
+   - Identify new/updated requirements
+
+2. **Compare with Development Plan**:
+   - Check `Development_Plan_v2.md` for planned scope
+   - Compare requirements vs. planned implementation
+   - Identify any deviations
+
+3. **Document Deviations**:
+   - Create `EPIC_[N]_DEVIATION_ANALYSIS.md`
+   - Document any differences found
+   - If no deviations: proceed with planning
+   - If deviations: review and decide on approach
+
+4. **Plan Epic**:
+   - Create `EPIC_[N]_STATUS.md` using `EPIC_STATUS_TEMPLATE.md`
+   - Create detailed Issue files using `ISSUE_TEMPLATE.md`
+   - Include requirements traceability in each issue
+
+#### **4. Requirements Traceability in Issues**
+
+Each Issue document should include:
+
+```markdown
+## 📋 **Requirements Traceability**
+
+**Related Requirements**:
+- ATP_ProdSpec_XX: [Requirement description]
+- ATP_SysSpec_YY: [Requirement description]
+
+**Requirement Mapping**:
+- Task 1.1 → ATP_ProdSpec_XX
+- Task 2.1 → ATP_SysSpec_YY
+```
+
+---
+
 ## 📞 **When in Doubt**
 
 1. **Run tests locally**: `./gradlew test`
@@ -509,6 +631,12 @@ This workflow document should be updated when:
 
 - `Development_Plan/Development_Plan_v2.md` - Overall project plan
 - `Development_Plan/Issue_XX_*.md` - Individual issue plans
+- `Development_Plan/EPIC_[N]_STATUS.md` - Epic status tracking
+- `Development_Plan/EPIC_[N]_DEVIATION_ANALYSIS.md` - Epic deviation analysis
+- `Development_Handbook/ISSUE_TEMPLATE.md` - Issue planning template
+- `Development_Handbook/EPIC_STATUS_TEMPLATE.md` - Epic status template
+- `Development_Handbook/CONVERTER_README.md` - Excel to Markdown converter guide
+- `Artifacts/excel_to_markdown_converter.py` - Converter script
 - `TESTING_GUIDE.md` - Comprehensive testing guide
 - `PIPELINE_SETUP_GUIDE.md` - CI/CD configuration
 - `.github/workflows/ci.yml` - CI configuration
@@ -536,7 +664,13 @@ STOP → Fix → Test → Push → Wait → Verify ✅
 
 ---
 
-**Last Updated**: October 24, 2025  
-**Version**: 1.0  
+**Last Updated**: October 30, 2025  
+**Version**: 1.1  
 **Status**: Active and Required for All Development
+
+**Changes in v1.1**:
+- ✅ Added requirements review process to Step 1
+- ✅ Added Excel to Markdown conversion steps
+- ✅ Added deviation analysis process for Epic planning
+- ✅ Added requirements traceability guidelines
 
