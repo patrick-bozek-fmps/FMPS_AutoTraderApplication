@@ -43,22 +43,54 @@ class PatternService(
                 logger.info("Storing pattern: ${pattern.name ?: pattern.id} for ${pattern.symbol} on ${pattern.exchange}")
                 
                 // Convert TradingPattern to database format
+                val rsiRange = pattern.conditions["RSI_Range"] as? Pair<*, *>
+                val macdRange = pattern.conditions["MACD_Range"] as? Pair<*, *>
+                
                 val patternId = patternRepository.create(
                     name = pattern.name,
                     patternType = pattern.conditions["patternType"] as? String ?: "CUSTOM",
                     tradingPair = pattern.symbol,
                     timeframe = pattern.timeframe,
                     tradeType = pattern.action.name,
-                    rsiMin = (pattern.conditions["RSI_Range"] as? Pair<*, *>)?.first as? BigDecimal,
-                    rsiMax = (pattern.conditions["RSI_Range"] as? Pair<*, *>)?.second as? BigDecimal,
-                    macdMin = (pattern.conditions["MACD_Range"] as? Pair<*, *>)?.first as? BigDecimal,
-                    macdMax = (pattern.conditions["MACD_Range"] as? Pair<*, *>)?.second as? BigDecimal,
+                    rsiMin = rsiRange?.first?.let { 
+                        when (it) {
+                            is BigDecimal -> it
+                            is Double -> it.toBigDecimal()
+                            is Number -> it.toDouble().toBigDecimal()
+                            else -> null
+                        }
+                    },
+                    rsiMax = rsiRange?.second?.let {
+                        when (it) {
+                            is BigDecimal -> it
+                            is Double -> it.toBigDecimal()
+                            is Number -> it.toDouble().toBigDecimal()
+                            else -> null
+                        }
+                    },
+                    macdMin = macdRange?.first?.let {
+                        when (it) {
+                            is BigDecimal -> it
+                            is Double -> it.toBigDecimal()
+                            is Number -> it.toDouble().toBigDecimal()
+                            else -> null
+                        }
+                    },
+                    macdMax = macdRange?.second?.let {
+                        when (it) {
+                            is BigDecimal -> it
+                            is Double -> it.toBigDecimal()
+                            is Number -> it.toDouble().toBigDecimal()
+                            else -> null
+                        }
+                    },
                     description = pattern.description,
                     tags = pattern.tags.joinToString(",").takeIf { pattern.tags.isNotEmpty() }
                 )
                 
-                logger.info("Pattern stored with ID: $patternId")
-                Result.success(pattern.id)
+                logger.info("Pattern stored with database ID: $patternId")
+                // Return database ID as string (pattern.id is UUID, but we use DB ID for lookups)
+                Result.success(patternId.toString())
             } catch (e: Exception) {
                 logger.error("Failed to store pattern", e)
                 Result.failure(e)
@@ -182,14 +214,11 @@ class PatternService(
             try {
                 logger.debug("Updating performance for pattern $patternId: success=${outcome.success}, return=${outcome.returnAmount}")
                 
-                // Convert pattern ID string to database ID (if needed)
-                // For now, assuming pattern ID is stored as string but we need to find it
-                // This will need to be adjusted based on actual database schema
-                val dbPattern = patternRepository.findActive().find { 
-                    // We need a way to map string ID to database ID
-                    // For now, we'll need to add a lookup method or store mapping
-                    it.id.toString() == patternId
-                }
+                // Convert pattern ID string to database ID
+                val dbPatternId = patternId.toIntOrNull()
+                    ?: return Result.failure(Exception("Invalid pattern ID: $patternId"))
+                
+                val dbPattern = patternRepository.findById(dbPatternId)
                 
                 if (dbPattern != null) {
                     val success = patternRepository.updateStatistics(
@@ -304,12 +333,11 @@ class PatternService(
     suspend fun getPattern(patternId: String): TradingPattern? {
         return mutex.withLock {
             try {
-                // Note: This assumes pattern ID is stored somehow
-                // We may need to add a lookup method to PatternRepository
-                // For now, searching all patterns
-                val dbPattern = patternRepository.findActive().find {
-                    it.id.toString() == patternId
-                }
+                // Convert pattern ID string to database ID
+                val dbPatternId = patternId.toIntOrNull()
+                    ?: return null
+                
+                val dbPattern = patternRepository.findById(dbPatternId)
                 
                 dbPattern?.let { convertToTradingPattern(it) }
             } catch (e: Exception) {
