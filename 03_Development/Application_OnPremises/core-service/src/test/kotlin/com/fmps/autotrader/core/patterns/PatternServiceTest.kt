@@ -541,6 +541,7 @@ class PatternServiceTest {
     private fun createDbPattern(
         id: Int = 1,
         name: String? = "Test Pattern",
+        exchange: String = "BINANCE",
         tradingPair: String = "BTCUSDT",
         timeframe: String = "1h",
         tradeType: String = "LONG",
@@ -557,6 +558,7 @@ class PatternServiceTest {
             id = id,
             name = name,
             patternType = "CUSTOM",
+            exchange = exchange,
             tradingPair = tradingPair,
             timeframe = timeframe,
             tradeType = tradeType,
