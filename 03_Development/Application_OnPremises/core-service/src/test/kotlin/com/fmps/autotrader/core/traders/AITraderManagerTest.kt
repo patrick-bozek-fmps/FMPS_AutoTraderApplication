@@ -46,9 +46,19 @@ class AITraderManagerTest {
     @BeforeEach
     fun clearTraders() = runBlocking {
         // Clear all traders before each test
-        val allTraders = repository.findAll()
-        allTraders.forEach { repository.delete(it.id) }
-        // Clear active traders map (would need access to manager's internal state)
+        // Get all trader IDs from database and delete through manager
+        // This ensures both database and activeTraders map are cleaned
+        val dbTraders = repository.findAll()
+        dbTraders.forEach { dbTrader ->
+            val traderId = dbTrader.id.toString()
+            // Stop trader if running (ignore errors - trader might not exist in manager)
+            manager.stopTrader(traderId).getOrNull()
+            // Delete through manager to clean up both database and activeTraders map
+            manager.deleteTrader(traderId).getOrNull()
+        }
+        // Final cleanup: clear any remaining database records (in case manager delete failed)
+        val remainingDbTraders = repository.findAll()
+        remainingDbTraders.forEach { repository.delete(it.id) }
     }
 
     private fun createTestConfig(
@@ -120,8 +130,8 @@ class AITraderManagerTest {
         val config1 = createTestConfig(id = "trader-1", name = "Trader 1")
         val config2 = createTestConfig(id = "trader-2", name = "Trader 2")
 
-        val traderId1 = manager.createTrader(config1).getOrThrow()
-        val traderId2 = manager.createTrader(config2).getOrThrow()
+        manager.createTrader(config1).getOrThrow()
+        manager.createTrader(config2).getOrThrow()
 
         val allTraders = manager.getAllTraders()
         assertEquals(2, allTraders.size)
@@ -145,10 +155,10 @@ class AITraderManagerTest {
         val config = createTestConfig()
         val traderId = manager.createTrader(config).getOrThrow()
 
-        // Configure connector first
-        val trader = manager.getTrader(traderId)!!
+        // Verify trader exists
+        assertNotNull(manager.getTrader(traderId))
         // Note: In real scenario, connector would be configured during creation
-        // For test, we'll just verify the start method is called
+        // For test, we'll just verify the start method is callable
 
         val result = manager.startTrader(traderId)
         // Start might fail if connector not configured, but method should be callable
@@ -303,9 +313,6 @@ class AITraderManagerTest {
 
     @Test
     fun `test create trader validates configuration`() = runBlocking {
-        // Test with invalid config (blank name)
-        val invalidConfig = createTestConfig(name = "")
-        
         // This should fail validation in AITraderConfig init block
         assertThrows<IllegalArgumentException> {
             AITraderConfig(
