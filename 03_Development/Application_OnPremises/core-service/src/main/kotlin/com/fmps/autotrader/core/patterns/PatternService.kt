@@ -106,44 +106,54 @@ class PatternService(
      */
     suspend fun queryPatterns(criteria: PatternCriteria): List<TradingPattern> {
         return mutex.withLock {
-            try {
-                logger.debug("Querying patterns with criteria: $criteria")
-                
-                // Query database patterns
-                val dbPatterns = when {
-                    criteria.symbol != null && criteria.timeframe != null -> {
-                        patternRepository.findByTradingPair(criteria.symbol)
-                            .filter { it.timeframe == criteria.timeframe }
-                    }
-                    criteria.symbol != null -> {
-                        patternRepository.findByTradingPair(criteria.symbol)
-                    }
-                    else -> {
-                        patternRepository.findActive()
-                    }
+            queryPatternsInternal(criteria)
+        }
+    }
+    
+    /**
+     * Internal query method without mutex (to avoid deadlock when called from within mutex).
+     * 
+     * @param criteria Search criteria
+     * @return List of matching patterns
+     */
+    private suspend fun queryPatternsInternal(criteria: PatternCriteria): List<TradingPattern> {
+        return try {
+            logger.debug("Querying patterns with criteria: $criteria")
+            
+            // Query database patterns
+            val dbPatterns = when {
+                criteria.symbol != null && criteria.timeframe != null -> {
+                    patternRepository.findByTradingPair(criteria.symbol)
+                        .filter { it.timeframe == criteria.timeframe }
                 }
-                
-                // Convert database patterns to TradingPattern
-                val patterns = dbPatterns.map { dbPattern ->
-                    convertToTradingPattern(dbPattern)
+                criteria.symbol != null -> {
+                    patternRepository.findByTradingPair(criteria.symbol)
                 }
-                
-                // Apply in-memory filters
-                val filtered = patterns.filter { pattern ->
-                    matchesCriteria(pattern, criteria)
+                else -> {
+                    patternRepository.findActive()
                 }
-                
-                // Sort by confidence and success rate
-                val sorted = filtered.sortedByDescending { 
-                    it.calculateConfidence() * it.successRate 
-                }
-                
-                logger.debug("Found ${sorted.size} patterns matching criteria")
-                sorted
-            } catch (e: Exception) {
-                logger.error("Failed to query patterns", e)
-                emptyList()
             }
+            
+            // Convert database patterns to TradingPattern
+            val patterns = dbPatterns.map { dbPattern ->
+                convertToTradingPattern(dbPattern)
+            }
+            
+            // Apply in-memory filters
+            val filtered = patterns.filter { pattern ->
+                matchesCriteria(pattern, criteria)
+            }
+            
+            // Sort by confidence and success rate
+            val sorted = filtered.sortedByDescending { 
+                it.calculateConfidence() * it.successRate 
+            }
+            
+            logger.debug("Found ${sorted.size} patterns matching criteria")
+            sorted
+        } catch (e: Exception) {
+            logger.error("Failed to query patterns", e)
+            emptyList()
         }
     }
     
@@ -164,12 +174,12 @@ class PatternService(
             try {
                 logger.debug("Matching patterns for ${conditions.symbol} on ${conditions.exchange}")
                 
-                // Query relevant patterns
+                // Query relevant patterns (use internal method to avoid deadlock)
                 val criteria = PatternCriteria(
                     exchange = conditions.exchange,
                     symbol = conditions.symbol
                 )
-                val patterns = queryPatterns(criteria)
+                val patterns = queryPatternsInternal(criteria)
                 
                 // Calculate relevance for each pattern
                 val matches = patterns.mapNotNull { pattern ->
