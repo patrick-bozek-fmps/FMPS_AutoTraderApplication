@@ -9,6 +9,7 @@ import com.fmps.autotrader.shared.model.Candlestick
 import com.fmps.autotrader.shared.model.Position
 import com.fmps.autotrader.shared.model.TradingStrategy
 import io.mockk.*
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,7 +39,12 @@ class SignalGeneratorTest {
             candlestickInterval = TimeFrame.ONE_HOUR
         )
         mockStrategy = mockk<ITradingStrategy>()
-        signalGenerator = SignalGenerator(mockStrategy, minConfidenceThreshold = 0.5)
+        signalGenerator = SignalGenerator(
+            strategy = mockStrategy,
+            minConfidenceThreshold = 0.5,
+            patternService = null,
+            config = null
+        )
     }
 
     private fun createCandles(closes: List<Double>): List<Candlestick> {
@@ -69,7 +75,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test generateSignal calls strategy`() {
+    fun `test generateSignal calls strategy`() = runTest {
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.BUY,
@@ -307,7 +313,12 @@ class SignalGeneratorTest {
 
     @Test
     fun `test custom confidence threshold works`() {
-        val customGenerator = SignalGenerator(mockStrategy, minConfidenceThreshold = 0.8)
+        val customGenerator = SignalGenerator(
+            strategy = mockStrategy,
+            minConfidenceThreshold = 0.8,
+            patternService = null,
+            config = null
+        )
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.BUY,

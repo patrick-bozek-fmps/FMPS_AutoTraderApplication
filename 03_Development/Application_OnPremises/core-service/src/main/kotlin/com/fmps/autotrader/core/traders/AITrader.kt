@@ -41,7 +41,8 @@ class AITrader(
     val config: AITraderConfig,
     private val exchangeConnector: IExchangeConnector,
     private val positionManager: Any? = null, // PositionManager - will be added in Issue #13
-    private val riskManager: Any? = null // RiskManager - will be added in Issue #14
+    private val riskManager: Any? = null, // RiskManager - will be added in Issue #14
+    private val patternService: com.fmps.autotrader.core.patterns.PatternService? = null // PatternService - Issue #15
 ) {
     // State management
     private val state = AtomicReference<AITraderState>(AITraderState.IDLE)
@@ -50,7 +51,27 @@ class AITrader(
     // Strategy and processors
     private val strategy = StrategyFactory.createStrategy(config)
     private val marketDataProcessor = MarketDataProcessor(strategy)
-    private val signalGenerator = SignalGenerator(strategy, minConfidenceThreshold = 0.5)
+    private val signalGenerator = SignalGenerator(
+        strategy = strategy,
+        minConfidenceThreshold = 0.5,
+        patternService = patternService,
+        config = config,
+        patternWeight = 0.3 // 30% weight for pattern confidence
+    )
+    
+    // Pattern integration helper (Issue #15) - will be set via setter if dependencies are available
+    private var patternIntegrationHelper: com.fmps.autotrader.core.patterns.PatternIntegrationHelper? = null
+    
+    /**
+     * Set pattern integration helper (for Issue #15).
+     * 
+     * This allows AITrader to update pattern performance and extract patterns from trades.
+     * Should be called after AITrader is created if PatternService and TradeRepository are available.
+     */
+    fun setPatternIntegrationHelper(helper: com.fmps.autotrader.core.patterns.PatternIntegrationHelper) {
+        this.patternIntegrationHelper = helper
+        logger.info { "Pattern integration helper set for AI Trader ${config.id}" }
+    }
 
     // Trading loop
     private var tradingJob: Job? = null
@@ -328,6 +349,14 @@ class AITrader(
         // TODO: Integrate with PositionManager (Issue #13)
         // TODO: Integrate with RiskManager (Issue #14)
         // For now, just log
+        
+        // Track pattern usage if pattern was matched (Issue #15)
+        signal.matchedPatternId?.let { patternId ->
+            logger.debug { "Pattern $patternId was used in signal generation" }
+            // Pattern usage tracking will be done when trade is actually created
+            // This happens in PositionManager when trade is opened (Issue #13)
+        }
+        
         logger.debug { "Signal execution: ${signal.reason}" }
     }
 
@@ -338,7 +367,46 @@ class AITrader(
         logger.info { "Executing close signal for trader ${config.id}" }
 
         // TODO: Integrate with PositionManager (Issue #13)
+        // When position is closed via PositionManager:
+        // 1. patternIntegrationHelper?.updatePatternPerformance(tradeId, patternId)
+        // 2. patternIntegrationHelper?.learnFromTrade(tradeId) if profitable
+        
         currentPosition = null
+    }
+    
+    /**
+     * Track pattern usage when a trade is opened.
+     * 
+     * This should be called by PositionManager (Issue #13) when a trade is created.
+     * 
+     * @param tradeId Database trade ID
+     * @param patternId Pattern ID that was used (from TradingSignal.matchedPatternId)
+     */
+    suspend fun trackPatternUsage(tradeId: Int, patternId: String?) {
+        patternIntegrationHelper?.trackPatternUsage(patternId, tradeId)
+    }
+    
+    /**
+     * Update pattern performance when a trade closes.
+     * 
+     * This should be called by PositionManager (Issue #13) when a trade is closed.
+     * 
+     * @param tradeId Database trade ID
+     * @param patternId Pattern ID that was used (optional, can be retrieved from trade)
+     */
+    suspend fun updatePatternPerformance(tradeId: Int, patternId: String? = null) {
+        patternIntegrationHelper?.updatePatternPerformance(tradeId, patternId)
+    }
+    
+    /**
+     * Learn pattern from a successful trade.
+     * 
+     * This should be called by PositionManager (Issue #13) when a profitable trade closes.
+     * 
+     * @param tradeId Database trade ID
+     */
+    suspend fun learnPatternFromTrade(tradeId: Int) {
+        patternIntegrationHelper?.learnFromTrade(tradeId)
     }
 
     /**

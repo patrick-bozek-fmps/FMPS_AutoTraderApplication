@@ -16,6 +16,7 @@ import java.time.Instant
  * @property reason Human-readable explanation of why this signal was generated
  * @property timestamp When the signal was generated
  * @property indicatorValues Map of indicator names to their values used in signal generation
+ * @property matchedPatternId ID of the pattern that matched (if pattern matching was used)
  *
  * @since 1.0.0
  */
@@ -26,7 +27,8 @@ data class TradingSignal(
     val reason: String,
     @Serializable(with = InstantSerializer::class)
     val timestamp: Instant = Instant.now(),
-    val indicatorValues: Map<String, @Contextual Any> = emptyMap()
+    val indicatorValues: Map<String, @Contextual Any> = emptyMap(),
+    val matchedPatternId: String? = null
 ) {
     init {
         require(confidence >= 0.0 && confidence <= 1.0) {
