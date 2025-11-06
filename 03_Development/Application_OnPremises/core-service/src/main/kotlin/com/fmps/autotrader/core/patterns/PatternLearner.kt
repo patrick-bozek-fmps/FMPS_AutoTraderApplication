@@ -21,7 +21,8 @@ class PatternLearner(
     private val logger = LoggerFactory.getLogger(PatternLearner::class.java)
     
     // Minimum profit threshold for pattern extraction (1% by default)
-    private val minProfitThreshold = BigDecimal("0.01")
+    // Note: profitLossPercent is stored as percentage (1% = 1.0, not 0.01)
+    private val minProfitThreshold = BigDecimal("1.0")
     
     // Minimum number of similar successful trades to create a reliable pattern
     private val minSimilarTrades = 2
@@ -178,15 +179,22 @@ class PatternLearner(
     
     /**
      * Determine pattern type based on trade characteristics.
+     * 
+     * Priority order:
+     * 1. RSI extremes (oversold/overbought reversals)
+     * 2. Trend following (SMA short > SMA long) - checked before momentum
+     * 3. Momentum continuation (positive MACD)
+     * 4. Default to CUSTOM
      */
     private fun determinePatternType(trade: com.fmps.autotrader.core.database.repositories.Trade): String {
         // Simple heuristic based on indicators
         return when {
             trade.rsiValue != null && trade.rsiValue.toDouble() < 35.0 -> "OVERSOLD_REVERSAL"
             trade.rsiValue != null && trade.rsiValue.toDouble() > 65.0 -> "OVERBOUGHT_REVERSAL"
-            trade.macdValue != null && trade.macdValue > BigDecimal.ZERO -> "MOMENTUM_CONTINUATION"
+            // Check trend following before momentum (when both SMA values present, trend is more specific)
             trade.smaShortValue != null && trade.smaLongValue != null &&
                 trade.smaShortValue > trade.smaLongValue -> "TREND_FOLLOWING"
+            trade.macdValue != null && trade.macdValue > BigDecimal.ZERO -> "MOMENTUM_CONTINUATION"
             else -> "CUSTOM"
         }
     }
