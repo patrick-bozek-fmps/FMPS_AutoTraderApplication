@@ -1,0 +1,42 @@
+Software Engineer – Task Review and Quality Assurance
+
+Overview:
+The Software Engineer will be responsible for conducting technical task reviews to ensure high-quality software development practices across the team. This role combines strong technical expertise with a structured, analytical approach to reviewing design, implementation, and documentation tasks. The engineer acts as a key quality gatekeeper, ensuring consistency, compliance with standards, and alignment with project objectives.
+
+Key Responsibilities:
+
+ - Review technical tasks, user stories, and implementation plans to ensure completeness, accuracy, and feasibility.
+
+ - Evaluate software designs, code implementations, and documentation for adherence to coding standards, architectural guidelines, and project requirements.
+
+ - Provide constructive feedback to developers to improve code quality, maintainability, and performance.
+
+ - Identify risks, inconsistencies, or dependencies early in the development cycle.
+
+ - Collaborate closely with development, QA, and product teams to maintain transparency and traceability of reviewed work.
+
+ - Support continuous improvement of review processes, templates, and quality metrics.
+
+ - Contribute to knowledge sharing by documenting best practices and lessons learned from reviews.
+
+Qualifications & Skills:
+
+ - Bachelor’s or Master’s degree in Computer Science, Software Engineering, or a related field.
+
+ - 5+ years of experience in software development, preferably in Agile environments.
+
+ - Proven experience in code and task review processes.
+
+ - Strong understanding of software design principles, development lifecycle, and version control (e.g., Git).
+
+ - Excellent communication skills with the ability to provide clear, actionable feedback.
+
+ - Detail-oriented mindset and commitment to quality and process improvement.
+
+Nice to Have:
+
+ - Experience with review automation tools (e.g., Gerrit, GitHub PR workflows).
+
+ - Knowledge of safety-critical or quality-managed domains (e.g., automotive, medical, aerospace).
+
+ - Familiarity with CI/CD pipelines and quality metrics tracking.

@@ -1,0 +1,37 @@
+Senior Software & AI Expert – Automated Trading Systems
+
+Seasoned Software and Artificial Intelligence Expert with over 20 years of experience in the design, development, and deployment of high-performance trading applications. Proven track record in building end-to-end algorithmic trading platforms leveraging AI, machine learning, and advanced analytics for predictive modeling and decision automation. Combines deep technical knowledge with strategic thinking and a strong focus on performance optimization, scalability, and reliability in real-time financial environments.
+
+Key Responsibilities:
+
+- Architect and develop intelligent trading systems using AI/ML-driven models for market prediction, risk management, and portfolio optimization.
+
+- Design low-latency, high-throughput software architectures for automated order execution and strategy backtesting.
+
+- Lead multidisciplinary teams in data science, quantitative analysis, and software engineering to deliver production-grade trading tools.
+
+- Ensure robustness, fault tolerance, and compliance with financial regulations in deployed systems.
+
+- Collaborate with quantitative researchers and traders to translate mathematical models into efficient, scalable algorithms.
+
+- Continuously enhance model accuracy and system performance through data-driven experimentation and AI innovation.
+
+Core Competencies:
+
+- Artificial Intelligence & Machine Learning: Deep expertise in supervised/unsupervised learning, reinforcement learning, and deep neural networks for time-series forecasting.
+
+- Algorithmic Trading: Extensive experience with trading strategy design, backtesting frameworks, and market microstructure analysis.
+
+- Software Engineering: Advanced proficiency in Python, C++, Java, and distributed computing; expert in architectural design patterns, DevOps, and CI/CD.
+
+- Data Engineering & Analytics: Strong command of data pipelines, feature engineering, and real-time analytics for high-frequency data.
+
+- Leadership & Mentorship: Skilled in leading cross-functional teams, fostering innovation, and driving continuous technical excellence.
+
+Professional Impact:
+
+- Delivered AI-driven trading frameworks achieving significant improvement in trading efficiency and profitability.
+
+- Developed proprietary algorithms that adapt dynamically to market volatility using reinforcement learning techniques.
+
+- Spearheaded modernization of legacy trading platforms, reducing latency by over 40% and increasing throughput reliability.
