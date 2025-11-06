@@ -400,15 +400,19 @@ Query criteria for pattern retrieval.
 
 ```kotlin
 data class PatternCriteria(
-    val exchange: Exchange? = null,
-    val symbol: String? = null,
-    val minSuccessRate: Double? = null,
-    val minUsageCount: Int? = null,
-    val minConfidence: Double? = null,
-    val maxAge: Duration? = null,
-    val action: TradeAction? = null
+    val exchange: Exchange? = null,        // Filter by exchange (BINANCE, BITGET)
+    val symbol: String? = null,            // Filter by trading pair (e.g., "BTCUSDT")
+    val minSuccessRate: Double? = null,    // Minimum success rate (0.0-1.0)
+    val minUsageCount: Int? = null,        // Minimum number of times pattern was used
+    val minConfidence: Double? = null,     // Minimum confidence level (0.0-1.0)
+    val maxAge: Duration? = null,          // Maximum age of pattern
+    val action: TradeAction? = null,       // Filter by trade action (LONG, SHORT)
+    val timeframe: String? = null,         // Filter by timeframe (e.g., "1h", "4h")
+    val tags: List<String>? = null         // Filter by tags (any tag in list matches)
 )
 ```
+
+**Tag Filtering**: The `tags` field allows filtering patterns by tags. If provided, patterns matching any tag in the list will be returned. Tags are stored as comma-separated values in the database and matched case-insensitively.
 
 ### **PruneCriteria**
 
@@ -771,6 +775,25 @@ fun `test matchPatterns returns relevant patterns`() = runBlocking {
 - Verify indicator values in pattern conditions match current indicators
 - Ensure patterns are stored with correct exchange and symbol
 - Check pattern age (old patterns may not match current market)
+- Verify exchange matches (patterns are exchange-specific)
+
+#### **Exchange Field Limitation (Resolved)**
+
+**Status**: ✅ **RESOLVED** (Migration V2 applied)
+
+**Previous Issue**: Exchange field was not stored in the database, causing all patterns to default to BINANCE.
+
+**Resolution**: 
+- Database migration V2 (`V2__Add_exchange_to_patterns.sql`) adds `exchange` column to `patterns` table
+- PatternRepository now stores and retrieves exchange information
+- PatternService uses stored exchange instead of defaulting
+- Existing patterns defaulted to BINANCE for backward compatibility
+
+**Migration Notes**:
+- Migration automatically applies on next database initialization
+- Existing patterns are updated to have BINANCE as exchange
+- New patterns will store the correct exchange (BINANCE or BITGET)
+- Pattern matching now correctly filters by exchange
 
 #### **Low Pattern Performance**
 

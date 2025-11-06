@@ -16,6 +16,7 @@ object PatternsTable : Table("patterns") {
     val patternType = varchar("pattern_type", 50) // REVERSAL, CONTINUATION, BREAKOUT, etc.
     
     // Market Conditions
+    val exchange = varchar("exchange", 20).default("BINANCE") // BINANCE, BITGET
     val tradingPair = varchar("trading_pair", 20)
     val timeframe = varchar("timeframe", 10) // 1m, 5m, 15m, 1h, 4h, 1d
     val tradeType = varchar("trade_type", 10) // LONG, SHORT

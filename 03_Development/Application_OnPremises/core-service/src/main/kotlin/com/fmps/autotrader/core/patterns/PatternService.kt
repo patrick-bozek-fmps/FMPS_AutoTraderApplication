@@ -49,6 +49,7 @@ class PatternService(
                 val patternId = patternRepository.create(
                     name = pattern.name,
                     patternType = pattern.conditions["patternType"] as? String ?: "CUSTOM",
+                    exchange = pattern.exchange.name,
                     tradingPair = pattern.symbol,
                     timeframe = pattern.timeframe,
                     tradeType = pattern.action.name,
@@ -411,10 +412,13 @@ class PatternService(
             else -> TradeAction.LONG // Default
         }
         
-        // Note: Exchange is not stored in PatternsTable directly
-        // For now, we'll need to store it in description or tags, or add it to schema later
-        // Defaulting to BINANCE for now (can be enhanced later)
-        val exchange = Exchange.BINANCE // TODO: Extract from description/tags or add to schema
+        // Extract exchange from database (added in migration V2)
+        val exchange = try {
+            Exchange.valueOf(dbPattern.exchange.uppercase())
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Invalid exchange value '${dbPattern.exchange}' in pattern ${dbPattern.id}, defaulting to BINANCE")
+            Exchange.BINANCE // Fallback for invalid values
+        }
         
         return TradingPattern(
             id = dbPattern.id.toString(),

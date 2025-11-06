@@ -9,7 +9,7 @@
 **Epic**: Epic 3 (AI Trading Engine)  
 **Priority**: P1 (High - Required for ATP_ProdSpec_55-56)  
 **Dependencies**: Epic 1 ✅ (Database, PatternRepository), Issue #11 ✅ (AI Trader Core)  
-**Final Commit**: `a008a92` - Fix AITraderManagerTest: Properly clean up manager state between tests
+**Final Commit**: `ab944d4` - fix: resolve deadlock in PatternService.matchPatterns
 
 > **NOTE**: Implements pattern storage and retrieval system for trading knowledge database per ATP_ProdSpec_55-56. Stores successful trades as patterns, enables pattern matching, and provides pattern learning capabilities.
 
@@ -104,6 +104,7 @@ Implement `PatternService` class that stores successful trading patterns, querie
   - [x] `minConfidence: Double?` - Minimum confidence
   - [x] `maxAge: Duration?` - Maximum age
   - [x] `action: TradeAction?` - Filter by action
+  - [x] `tags: List<String>?` - Filter by tags (any tag in list matches)
 - [x] Implement `queryPatterns()`:
   - [x] Build query from criteria (uses `queryPatternsInternal()`)
   - [x] Execute query via `PatternRepository` (uses `findByTradingPair()`, `findActive()`)
@@ -333,6 +334,14 @@ Implement `PatternService` class that stores successful trading patterns, querie
 - [x] Verify CI pipeline passes ✅ (CI passing on latest commits)
 - [x] Update this Issue file ✅ (In progress - this update)
 
+### **Task 13: Database Migration & Exchange Support** [Status: ✅ COMPLETE]
+- [x] Create database migration V2 to add exchange column ✅
+- [x] Update PatternsTable schema to include exchange field ✅
+- [x] Update PatternRepository to store/retrieve exchange ✅
+- [x] Update PatternService to use stored exchange ✅
+- [x] Document Exchange limitation resolution ✅
+- [x] Add indexes for exchange-based queries ✅
+
 ---
 
 ## 📦 **Deliverables**
@@ -346,6 +355,7 @@ Implement `PatternService` class that stores successful trading patterns, querie
 6. ✅ `core-service/src/main/kotlin/com/fmps/autotrader/core/patterns/RelevanceCalculator.kt`
 7. ✅ `core-service/src/main/kotlin/com/fmps/autotrader/core/patterns/PatternLearner.kt`
 8. ✅ `core-service/src/main/kotlin/com/fmps/autotrader/core/patterns/PruneCriteria.kt`
+9. ✅ `core-service/src/main/resources/db/migration/V2__Add_exchange_to_patterns.sql` (Database migration)
 
 ### **Test Files**
 1. ✅ `core-service/src/test/kotlin/com/fmps/autotrader/core/patterns/PatternServiceTest.kt`
@@ -365,11 +375,11 @@ Implement `PatternService` class that stores successful trading patterns, querie
 | Pattern storage working | ✅ | `storePattern()` implemented, unit tests pass (`PatternServiceTest.testStorePattern`) |
 | Pattern querying working | ✅ | `queryPatterns()` implemented, multiple query tests pass |
 | Pattern matching working | ✅ | `matchPatterns()` implemented, relevance calculation working, tests pass |
-| Relevance scoring accurate | ✅ | `RelevanceCalculator` implemented, 11 test cases pass |
+| Relevance scoring accurate | ✅ | `RelevanceCalculator` implemented, 12 test cases pass |
 | Pattern learning working | ✅ | `PatternLearner` implemented, extraction tests pass |
 | Pattern pruning working | ✅ | `prunePatterns()` implemented, all strategies tested, tests pass |
 | Performance tracking working | ✅ | `updatePatternPerformance()` implemented, `getTopPerformingPatterns()` implemented, tests pass |
-| All tests pass | ✅ | `./gradlew test` - All pattern tests passing (19 PatternServiceTest, 11 RelevanceCalculatorTest, 2 PatternLearnerTest) |
+| All tests pass | ✅ | `./gradlew test` - All pattern tests passing (20 PatternServiceTest, 19 PatternLearnerTest, 12 RelevanceCalculatorTest = 51 total) |
 | Build succeeds | ✅ | `./gradlew build` - Build successful |
 | CI pipeline passes | ✅ | GitHub Actions - CI passing on latest commits |
 | Code coverage >80% | ✅ | Comprehensive test coverage for all major functionality |

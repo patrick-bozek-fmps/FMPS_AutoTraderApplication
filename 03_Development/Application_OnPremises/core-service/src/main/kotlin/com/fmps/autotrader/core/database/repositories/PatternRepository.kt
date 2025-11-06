@@ -22,6 +22,7 @@ class PatternRepository {
     suspend fun create(
         name: String?,
         patternType: String,
+        exchange: String = "BINANCE",
         tradingPair: String,
         timeframe: String,
         tradeType: String,
@@ -39,6 +40,7 @@ class PatternRepository {
         PatternsTable.insert {
             it[PatternsTable.name] = name
             it[PatternsTable.patternType] = patternType
+            it[PatternsTable.exchange] = exchange
             it[PatternsTable.tradingPair] = tradingPair
             it[PatternsTable.timeframe] = timeframe
             it[PatternsTable.tradeType] = tradeType
@@ -238,6 +240,7 @@ class PatternRepository {
             id = row[PatternsTable.id],
             name = row[PatternsTable.name],
             patternType = row[PatternsTable.patternType],
+            exchange = row[PatternsTable.exchange],
             tradingPair = row[PatternsTable.tradingPair],
             timeframe = row[PatternsTable.timeframe],
             tradeType = row[PatternsTable.tradeType],
@@ -274,6 +277,7 @@ data class Pattern(
     val id: Int,
     val name: String?,
     val patternType: String,
+    val exchange: String,
     val tradingPair: String,
     val timeframe: String,
     val tradeType: String,
