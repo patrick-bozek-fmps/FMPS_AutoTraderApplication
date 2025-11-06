@@ -1,5 +1,8 @@
 # 🧪 FMPS AutoTrader - Testing Guide
 
+> **Last Updated:** November 6, 2025  
+> **Version:** 1.1
+
 ## Table of Contents
 1. [Overview](#overview)
 2. [Test Structure](#test-structure)
@@ -130,9 +133,8 @@ class AITraderTest {
     fun setup() {
         mockConnector = mockk()
         aiTrader = AITrader(
-            id = "test-trader",
-            config = TradingConfig(...),
-            connector = mockConnector
+            config = AITraderConfig(...),
+            exchangeConnector = mockConnector
         )
     }
     
@@ -143,10 +145,11 @@ class AITraderTest {
         every { mockConnector.isConnected() } returns true
         
         // Act
-        aiTrader.start()
+        val result = aiTrader.start()
         
         // Assert
-        assertEquals(TraderState.RUNNING, aiTrader.state)
+        assertTrue(result.isSuccess)
+        assertEquals(AITraderState.RUNNING, aiTrader.getState())
     }
 }
 ```
@@ -357,6 +360,117 @@ val price = 12345.6789  // What does this represent?
 
 **Fix flaky tests immediately** - They reduce trust in the suite.
 
+### Test Cleanup and Isolation
+
+**Critical:** Tests must be isolated and clean up after themselves.
+
+#### Database Test Setup Pattern
+
+All database tests should follow this pattern:
+
+```kotlin
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class MyRepositoryTest {
+    
+    private val testDbPath = "./build/test-db/test-my-repo.db"
+    private lateinit var repository: MyRepository
+    
+    @BeforeAll
+    fun setup() {
+        // Delete existing test database
+        File(testDbPath).delete()
+        
+        // Set system properties for test database
+        System.setProperty("database.url", "jdbc:sqlite:$testDbPath")
+        System.setProperty("app.environment", "test")
+        
+        // Initialize database
+        val config = ConfigFactory.load()
+        DatabaseFactory.init(config)
+        
+        repository = MyRepository()
+    }
+    
+    @AfterAll
+    fun teardown() {
+        DatabaseFactory.close()
+        File(testDbPath).delete()
+    }
+    
+    @Test
+    fun `should do something`() = runBlocking {
+        // Test implementation
+    }
+}
+```
+
+**Key Points:**
+- Use `@TestInstance(TestInstance.Lifecycle.PER_CLASS)` for shared setup
+- Each test class gets its own database file: `./build/test-db/test-{name}.db`
+- Always delete database file in `@BeforeAll` and `@AfterAll`
+- Close `DatabaseFactory` in `@AfterAll`
+
+#### Manager/Service Test Cleanup Pattern
+
+When testing managers or services that maintain in-memory state:
+
+```kotlin
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class AITraderManagerTest {
+    
+    private lateinit var repository: AITraderRepository
+    private lateinit var manager: AITraderManager
+    
+    @BeforeEach
+    fun clearTraders() = runBlocking {
+        // CRITICAL: Clean both database AND in-memory state
+        val dbTraders = repository.findAll()
+        dbTraders.forEach { dbTrader ->
+            val traderId = dbTrader.id.toString()
+            // Stop trader if running (ignore errors)
+            manager.stopTrader(traderId).getOrNull()
+            // Delete through manager to clean both DB and activeTraders map
+            manager.deleteTrader(traderId).getOrNull()
+        }
+        // Final cleanup: clear any remaining database records
+        val remainingDbTraders = repository.findAll()
+        remainingDbTraders.forEach { repository.delete(it.id) }
+    }
+}
+```
+
+**Common Pitfall:** Only cleaning the database but not the manager's in-memory state will cause test failures (e.g., `MaxTradersExceededException`).
+
+**Rule:** If a manager maintains in-memory state (like `activeTraders` map), always delete through the manager, not just the repository.
+
+#### Coroutine Testing
+
+**Use `runBlocking` for:**
+- Repository tests (database operations)
+- Tests that need to wait for completion
+- Integration tests
+
+**Use `runTest` for:**
+- Unit tests with coroutines
+- Tests that need virtual time control
+- Tests with delays/timeouts
+
+```kotlin
+// Repository test - use runBlocking
+@Test
+fun `should create trader`() = runBlocking {
+    val traderId = repository.create(...)
+    assertNotNull(traderId)
+}
+
+// Unit test with coroutines - use runTest
+@Test
+fun `should generate signal`() = runTest {
+    val signal = signalGenerator.generateSignal(...)
+    assertNotNull(signal)
+}
+```
+
 ---
 
 ## Integration Test Environment
@@ -376,12 +490,14 @@ val price = 12345.6789  // What does this represent?
 ### Database
 
 **Unit Tests:**
-- Use H2 in-memory database
-- Schema created/destroyed per test class
+- Use SQLite file database (`./build/test-db/test-{name}.db`)
+- Each test class gets its own database file
+- Database is deleted and recreated in `@BeforeAll` and `@AfterAll`
+- Schema is created via Flyway migrations
 
 **Integration Tests:**
-- Use SQLite file database
-- Reset before each test
+- Use SQLite file database (same pattern as unit tests)
+- Reset before each test via `@BeforeEach` cleanup
 
 ---
 
@@ -461,6 +577,30 @@ fun testConcurrentTraders() = runTest {
 2. Verify all test data is committed
 3. Check for environment-specific assumptions
 4. Review CI logs for specific errors
+5. **Check test isolation** - Ensure tests clean up properly (both database and in-memory state)
+
+### Test Isolation Failures
+
+**Symptom:** Tests pass individually but fail when run together.
+
+**Common Causes:**
+1. **Manager state not cleaned** - Manager maintains in-memory state that persists between tests
+   - **Fix:** Delete through manager, not just repository
+   - **Example:** `AITraderManagerTest` must use `manager.deleteTrader()` not just `repository.delete()`
+
+2. **Database not cleaned between tests**
+   - **Fix:** Use `@BeforeEach` to clear test data
+   - **Example:** Clear all traders before each test in `AITraderManagerTest`
+
+3. **Shared mutable state**
+   - **Fix:** Create fresh instances in `@BeforeEach` or use `@TestInstance(TestInstance.Lifecycle.PER_METHOD)`
+
+**Debugging:**
+```bash
+# Run tests in isolation to identify which test is causing issues
+./gradlew test --tests "AITraderManagerTest.testCreateTrader"
+./gradlew test --tests "AITraderManagerTest.testCreateTraderEnforcesMaxLimit"
+```
 
 ### Coverage Not Meeting Threshold
 
@@ -496,6 +636,49 @@ fun testConcurrentTraders() = runTest {
 | Code style check | `./gradlew ktlintCheck` |
 | Static analysis | `./gradlew detekt` |
 | Security scan | `./gradlew dependencyCheckAnalyze` |
+
+---
+
+## Test Case Documentation
+
+### What to Document
+
+Each test should be self-documenting through:
+1. **Descriptive test names** - Use `backtick` notation for readability
+2. **@DisplayName annotations** - Human-readable descriptions
+3. **Comments** - Explain complex setup or non-obvious assertions
+
+### Example of Well-Documented Test
+
+```kotlin
+@Test
+@DisplayName("Should enforce maximum trader limit of 3")
+fun `test create trader enforces max limit`() = runBlocking {
+    // Arrange: Create 3 traders (max limit)
+    for (i in 1..3) {
+        val config = createTestConfig(id = "trader-$i", name = "Trader $i")
+        val result = manager.createTrader(config)
+        assertTrue(result.isSuccess, "Should create trader $i")
+    }
+
+    // Act: Try to create 4th trader
+    val config4 = createTestConfig(id = "trader-4", name = "Trader 4")
+    val result = manager.createTrader(config4)
+
+    // Assert: Should fail with MaxTradersExceededException
+    assertTrue(result.isFailure)
+    assertTrue(result.exceptionOrNull() is MaxTradersExceededException)
+}
+```
+
+### Test Coverage Documentation
+
+When adding new features, ensure:
+- ✅ Unit tests for business logic
+- ✅ Integration tests for component interactions
+- ✅ Edge cases and error conditions covered
+- ✅ Test cleanup properly implemented
+- ✅ Tests are isolated and can run in any order
 
 ---
 
