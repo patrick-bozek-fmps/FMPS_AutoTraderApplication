@@ -93,7 +93,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test confidence below threshold filters to HOLD`() {
+    fun `test confidence below threshold filters to HOLD`() = runTest {
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.BUY,
@@ -111,7 +111,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test confidence above threshold passes through`() {
+    fun `test confidence above threshold passes through`() = runTest {
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.BUY,
@@ -129,7 +129,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test existing long position prevents BUY signal`() {
+    fun `test existing long position prevents BUY signal`() = runTest {
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.BUY,
@@ -156,7 +156,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test existing short position prevents SELL signal`() {
+    fun `test existing short position prevents SELL signal`() = runTest {
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.SELL,
@@ -183,7 +183,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test CLOSE signal always valid with position`() {
+    fun `test CLOSE signal always valid with position`() = runTest {
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.CLOSE,
@@ -209,7 +209,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test profitable position close increases confidence`() {
+    fun `test profitable position close increases confidence`() = runTest {
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.CLOSE,
@@ -235,7 +235,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test losing position close reduces confidence`() {
+    fun `test losing position close reduces confidence`() = runTest {
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.CLOSE,
@@ -261,7 +261,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test error handling returns safe HOLD signal`() {
+    fun `test error handling returns safe HOLD signal`() = runTest {
         val processedData = createProcessedData()
         
         every { mockStrategy.generateSignal(any(), any()) } throws RuntimeException("Test error")
@@ -274,7 +274,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test final signal contains indicator values`() {
+    fun `test final signal contains indicator values`() = runTest {
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.BUY,
@@ -292,7 +292,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test confidence is clamped to valid range`() {
+    fun `test confidence is clamped to valid range`() = runTest {
         val processedData = createProcessedData()
         // Strategy should not return invalid confidence, but if it does, SignalGenerator should handle it
         // Since TradingSignal constructor validates confidence, we test with valid but high confidence
@@ -312,7 +312,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test custom confidence threshold works`() {
+    fun `test custom confidence threshold works`() = runTest {
         val customGenerator = SignalGenerator(
             strategy = mockStrategy,
             minConfidenceThreshold = 0.8,
@@ -335,7 +335,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test signal timestamp is updated`() {
+    fun `test signal timestamp is updated`() = runTest {
         val processedData = createProcessedData()
         val oldTime = Instant.now().minusSeconds(10)
         val strategySignal = TradingSignal(
@@ -356,7 +356,7 @@ class SignalGeneratorTest {
     }
 
     @Test
-    fun `test reason includes position information when available`() {
+    fun `test reason includes position information when available`() = runTest {
         val processedData = createProcessedData()
         val strategySignal = TradingSignal(
             action = SignalAction.BUY,

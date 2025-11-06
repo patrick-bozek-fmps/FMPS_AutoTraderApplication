@@ -209,4 +209,54 @@ class PatternIntegrationHelper(
             Result.failure(e)
         }
     }
+    
+    /**
+     * Track pattern usage when a trade is created.
+     * 
+     * This method is called when a trade is created that uses a pattern.
+     * Currently, pattern usage is tracked via the trade's patternId field,
+     * so this is a no-op but kept for API consistency.
+     * 
+     * @param patternId Pattern ID that was used
+     * @param tradeId Trade ID that was created
+     */
+    suspend fun trackPatternUsage(patternId: String?, tradeId: Int) {
+        if (patternId != null) {
+            logger.debug("Tracking pattern usage: pattern $patternId used in trade $tradeId")
+            // Pattern usage is tracked via trade.patternId in the database
+            // No additional action needed here
+        }
+    }
+    
+    /**
+     * Update pattern performance when a trade closes.
+     * 
+     * Convenience method that matches AITrader's expected API.
+     * 
+     * @param tradeId Trade ID that closed
+     * @param patternId Pattern ID (optional, will be retrieved from trade if not provided)
+     */
+    suspend fun updatePatternPerformance(tradeId: Int, patternId: String? = null) {
+        val actualPatternId = patternId ?: run {
+            val trade = tradeRepository.findById(tradeId)
+            trade?.patternId?.toString()
+        }
+        
+        if (actualPatternId != null) {
+            updatePatternAfterTradeClose(actualPatternId, tradeId)
+        } else {
+            logger.debug("No pattern ID for trade $tradeId, skipping pattern update")
+        }
+    }
+    
+    /**
+     * Learn pattern from a trade.
+     * 
+     * Convenience method that matches AITrader's expected API.
+     * 
+     * @param tradeId Trade ID to learn from
+     */
+    suspend fun learnFromTrade(tradeId: Int) {
+        extractPatternFromTrade(tradeId)
+    }
 }

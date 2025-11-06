@@ -6,6 +6,7 @@ import com.fmps.autotrader.core.patterns.models.MatchedPattern
 import com.fmps.autotrader.core.patterns.models.TradeOutcome
 import com.fmps.autotrader.core.patterns.models.TradingPattern
 import com.fmps.autotrader.core.traders.ProcessedMarketData
+import com.fmps.autotrader.core.traders.SignalAction
 import com.fmps.autotrader.core.traders.TradingSignal
 import com.fmps.autotrader.shared.enums.Exchange
 import com.fmps.autotrader.shared.enums.TradeAction
@@ -35,6 +36,7 @@ class PatternIntegration(
      * 
      * @param processedData Processed market data from AITrader
      * @param exchange Exchange identifier
+     * @param symbol Trading pair symbol (e.g., "BTCUSDT")
      * @param minRelevance Minimum relevance score (default: 0.7)
      * @param maxPatterns Maximum number of patterns to consider (default: 5)
      * @return List of trading signals based on matched patterns
@@ -42,12 +44,13 @@ class PatternIntegration(
     suspend fun getPatternBasedSignals(
         processedData: ProcessedMarketData,
         exchange: Exchange,
+        symbol: String,
         minRelevance: Double = 0.7,
         maxPatterns: Int = 5
     ): List<TradingSignal> {
         try {
             // Convert ProcessedMarketData to MarketConditions
-            val marketConditions = convertToMarketConditions(processedData, exchange)
+            val marketConditions = convertToMarketConditions(processedData, exchange, symbol)
             
             // Match patterns
             val matchedPatterns = patternService.matchPatterns(
@@ -57,11 +60,11 @@ class PatternIntegration(
             )
             
             if (matchedPatterns.isEmpty()) {
-                logger.debug("No patterns matched for ${processedData.symbol} on $exchange")
+                logger.debug("No patterns matched for $symbol on $exchange")
                 return emptyList()
             }
             
-            logger.info("Found ${matchedPatterns.size} matching patterns for ${processedData.symbol}")
+            logger.info("Found ${matchedPatterns.size} matching patterns for $symbol")
             
             // Convert matched patterns to trading signals
             return matchedPatterns.mapNotNull { matchedPattern ->
@@ -78,15 +81,17 @@ class PatternIntegration(
      * 
      * @param processedData Processed market data
      * @param exchange Exchange identifier
+     * @param symbol Trading pair symbol
      * @param minRelevance Minimum relevance score
      * @return Best trading signal based on patterns, or null if no match
      */
     suspend fun getBestPatternSignal(
         processedData: ProcessedMarketData,
         exchange: Exchange,
+        symbol: String,
         minRelevance: Double = 0.7
     ): TradingSignal? {
-        val signals = getPatternBasedSignals(processedData, exchange, minRelevance, maxPatterns = 1)
+        val signals = getPatternBasedSignals(processedData, exchange, symbol, minRelevance, maxPatterns = 1)
         return signals.firstOrNull()
     }
     
@@ -196,14 +201,16 @@ class PatternIntegration(
      * 
      * @param processedData Processed market data
      * @param exchange Exchange identifier
+     * @param symbol Trading pair symbol
      * @return Pattern recommendation with confidence score
      */
     suspend fun getPatternRecommendation(
         processedData: ProcessedMarketData,
-        exchange: Exchange
+        exchange: Exchange,
+        symbol: String
     ): PatternRecommendation? {
         val matchedPatterns = patternService.matchPatterns(
-            conditions = convertToMarketConditions(processedData, exchange),
+            conditions = convertToMarketConditions(processedData, exchange, symbol),
             minRelevance = 0.6,
             maxResults = 3
         )
@@ -234,34 +241,20 @@ class PatternIntegration(
      */
     private fun convertToMarketConditions(
         processedData: ProcessedMarketData,
-        exchange: Exchange
+        exchange: Exchange,
+        symbol: String
     ): MarketConditions {
-        val indicators = mutableMapOf<String, Any>()
-        
-        // Add RSI if available
-        processedData.rsi?.let { indicators["RSI"] = it }
-        
-        // Add MACD if available
-        processedData.macd?.let { indicators["MACD"] = it }
-        
-        // Add SMA if available
-        processedData.smaShort?.let { indicators["SMA_Short"] = it }
-        processedData.smaLong?.let { indicators["SMA_Long"] = it }
-        
-        // Add EMA if available
-        processedData.emaShort?.let { indicators["EMA_Short"] = it }
-        processedData.emaLong?.let { indicators["EMA_Long"] = it }
-        
-        // Add Bollinger Bands if available
-        processedData.bollingerBands?.let { indicators["BollingerBands"] = it }
+        // Use indicators directly from ProcessedMarketData
+        // They are already in a map format
+        val indicators = processedData.indicators.toMutableMap()
         
         return MarketConditions(
             exchange = exchange,
-            symbol = processedData.symbol,
-            currentPrice = processedData.currentPrice,
+            symbol = symbol,
+            currentPrice = processedData.latestPrice,
             indicators = indicators,
-            candlesticks = processedData.candlesticks,
-            timestamp = Instant.now()
+            candlesticks = processedData.candles,
+            timestamp = processedData.timestamp
         )
     }
     
@@ -277,8 +270,8 @@ class PatternIntegration(
         // Only generate signal if pattern action matches market conditions
         // For now, we trust the pattern's action
         val action = when (pattern.action) {
-            TradeAction.LONG -> com.fmps.autotrader.core.traders.SignalAction.BUY
-            TradeAction.SHORT -> com.fmps.autotrader.core.traders.SignalAction.SELL
+            TradeAction.LONG -> SignalAction.BUY
+            TradeAction.SHORT -> SignalAction.SELL
         }
         
         // Calculate confidence from pattern
@@ -295,10 +288,10 @@ class PatternIntegration(
         
         return TradingSignal(
             action = action,
-            symbol = processedData.symbol,
-            confidence = confidence.toFloat(),
+            confidence = confidence,
             reason = reason,
-            timestamp = Instant.now()
+            timestamp = Instant.now(),
+            matchedPatternId = pattern.id
         )
     }
 }
