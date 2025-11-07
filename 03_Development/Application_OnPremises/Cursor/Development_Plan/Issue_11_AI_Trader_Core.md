@@ -9,6 +9,7 @@
 **Epic**: Epic 3 (AI Trading Engine)  
 **Priority**: P0 (Critical - Blocks Issues #12, #13, #14)  
 **Dependencies**: Epic 1 ✅ (Data Models, Database, Config), Epic 2 ✅ (Exchange Connectors, Technical Indicators)
+**Final Commit**: `f201444` - fix: address Issue 11 review findings
 
 > **NOTE**: This is the foundation issue for Epic 3. Must be completed before starting Issues #12, #13, and #14. Implements the core trading engine with strategy logic and signal generation.
 
