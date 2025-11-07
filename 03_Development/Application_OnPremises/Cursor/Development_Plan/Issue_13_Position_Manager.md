@@ -115,7 +115,7 @@ Implement `PositionManager` class that tracks open positions, calculates real-ti
 ### **Task 12: Build & Commit** [Status: ✅ COMPLETE]
 - [x] Run full build: `./gradlew build --no-daemon`
 - [x] Fix any compilation/test issues (PositionManagerTest flake adjusted)
-- [x] Commit documentation + code changes (see commit `a9b07c1`)
+- [x] Commit documentation + code changes (see commit `eca58b7`)
 - [x] Push to GitHub
 - [x] Verify CI pipeline passes (CI Pipeline run `19172479322`)
 - [x] Update final commit hash above (kept in sync with latest remediation commit)
