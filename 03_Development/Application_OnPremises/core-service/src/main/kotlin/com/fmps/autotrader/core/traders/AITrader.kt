@@ -244,25 +244,27 @@ class AITrader(
      */
     suspend fun updateConfig(newConfig: AITraderConfig): Result<Unit> {
         return stateMutex.withLock {
-            when {
-                state.get() == AITraderState.RUNNING -> Result.failure(
+            if (state.get() == AITraderState.RUNNING) {
+                return@withLock Result.failure(
                     IllegalStateException("Cannot update config while trader is running")
                 )
+            }
 
-                newConfig.id != currentConfig.id -> Result.failure(
+            if (newConfig.id != currentConfig.id) {
+                return@withLock Result.failure(
                     IllegalArgumentException(
                         "Cannot change trader ID during config update (current=${currentConfig.id}, new=${newConfig.id})"
                     )
                 )
+            }
 
-                else -> try {
-                    rebuildForNewConfig(newConfig)
-                    logger.info { "Configuration updated for trader ${newConfig.id}" }
-                    Result.success(Unit)
-                } catch (e: Exception) {
-                    logger.error(e) { "Failed to update configuration for trader ${currentConfig.id}" }
-                    Result.failure(e)
-                }
+            try {
+                rebuildForNewConfig(newConfig)
+                logger.info { "Configuration updated for trader ${newConfig.id}" }
+                Result.success(Unit)
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to update configuration for trader ${currentConfig.id}" }
+                Result.failure(e)
             }
         }
     }

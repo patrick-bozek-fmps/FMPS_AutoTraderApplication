@@ -93,7 +93,7 @@ class MarketDataProcessor(
                     continue
                 }
 
-                val value = when (indicatorName.uppercase()) {
+                val value: Any? = when (indicatorName.uppercase()) {
                     "SMA" -> {
                         // Calculate SMA for common periods
                         val sma9 = SMAIndicator(9).calculate(candles)
