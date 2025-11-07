@@ -80,6 +80,20 @@ class RiskManagerTest {
     }
 
     @Test
+    fun `canOpenPosition returns false when trader emergency stopped`() = runTest {
+        riskManager.registerTrader("trader-1")
+        riskManager.emergencyStop("trader-1")
+
+        val result = riskManager.canOpenPosition(
+            traderId = "trader-1",
+            notionalAmount = BigDecimal("500"),
+            leverage = BigDecimal.ONE
+        )
+
+        assertEquals(false, result.getOrNull())
+    }
+
+    @Test
     fun `emergencyStop closes positions and invokes handler`() = runTest {
         provider.addPosition("trader-1", quantity = BigDecimal("0.1"), price = BigDecimal("2000"), leverage = BigDecimal("2"))
         riskManager.registerTrader("trader-1")
@@ -111,6 +125,20 @@ class RiskManagerTest {
 
         assertNotNull(score)
         assertTrue(score.overallScore >= 0.0)
+        assertNotEquals(RiskRecommendation.EMERGENCY_STOP, score.recommendation)
+    }
+
+    @Test
+    fun `calculateRiskScore ignores positive pnl`() = runTest {
+        provider.addHistory(
+            traderId = "trader-1",
+            realizedPnL = BigDecimal("1500"),
+            closedAt = Instant.now()
+        )
+
+        val score = riskManager.calculateRiskScore("trader-1")
+
+        assertEquals(0.0, score.pnlScore, 1e-6)
         assertNotEquals(RiskRecommendation.EMERGENCY_STOP, score.recommendation)
     }
 
@@ -243,6 +271,38 @@ class RiskManagerTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
+    fun `monitoring closes positions when stop loss triggered`() = runTest {
+        val now = Instant.parse("2025-11-07T13:00:00Z")
+        val monitoringRiskManager = RiskManager(
+            positionProvider = provider,
+            riskConfig = riskConfig.copy(monitoringIntervalSeconds = 1),
+            clock = Clock.fixed(now, ZoneOffset.UTC),
+            monitoringScope = this
+        )
+
+        provider.addPosition(
+            traderId = "trader-1",
+            quantity = BigDecimal.ONE,
+            price = BigDecimal("1000"),
+            leverage = BigDecimal.ONE,
+            stopLoss = BigDecimal("900"),
+            currentPrice = BigDecimal("850"),
+            unrealizedPnL = BigDecimal("-150")
+        )
+
+        monitoringRiskManager.registerTrader("trader-1")
+        monitoringRiskManager.startMonitoring()
+
+        runCurrent()
+
+        assertEquals(1, provider.closeCallCount.get())
+        assertTrue(provider.positionsById.isEmpty())
+
+        monitoringRiskManager.stopMonitoring()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
     fun `emergency stop is idempotent under concurrent calls`() = runTest {
         provider.addPosition(
             traderId = "trader-1",
@@ -310,14 +370,22 @@ class RiskManagerTest {
         private val traderHistory = mutableMapOf<String, MutableList<PositionHistory>>()
         val closeCallCount = AtomicInteger(0)
 
-        fun addPosition(traderId: String, quantity: BigDecimal, price: BigDecimal, leverage: BigDecimal) {
+        fun addPosition(
+            traderId: String,
+            quantity: BigDecimal,
+            price: BigDecimal,
+            leverage: BigDecimal,
+            stopLoss: BigDecimal? = null,
+            currentPrice: BigDecimal? = null,
+            unrealizedPnL: BigDecimal = BigDecimal.ZERO
+        ) {
             val position = Position(
                 symbol = "BTCUSDT",
                 action = TradeAction.LONG,
                 quantity = quantity,
                 entryPrice = price,
-                currentPrice = price,
-                unrealizedPnL = BigDecimal.ZERO,
+                currentPrice = currentPrice ?: price,
+                unrealizedPnL = unrealizedPnL,
                 leverage = leverage,
                 openedAt = Instant.now()
             )
@@ -326,12 +394,25 @@ class RiskManagerTest {
                 traderId = traderId,
                 position = position,
                 tradeId = null,
-                stopLossPrice = null,
+                stopLossPrice = stopLoss,
                 takeProfitPrice = null,
                 lastUpdated = Instant.now()
             )
             positionsById[managed.positionId] = managed
             traderPositions.getOrPut(traderId) { mutableListOf() }.add(managed.positionId)
+        }
+
+        fun updatePositionPrice(positionId: String, newPrice: BigDecimal, newUnrealizedPnL: BigDecimal = BigDecimal.ZERO) {
+            val existing = positionsById[positionId] ?: return
+            val updated = existing.copy(
+                position = existing.position.copy(
+                    currentPrice = newPrice,
+                    unrealizedPnL = newUnrealizedPnL,
+                    openedAt = existing.position.openedAt
+                ),
+                lastUpdated = Instant.now()
+            )
+            positionsById[positionId] = updated
         }
 
         fun addHistory(traderId: String, realizedPnL: BigDecimal, closedAt: Instant) {

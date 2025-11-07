@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 4.1  
+**Version**: 4.2  
 **Date**: October 30, 2025  
 **Status**: ✅ Epic 1 COMPLETE! (6/6) + Epic 2 COMPLETE! (4/4 - 100% with full test coverage!) 🎉  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -13,18 +13,18 @@
 |------|----------|--------|----------|------------------|
 | **Epic 1: Foundation & Infrastructure** | 2 weeks | ✅ **COMPLETE** | All 6 issues complete ✅ | Gradle, Database, REST API, Models, Config, Logging |
 | **Epic 2: Exchange Integration** | 1 week | ✅ **COMPLETE** | All 4 issues complete ✅ | Exchange Framework ✅, Binance ✅, Bitget ✅, Technical Indicators ✅ |
-| **Epic 3: AI Trading Engine** | 3 weeks | 🚀 **IN PROGRESS** | 4/5 sections (80%) | AI traders with manager, positions, pattern storage |
+| **Epic 3: AI Trading Engine** | 3 weeks | ✅ **COMPLETE** | All 5 sections (100%) | AI traders with manager, positions, risk manager, pattern storage |
 | **Epic 4: Desktop UI** | 3 weeks | ⏳ Not Started | 0/5 sections | Complete JavaFX application |
 | **Epic 5: Windows Service** | 2 weeks | ⏳ Not Started | 0/3 sections | Windows Service wrapper |
 | **Epic 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
 
 **Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues
 
-**Overall Progress**: **14 GitHub Issues completed (Epic 1: 100% COMPLETE! Epic 2: 100% COMPLETE! Epic 3: 80% IN PROGRESS!) 🎉🎉🎉🎉**
+**Overall Progress**: **15 GitHub Issues completed (Epic 1: 100% COMPLETE! Epic 2: 100% COMPLETE! Epic 3: 100% COMPLETE!) 🎉🎉🎉🎉**
 
-**Last Milestone**: ✅ **Issue #13** – Position Manager with persistence, monitoring, recovery (Nov 7, 2025)
+**Last Milestone**: ✅ **Issue #14** – Risk Manager with emergency-stop enforcement, stop-loss monitoring, documentation (Nov 7, 2025)
 
-**In Progress**: 🚧 **Issue #14** – Risk Manager (monitoring loop + integration tests completed; documentation wrapping up)
+**In Progress**: ✳️ Planning next Epic 3 follow-ups (Issue backlog grooming)
 
 ### 📋 **Epic 1 Breakdown** (6/6 sections complete) ✅ **COMPLETE**
 
@@ -63,15 +63,13 @@
 | **4.1** | **Oct 30, 2025** | **Issue #10 Re-Verified: Enhanced to 100% test coverage (115 tests)** | **AI Assistant** |
 | **4.2** | **Oct 30, 2025** | **CI Pipeline Optimized: Split unit/integration tests, fixed flaky timing tests** | **AI Assistant** |
 | **4.3** | **Nov 7, 2025** | **Issue #14: Added risk monitoring + integration tests, drafted Risk Manager guide** | **AI Assistant** |
+| **4.4** | **Nov 7, 2025** | **Issue #14 COMPLETE: emergency-stop gating, stop-loss monitoring, documentation + CI sign-off** | **AI Assistant** |
 
 **Changes from v4.1:**
-- ✅ CI workflow split into unit-tests and integration-tests jobs
-- ✅ Unit tests always run (fast, ~1-2 min, no secrets needed)
-- ✅ Integration tests optional (only run if API secrets configured)
-- ✅ Fixed flaky timing tests in RateLimiter (Binance & Bitget scenarios)
-- ✅ All 435 tests passing (434 unit + 1 integration)
-- ✅ CI pipeline now stable and reliable
-- ✅ Updated DEVELOPMENT_WORKFLOW.md with new CI structure
+- ✅ Issue #14 (Risk Manager) fully remediated – emergency-stop gating, loss-only risk scoring, stop-loss enforcement in monitoring
+- ✅ Added new regression tests (`RiskManagerTest` emergency stop gating, profit-aware scoring, monitoring stop-loss)
+- ✅ Documentation refreshed (`RISK_MANAGER_GUIDE.md`, Issue/Review docs, EPIC 3 status table)
+- ✅ CI run `19173833934` green after full `./gradlew clean build`
 
 **Changes from v4.0:**
 - ✅ Issue #10 re-verified with comprehensive test coverage

@@ -186,6 +186,16 @@ class RiskManager(
     ): Result<Boolean> {
         val violations = mutableListOf<RiskViolation>()
 
+        if (isTraderEmergencyStopped(traderId)) {
+            violations += RiskViolation(
+                RiskViolationType.EMERGENCY,
+                "Trader is currently under emergency stop",
+                mapOf("traderId" to traderId)
+            )
+            logger.warn { "Blocking position opening for trader $traderId due to active emergency stop" }
+            return Result.success(false)
+        }
+
         val budgetResult = validateBudget(notionalAmount, traderId, leverage)
         if (budgetResult.isFailure) {
             violations += (budgetResult.exceptionOrNull() as? RiskValidationException)?.violation
@@ -282,6 +292,14 @@ class RiskManager(
             )
         }
 
+        if (isTraderEmergencyStopped(traderId)) {
+            violations += RiskViolation(
+                RiskViolationType.EMERGENCY,
+                "Trader is currently under emergency stop",
+                mapOf("traderId" to traderId)
+            )
+        }
+
         val riskScore = calculateRiskScore(traderId)
         val allowed = violations.isEmpty() &&
             riskScore.recommendation != RiskRecommendation.BLOCK &&
@@ -320,6 +338,22 @@ class RiskManager(
                 try {
                     val traders = mutex.withLock { registeredTraders.toSet() }
                     for (traderId in traders) {
+                        if (stopLossManager.checkTraderStopLoss(traderId)) {
+                            logger.error { "Trader $traderId exceeded rolling loss threshold; initiating emergency stop" }
+                            emergencyStop(traderId)
+                            continue
+                        }
+
+                        val positions = positionProvider.getPositionsByTrader(traderId)
+                        positions.filter { stopLossManager.checkPositionStopLoss(it) }
+                            .forEach { position ->
+                                logger.warn {
+                                    "Stop-loss triggered for position ${position.positionId} (trader $traderId); closing position"
+                                }
+                                positionProvider.closePosition(position.positionId, "STOP_LOSS")
+                                    .onFailure { logger.error(it) { "Failed to close position ${position.positionId}" } }
+                            }
+
                         val result = checkRiskLimits(traderId)
                         if (!result.isAllowed) {
                             logger.warn { "Risk violations detected for trader $traderId: ${result.violations}" }
@@ -349,9 +383,10 @@ class RiskManager(
         val totalBudgetScore = ratio(totalExposure, riskConfig.maxTotalBudget)
         val leverageScore = ratio(currentMaxLeverageForTrader(traderId), BigDecimal.valueOf(riskConfig.maxLeveragePerTrader.toLong()))
         val totalLeverageScore = ratio(currentMaxLeverageOverall(), BigDecimal.valueOf(riskConfig.maxTotalLeverage.toLong()))
-        val dailyPnL = stopLossManager.calculateRollingPnL(traderId).abs()
+        val dailyPnL = stopLossManager.calculateRollingPnL(traderId)
+        val realizedLoss = if (dailyPnL < BigDecimal.ZERO) dailyPnL.abs() else BigDecimal.ZERO
         val pnlScore = if (riskConfig.maxDailyLoss > BigDecimal.ZERO) {
-            ratio(dailyPnL, riskConfig.maxDailyLoss)
+            ratio(realizedLoss, riskConfig.maxDailyLoss)
         } else 0.0
 
         val combinedBudget = max(budgetScore, totalBudgetScore)
@@ -384,6 +419,10 @@ class RiskManager(
     private suspend fun currentMaxLeverageOverall(): BigDecimal {
         val positions = positionProvider.getAllPositions()
         return positions.maxOfOrNull { it.position.leverage } ?: BigDecimal.ONE
+    }
+
+    private suspend fun isTraderEmergencyStopped(traderId: String): Boolean {
+        return mutex.withLock { emergencyStoppedTraders.contains(traderId) }
     }
 
     private fun ratio(value: BigDecimal, limit: BigDecimal): Double {

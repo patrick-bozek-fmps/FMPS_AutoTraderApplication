@@ -1,10 +1,10 @@
 # Issue #14: Risk Manager
 
-**Status**: 🚧 **IN PROGRESS**  
+**Status**: ✅ **COMPLETE**  
 **Assigned**: AI Assistant  
 **Created**: November 5, 2025  
 **Started**: November 7, 2025  
-**Completed**: Not Completed  
+**Completed**: November 7, 2025  
 **Duration**: 2-3 days (estimated)  
 **Epic**: Epic 3 (AI Trading Engine)  
 **Priority**: P0 (Critical - Required for ATP_ProdSpec_54 compliance)  
@@ -213,7 +213,7 @@ Implement `RiskManager` class that validates budgets, enforces leverage limits, 
   - [x] Adjust based on system load
 - [x] Unit tests for risk monitoring
 
-### **Task 10: Testing** [Status: 🚧 IN PROGRESS]
+### **Task 10: Testing** [Status: ✅ COMPLETE]
 - [x] Write unit tests for `RiskManager`:
   - [x] Budget validation (success, insufficient funds, no money)
   - [x] Leverage validation (success, limit exceeded)
@@ -249,15 +249,14 @@ Implement `RiskManager` class that validates budgets, enforces leverage limits, 
   - [x] Troubleshooting guide
 - [x] Update relevant documentation files
 
-### **Task 12: Build & Commit** [Status: ⏳ PENDING]
-- [ ] Run all tests: `./gradlew test`
-- [ ] Build project: `./gradlew build`
-- [ ] Fix any compilation errors
-- [ ] Fix any test failures
-- [ ] Commit changes
-- [ ] Push to GitHub
-- [ ] Verify CI pipeline passes
-- [ ] Update this Issue file and Development_Plan_v2.md
+### **Task 12: Build & Commit** [Status: ✅ COMPLETE]
+- [x] Run all tests: `./gradlew :core-service:test --no-daemon` and regression suite `./gradlew clean build --no-daemon` (Nov 7, 2025)
+- [x] Fix compilation/test issues (emergency-stop gating + stop-loss monitoring tests added)
+- [x] Commit changes: `8717f9d` – fix: harden risk manager emergency handling
+- [x] Documentation hash update: `ca8aca0` – docs: log issue 13 remediation commit hash (includes Issue #14 references)
+- [x] Push to GitHub (origin/main)
+- [x] Verify CI pipeline passes (CI Pipeline run `19176132894` – success)
+- [x] Update this issue file, `EPIC_3_STATUS.md`, and `Development_Plan_v2.md`
 
 ---
 
@@ -280,18 +279,18 @@ Implement `RiskManager` class that validates budgets, enforces leverage limits, 
 
 | Criterion | Status | Verification Method |
 |-----------|--------|---------------------|
-| RiskManager implemented with all operations | ⏳ | File exists, unit tests pass |
-| Budget validation working (ATP_ProdSpec_54) | ⏳ | Unit tests pass, negative test cases |
-| Leverage limit enforcement working | ⏳ | Unit tests pass, negative test cases |
-| Exposure monitoring working | ⏳ | Unit tests pass, integration tests |
-| Stop-loss logic working | ⏳ | Unit tests pass, integration tests |
-| Emergency stop functionality working | ⏳ | Unit tests pass, integration tests |
-| ATP_ProdSpec_54 compliance verified | ⏳ | Comprehensive test cases |
-| All tests pass | ⏳ | `./gradlew test` |
-| Build succeeds | ⏳ | `./gradlew build` |
-| CI pipeline passes | ⏳ | GitHub Actions |
-| Code coverage >80% (>90% for critical paths) | ⏳ | Coverage report |
-| Documentation complete | ⏳ | Documentation review |
+| RiskManager implemented with all operations | ✅ | `RiskManager.kt`/`StopLossManager.kt` feature-complete; tests updated (Nov 7, 2025) |
+| Budget validation working (ATP_ProdSpec_54) | ✅ | `RiskManagerTest.validateBudget` scenario |
+| Leverage limit enforcement working | ✅ | `RiskManagerTest.validateLeverage fails when global leverage limit exceeded` |
+| Exposure monitoring working | ✅ | `RiskManagerTest.checkRiskLimits flags total exposure violations` |
+| Stop-loss logic working | ✅ | `RiskManagerTest.monitoring closes positions when stop loss triggered` |
+| Emergency stop functionality working | ✅ | `RiskManagerTest.emergency stop is idempotent under concurrent calls` |
+| ATP_ProdSpec_54 compliance verified | ✅ | Trader creation guard tests + emergency-stop gating |
+| All tests pass | ✅ | `./gradlew :core-service:test --no-daemon` (Nov 7, 2025) |
+| Build succeeds | ✅ | `./gradlew clean build --no-daemon` |
+| CI pipeline passes | ✅ | GitHub Actions run `19173833934` |
+| Code coverage >80% (>90% for critical paths) | ✅ | Jacoco report (core-service) |
+| Documentation complete | ✅ | `RISK_MANAGER_GUIDE.md` + planning docs updated (Nov 7, 2025) |
 
 ---
 

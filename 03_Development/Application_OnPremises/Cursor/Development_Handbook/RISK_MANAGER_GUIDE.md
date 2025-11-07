@@ -43,11 +43,11 @@ All numeric inputs are validated (non-negative budgets/exposures, positive lever
 
 - `validateBudget(requiredAmount, traderId, leverage)` – checks capital availability and per-trader exposure.
 - `validateLeverage(leverage, traderId)` – ensures leverage thresholds are respected.
-- `canOpenPosition(traderId, notionalAmount, leverage)` – composite gate called before `PositionManager.openPosition`, returning `false` with a `RiskViolation` when risk limits block the trade.
+- `canOpenPosition(traderId, notionalAmount, leverage)` – composite gate called before `PositionManager.openPosition`; it blocks traders under emergency stop in addition to budget/leverage/exposure violations.
 - `checkRiskLimits(traderId)` – returns a `RiskCheckResult` containing violations and a `RiskScore` recommendation (ALLOW/WARN/BLOCK/EMERGENCY_STOP).
 - `emergencyStop(traderId?)` – closes positions, stops traders, and prevents further execution until manual review.
 
-`RiskScore` combines budget, leverage, exposure, and rolling P&L components; scores near 1.0 escalate to `EMERGENCY_STOP`.
+`RiskScore` combines budget, leverage, exposure, and rolling P&L components; only losses contribute to the P&L score so profitable runs no longer escalate to `EMERGENCY_STOP`.
 
 ## Integration Steps
 
@@ -63,6 +63,7 @@ All numeric inputs are validated (non-negative budgets/exposures, positive lever
 
 3. **Monitoring & Alerts**
    - Optionally call `riskManager.startMonitoring()` (auto-started in integration tests via `attachRiskManager`).
+   - Monitoring loop enforces stop-losses: it closes individual positions whose thresholds are breached and escalates to `emergencyStop` when a trader exceeds rolling loss limits.
    - Provide stop handlers to surface alerts (log, metrics, notifications).
 
 ## Usage Example
@@ -85,7 +86,7 @@ aiTraderManager.attachRiskManager(riskManager)
 
 ## Testing Strategy
 
-- `RiskManagerTest` exercises budget/leverage validation, exposure blocking, stop-loss/e-stops, and monitoring-triggered emergency stops.
+- `RiskManagerTest` exercises budget/leverage validation, exposure blocking, stop-loss/e-stops, monitoring-triggered emergency stops, and emergency-stop gating for new trades.
 - Concurrency and end-to-end coverage: `emergency stop is idempotent under concurrent calls`, `end to end risk flow closes positions and notifies handlers` ensure the emergency stop path remains thread-safe and notifies trader handlers.
 - `PositionManagerTest` ensures high notional trades are rejected when risk config is restrictive.
 - `AITraderManagerTest` verifies trader creation fails when risk budgets are exhausted.
