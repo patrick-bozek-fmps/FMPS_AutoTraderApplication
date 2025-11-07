@@ -623,6 +623,10 @@ dependencies {
 - Risk management checks are placeholder (will be implemented in Issue #14)
 - Metrics tracking will be enhanced with actual trade data in Issue #13
 
+### **Post-Completion Fixes**
+
+- **November 7, 2025 – Commit `6992151`**: Refined `AITrader.updateConfig` locking and indicator caching types to remove CI warnings and keep regression tests deterministic. GitHub Actions run [19166258170](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19166258170) completed successfully across unit and integration suites.
+
 ---
 
 ## 📦 **Commit Strategy**
