@@ -16,7 +16,7 @@ Epic 3 is approaching completion. Core trading, trader management, position life
 - ✅ Issue #12 – AI Trader Manager (lifecycle, health monitoring, persistence)
 - ✅ Issue #13 – Position Manager (persistence, monitoring, recovery, history)
 - ✅ Issue #15 – Pattern Storage System (learning, matching, integration)
-- ⏳ Issue #14 – Risk Manager (next focus)
+- 🚧 Issue #14 – Risk Manager (monitoring loop & integration tests landed; end-to-end checks next)
 
 ---
 
@@ -27,7 +27,7 @@ Epic 3 is approaching completion. Core trading, trader management, position life
 | #11 | AI Trader Core | ✅ **COMPLETE** | P0 (Critical) | 1 day (actual) ⚡ | Epic 1 ✅, Epic 2 ✅ |
 | #12 | AI Trader Manager | ✅ **COMPLETE** | P0 (Critical) | 1 day (actual) ⚡ | Issue #11 ✅ |
 | #13 | Position Manager | ✅ **COMPLETE** | P1 (High) | 2 days (actual) | Issue #11 ✅ |
-| #14 | Risk Manager | 📋 **PLANNED** | P0 (Critical) | 2-3 days (estimated) | Issue #11 ✅, #13 ✅ |
+| #14 | Risk Manager | 🚧 **IN PROGRESS** | P0 (Critical) | 2-3 days (estimated) | Issue #11 ✅, #13 ✅ |
 | #15 | Pattern Storage System | ✅ **COMPLETE** | P1 (High) | 1 day (actual) ⚡ | Epic 1 ✅, Issue #11 ✅ |
 
 **Total Estimated Duration**: 12-17 days (~2.5-3.5 weeks)  
@@ -93,20 +93,22 @@ Epic 3 is approaching completion. Core trading, trader management, position life
 
 ---
 
-## 📋 **Planned Issues** (1 remaining)
+## 📋 **Ongoing Issues**
 
-### **Issue #14: Risk Manager** 📋 PLANNED
-- **Status**: 📋 **PLANNED**
+### **Issue #14: Risk Manager** 🚧 IN PROGRESS
+- **Status**: 🚧 **IN PROGRESS**
 - **Priority**: P0 (Critical – ATP_ProdSpec_54 compliance)
 - **Estimated Duration**: 2-3 days
 - **Dependencies**: Issue #11 ✅, Issue #13 ✅
 
-**Planned Deliverables**
-- `RiskManager.kt` – budget/leverage enforcement, exposure tracking, emergency stop
-- Budget allocation and validation per trader
-- Leverage & exposure limits, risk scoring
-- Integration with PositionManager + AITraderManager
-- Comprehensive unit tests, documentation (`RISK_MANAGER_GUIDE.md`)
+**In-Flight Deliverables**
+- `RiskManager.kt` – budget/leverage enforcement, exposure tracking, emergency stop ✅
+- `RiskModels.kt` – configuration, scoring, violations ✅
+- `StopLossManager.kt` – trader and position-level stop-loss ✅
+- Integration with PositionManager + AITraderManager ✅
+- Risk monitoring coroutine + alerts ✅
+- Comprehensive unit tests (`RiskManagerTest`) ✅
+- Documentation (`RISK_MANAGER_GUIDE.md`) ✅ (cross-links pending)
 
 ---
 
@@ -224,10 +226,9 @@ Epic 3 is approaching completion. Core trading, trader management, position life
 ## 📋 **Recommended Next Steps**
 
 ### **🚀 Focus: Issue #14 – Risk Manager**
-1. Finalize risk requirement mapping (ATP_ProdSpec_54) into concrete testable tasks
-2. Implement `RiskManager` with leverage/budget enforcement and emergency stop hooks
-3. Extend test suites for exposure calculations and integration with PositionManager/AITraderManager
-4. Run full build + CI after Issue #14 to close Epic 3
+1. Finalize documentation cross-links and capture coverage summary for new tests
+2. Run full build + CI once risk suite is complete, capture coverage metrics
+3. Update plan/status docs with final results and close Epic 3
 
 ### **🏆 Recent Achievements**
 - Issue #12 finished: trader lifecycle, health monitoring, documentation updated
@@ -242,17 +243,17 @@ Epic 3 is approaching completion. Core trading, trader management, position life
 |--------|--------|-------|
 | **Planning Quality** | ✅ Excellent | Remaining scope limited to Issue #14 |
 | **Dependencies** | ✅ Clear | Risk Manager depends only on completed Issues #11 & #13 |
-| **Requirements Coverage** | ✅ In progress | ATP_ProdSpec_52-56 covered except risk budget/leverage (Issue #14) |
+| **Requirements Coverage** | ✅ In progress | Risk limits enforcement coded; full end-to-end validation pending |
 | **Blockers** | ✅ None | All prerequisites satisfied |
-| **Documentation** | ✅ Updated | Guides for Issues #11, #12, #13, #15 published |
-| **Risk Assessment** | ⚠️ Medium | Awaiting risk enforcement implementation |
+| **Documentation** | ✅ Updated | Guides for Issues #11, #12, #13, #15 + draft Risk Manager guide |
+| **Risk Assessment** | ⚠️ Medium | EMERGENCY stop validated; thread-safety & end-to-end flow still outstanding |
 
 ---
 
 ## ✅ **Action Items**
 
 ### **Next (Epic 3 - AI Trading Engine)**
-1. [ ] **Issue #14**: Risk Manager (P0, 2-3 days, depends on #11, #13)
+1. [ ] **Issue #14**: Add thread-safety & end-to-end risk flow tests; sync docs across handbook
 2. [ ] `./gradlew clean build` + full `./gradlew test` after Issue #14
 3. [ ] Push & monitor CI, update documentation/plan summaries
 
@@ -279,7 +280,7 @@ Epic 3 is approaching completion. Core trading, trader management, position life
 
 **Created**: November 5, 2025  
 **Author**: AI Assistant  
-**Last Updated**: November 7, 2025 (Issue #13 COMPLETE)  
+**Last Updated**: November 7, 2025 (Issue #14 integration tests landed)  
 **Next Review**: After Issue #14 completion  
 **Status**: 🚀 **IN PROGRESS** – Risk Manager remaining
 
@@ -288,7 +289,7 @@ Epic 3 is approaching completion. Core trading, trader management, position life
 ## 🚀 **Epic 3 – Final Stretch**
 
 - Completed: Issues #11, #12, #13, #15 (core trading, lifecycle management, positions, patterns)
-- Outstanding: Issue #14 – Risk Manager (budget/leverage/exposure)
+- Outstanding: Issue #14 – Risk Manager (budget/leverage/exposure) – in progress
 - Planned duration remaining: 2–3 days
 - Focus: implement risk enforcement, run full build/test, close Epic 3
 

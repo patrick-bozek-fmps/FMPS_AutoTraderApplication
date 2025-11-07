@@ -137,16 +137,17 @@ class SubscriptionManager {
         messagesRouted.incrementAndGet()
         logger.trace { "Routing message to ${subscriptionsForChannel.size} subscription(s) for channel: ${message.channel}" }
 
-        // Invoke callbacks in parallel
-        for (subscription in subscriptionsForChannel) {
-            scope.launch {
-                try {
-                    subscription.callback(message)
-                } catch (e: Exception) {
-                    logger.error(e) { 
-                        "Error in subscription callback (id: ${subscription.id}, channel: ${message.channel})"
+        kotlinx.coroutines.coroutineScope {
+            for (subscription in subscriptionsForChannel) {
+                launch {
+                    try {
+                        subscription.callback(message)
+                    } catch (e: Exception) {
+                        logger.error(e) {
+                            "Error in subscription callback (id: ${subscription.id}, channel: ${message.channel})"
+                        }
+                        routingErrors.incrementAndGet()
                     }
-                    routingErrors.incrementAndGet()
                 }
             }
         }

@@ -96,7 +96,7 @@ class PositionManager(
     private val exchangeConnector: IExchangeConnector,
     private val tradeRepository: TradeRepository,
     private val updateInterval: Duration = Duration.ofSeconds(5)
-) {
+) : RiskPositionProvider {
     // Active positions map: position ID -> ManagedPosition
     private val activePositions = mutableMapOf<String, ManagedPosition>()
     private val positionsMutex = Mutex()
@@ -108,6 +108,9 @@ class PositionManager(
     // Position persistence helper
     private val positionPersistence = PositionPersistence(tradeRepository)
     
+    // Risk management integration
+    private var riskManager: RiskManager? = null
+
     // Background monitoring job
     private var monitoringJob: Job? = null
     private val managerScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -135,53 +138,62 @@ class PositionManager(
         stopLossPrice: BigDecimal? = null,
         takeProfitPrice: BigDecimal? = null
     ): Result<ManagedPosition> {
+        // Validate signal
+        if (!signal.isActionable()) {
+            return Result.failure(
+                PositionException("Signal must be BUY or SELL, got: ${signal.action}")
+            )
+        }
+
+        val tradeAction = when (signal.action) {
+            SignalAction.BUY -> TradeAction.LONG
+            SignalAction.SELL -> TradeAction.SHORT
+            else -> return Result.failure(
+                PositionException("Invalid signal action: ${signal.action}")
+            )
+        }
+
+        val ticker = exchangeConnector.getTicker(symbol)
+        val currentPrice = ticker.lastPrice
+        val positionQuantity = quantity ?: calculatePositionSize(signal, currentPrice)
+        val leverage = BigDecimal.ONE
+
+        riskManager?.let { manager ->
+            val notional = positionQuantity.multiply(currentPrice)
+            val result = manager.canOpenPosition(traderId, notional, leverage)
+            if (result.isFailure) {
+                val exception = result.exceptionOrNull()
+                return Result.failure(
+                    PositionException("Risk validation failed: ${exception?.message ?: "unknown error"}", exception)
+                )
+            }
+            if (result.getOrDefault(false).not()) {
+                return Result.failure(
+                    PositionException("Risk limits prevented opening position for trader: $traderId")
+                )
+            }
+        }
+
         return positionsMutex.withLock {
             try {
-                // Validate signal
-                if (!signal.isActionable()) {
-                    return Result.failure(
-                        PositionException("Signal must be BUY or SELL, got: ${signal.action}")
-                    )
-                }
-                
-                // Map SignalAction to TradeAction
-                val tradeAction = when (signal.action) {
-                    SignalAction.BUY -> TradeAction.LONG
-                    SignalAction.SELL -> TradeAction.SHORT
-                    else -> return Result.failure(
-                        PositionException("Invalid signal action: ${signal.action}")
-                    )
-                }
-                
-                // Get current price from exchange
-                val ticker = exchangeConnector.getTicker(symbol)
-                val currentPrice = ticker.lastPrice
-                
-                // Calculate position quantity if not provided
-                val positionQuantity = quantity ?: calculatePositionSize(signal, currentPrice)
-                
-                // Create order
                 val order = Order(
                     symbol = symbol,
                     action = tradeAction,
                     type = OrderType.MARKET,
                     quantity = positionQuantity,
-                    price = null // Market order
+                    price = null
                 )
-                
-                // Place order via exchange connector
+
                 val placedOrder = exchangeConnector.placeOrder(order)
-                
+
                 if (placedOrder.status != TradeStatus.FILLED && placedOrder.status != TradeStatus.PARTIALLY_FILLED) {
                     return Result.failure(
                         PositionException("Order not filled: ${placedOrder.status}")
                     )
                 }
-                
-                // Extract entry price from order
+
                 val entryPrice = placedOrder.averagePrice ?: currentPrice
-                
-                // Create position
+
                 val position = Position(
                     symbol = order.symbol,
                     action = tradeAction,
@@ -189,18 +201,16 @@ class PositionManager(
                     entryPrice = entryPrice,
                     currentPrice = entryPrice,
                     unrealizedPnL = BigDecimal.ZERO,
-                    leverage = BigDecimal.ONE, // Default leverage, can be enhanced
+                    leverage = leverage,
                     openedAt = Instant.now()
                 )
-                
-                // Generate position ID
+
                 val positionId = UUID.randomUUID().toString()
-                
-                // Save to database
+
                 val managedPosition = ManagedPosition(
                     positionId = positionId,
                     traderId = traderId,
-                    tradeId = null, // assigned after persistence
+                    tradeId = null,
                     position = position,
                     stopLossPrice = stopLossPrice,
                     takeProfitPrice = takeProfitPrice
@@ -216,10 +226,7 @@ class PositionManager(
                 )
 
                 val tradeId = positionPersistence.savePosition(tradeParams)
-
                 val persistedManagedPosition = managedPosition.copy(tradeId = tradeId)
-
-                // Store in active positions
                 activePositions[positionId] = persistedManagedPosition
 
                 logger.info { "Opened position: $positionId (${position.symbol} ${position.action})" }
@@ -285,7 +292,7 @@ class PositionManager(
      * @param reason Close reason (StopLoss, TakeProfit, Manual, Signal, Error)
      * @return Result containing closed position on success, or error on failure
      */
-    suspend fun closePosition(
+    override suspend fun closePosition(
         positionId: String,
         reason: String
     ): Result<ManagedPosition> {
@@ -391,7 +398,7 @@ class PositionManager(
      * @param traderId Trader ID
      * @return List of managed positions for the trader
      */
-    suspend fun getPositionsByTrader(traderId: String): List<ManagedPosition> {
+    override suspend fun getPositionsByTrader(traderId: String): List<ManagedPosition> {
         return positionsMutex.withLock {
             activePositions.values.filter { it.traderId == traderId }
         }
@@ -418,7 +425,7 @@ class PositionManager(
      *
      * @return List of all active managed positions
      */
-    suspend fun getAllPositions(): List<ManagedPosition> {
+    override suspend fun getAllPositions(): List<ManagedPosition> {
         return positionsMutex.withLock {
             activePositions.values.toList()
         }
@@ -651,7 +658,7 @@ class PositionManager(
      * @param traderId Trader ID
      * @return List of position history entries
      */
-    suspend fun getHistoryByTrader(traderId: String): List<PositionHistory> {
+    override suspend fun getHistoryByTrader(traderId: String): List<PositionHistory> {
         val inMemory = historyMutex.withLock {
             positionHistory.filter { it.traderId == traderId }
         }
@@ -728,6 +735,10 @@ class PositionManager(
         managerScope.cancel()
     }
     
+    fun attachRiskManager(riskManager: RiskManager) {
+        this.riskManager = riskManager
+    }
+
     // Helper methods
     
     private fun calculatePositionSize(signal: TradingSignal, currentPrice: BigDecimal): BigDecimal {

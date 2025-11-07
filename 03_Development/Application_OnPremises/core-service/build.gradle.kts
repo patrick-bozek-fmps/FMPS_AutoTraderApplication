@@ -2,10 +2,15 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     application
+    jacoco
 }
 
 application {
     mainClass.set("com.fmps.autotrader.core.api.ApplicationKt")
+}
+
+jacoco {
+    toolVersion = "0.8.10"
 }
 
 dependencies {
@@ -124,6 +129,20 @@ tasks.test {
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showStandardStreams = false
     }
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/test/html"))
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestReport)
 }
 
 // Create combined test task

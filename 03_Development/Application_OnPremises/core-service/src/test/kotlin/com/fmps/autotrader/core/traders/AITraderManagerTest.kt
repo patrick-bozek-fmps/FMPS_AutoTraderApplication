@@ -109,6 +109,32 @@ class AITraderManagerTest {
     }
 
     @Test
+    fun `test create trader fails when risk manager denies creation`() = runBlocking {
+        val riskManager = RiskManager(
+            positionProvider = NoopRiskProvider(),
+            riskConfig = RiskConfig(
+                maxTotalBudget = BigDecimal.ZERO,
+                maxLeveragePerTrader = 1,
+                maxTotalLeverage = 1,
+                maxExposurePerTrader = BigDecimal.ONE,
+                maxTotalExposure = BigDecimal.ONE,
+                maxDailyLoss = BigDecimal("100"),
+                stopLossPercentage = 0.05
+            )
+        )
+        riskManager.registerStopHandlers({ Result.success(Unit) })
+
+        val managerWithRisk = AITraderManager(repository, connectorFactory, maxTraders = 3, riskManager = riskManager)
+
+        val config = createTestConfig(id = "risk-trader", name = "Risk Trader")
+        val result = managerWithRisk.createTrader(config)
+
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is RiskValidationException)
+        riskManager.stopMonitoring()
+    }
+
+    @Test
     fun `test get trader returns correct instance`() = runBlocking {
         val config = createTestConfig()
         val traderId = manager.createTrader(config).getOrThrow()
@@ -343,6 +369,15 @@ class AITraderManagerTest {
             
             val stopResult = manager.stopTrader(traderId)
             assertNotNull(stopResult)
+        }
+    }
+
+    private class NoopRiskProvider : RiskPositionProvider {
+        override suspend fun getPositionsByTrader(traderId: String): List<ManagedPosition> = emptyList()
+        override suspend fun getAllPositions(): List<ManagedPosition> = emptyList()
+        override suspend fun getHistoryByTrader(traderId: String): List<PositionHistory> = emptyList()
+        override suspend fun closePosition(positionId: String, reason: String): Result<ManagedPosition> {
+            return Result.failure(IllegalStateException("No positions to close"))
         }
     }
 }

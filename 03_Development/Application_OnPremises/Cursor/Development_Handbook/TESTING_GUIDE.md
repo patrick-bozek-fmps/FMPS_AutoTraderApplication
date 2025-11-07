@@ -87,6 +87,23 @@ cd 03_Development/Application_OnPremises
 
 > **Update (Nov 7, 2025):** `AITraderTest` now includes configuration update and performance metrics coverage (`test updateConfig rejects id changes`, `test recordTradeResult updates winning/losing metrics`). Run the class after trader changes to ensure regressions surface locally before pushing.
 
+#### Run Risk Manager suite:
+```bash
+./gradlew test --tests "RiskManagerTest"
+```
+
+> **Update (Nov 7, 2025):** `RiskManagerTest` validates budget/leverage enforcement, exposure calculations, stop-loss execution, and emergency-stop flows. Execute this class whenever adjusting risk thresholds, PositionManager integration, or RiskManager logic.
+
+> **Update (Nov 7, 2025 - PM):** Additional concurrency + end-to-end tests (`emergency stop is idempotent under concurrent calls`, `end to end risk flow closes positions and notifies handlers`) ensure stop-loss execution remains thread-safe and emits trader stop notifications. Re-run the suite after modifying monitoring or emergency-stop plumbing.
+
+#### Generate coverage report (core-service):
+```bash
+./gradlew :core-service:jacocoTestReport
+```
+
+- HTML report: `core-service/build/reports/jacoco/test/html/index.html`
+- Snapshot (Nov 7, 2025): `RiskManager` 73 % line coverage, `StopLossManager` 82 %, `com.fmps.autotrader.core.traders` package 60 % overall. Use this as a baseline when extending tests.
+
 #### Run single test method:
 ```bash
 ./gradlew test --tests "AITraderTest.testStartTrading"

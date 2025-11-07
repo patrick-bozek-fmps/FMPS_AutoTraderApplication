@@ -48,7 +48,8 @@ class MaxTradersExceededException(message: String) : Exception(message)
 class AITraderManager(
     private val repository: AITraderRepository,
     private val connectorFactory: ConnectorFactory,
-    private val maxTraders: Int = 3
+    private val maxTraders: Int = 3,
+    riskManager: RiskManager? = null
 ) {
     // Active traders map: trader ID -> AITrader instance
     private val activeTraders = mutableMapOf<String, AITrader>()
@@ -63,9 +64,24 @@ class AITraderManager(
     // Exchange connector cache (reuse connectors for same exchange)
     private val connectorCache = mutableMapOf<Exchange, IExchangeConnector>()
 
+    private var riskManager: RiskManager? = riskManager
+
     init {
         require(maxTraders > 0) { "maxTraders must be positive" }
         logger.info { "Initialized AITraderManager (max traders: $maxTraders)" }
+        this.riskManager?.registerStopHandlers({ id -> stopTrader(id) }, null)
+        this.riskManager?.startMonitoring()
+    }
+
+    suspend fun attachRiskManager(riskManager: RiskManager) {
+        tradersMutex.withLock {
+            this.riskManager = riskManager
+            riskManager.registerStopHandlers({ id -> stopTrader(id) }, null)
+            activeTraders.keys.forEach { traderId ->
+                riskManager.registerTrader(traderId)
+            }
+        }
+        riskManager.startMonitoring()
     }
 
     /**
@@ -98,7 +114,13 @@ class AITraderManager(
                 }
 
                 // Validate configuration
-                // Note: RiskManager validation would go here (Issue #14)
+                val riskValidation = riskManager?.validateTraderCreation(config)
+                if (riskValidation != null && riskValidation.isFailure) {
+                    val exception = riskValidation.exceptionOrNull()
+                    if (exception != null) {
+                        return Result.failure(exception)
+                    }
+                }
 
                 // Create exchange connector
                 val exchangeConfig = createExchangeConfig(config.exchange)
@@ -128,6 +150,8 @@ class AITraderManager(
 
                 // Store in active traders map
                 activeTraders[traderId] = trader
+
+                riskManager?.registerTrader(traderId)
 
                 // Save initial state
                 statePersistence.saveState(traderId, trader.getState())
@@ -292,6 +316,8 @@ class AITraderManager(
                 if (!deleted) {
                     return Result.failure(IllegalStateException("Failed to delete trader from database"))
                 }
+
+                riskManager?.deregisterTrader(traderId)
 
                 logger.info { "Deleted trader: $traderId" }
                 Result.success(Unit)

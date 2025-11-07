@@ -24,7 +24,7 @@
 
 **Last Milestone**: ✅ **Issue #13** – Position Manager with persistence, monitoring, recovery (Nov 7, 2025)
 
-**Next Up**: 🚀 **Issue #14** – Risk Manager (start implementation)
+**In Progress**: 🚧 **Issue #14** – Risk Manager (monitoring loop + integration tests completed; documentation wrapping up)
 
 ### 📋 **Epic 1 Breakdown** (6/6 sections complete) ✅ **COMPLETE**
 
@@ -62,6 +62,7 @@
 | **4.0** | **Oct 30, 2025** | **Issue #10 COMPLETE: Technical Indicators - EPIC 2 100% DONE! 🎉** | **AI Assistant** |
 | **4.1** | **Oct 30, 2025** | **Issue #10 Re-Verified: Enhanced to 100% test coverage (115 tests)** | **AI Assistant** |
 | **4.2** | **Oct 30, 2025** | **CI Pipeline Optimized: Split unit/integration tests, fixed flaky timing tests** | **AI Assistant** |
+| **4.3** | **Nov 7, 2025** | **Issue #14: Added risk monitoring + integration tests, drafted Risk Manager guide** | **AI Assistant** |
 
 **Changes from v4.1:**
 - ✅ CI workflow split into unit-tests and integration-tests jobs
@@ -925,18 +926,19 @@ dependencies {
 
 **Deliverable**: ✅ Position management system with persistence, monitoring, recovery, history, and analytics
 
-### 7.4 Risk Manager 📋 **PLANNED**
+### 7.4 Risk Manager 🚧 **IN PROGRESS**
 
 **Issue**: #14 – Risk Manager  
-**Status**: 📋 **PLANNED** (scheduled next)  
+**Status**: 🚧 **IN PROGRESS** (development underway)  
 **Estimated Duration**: 2-3 days  
 **Dependencies**: Issue #11 ✅, Issue #13 ✅
 
-**Planned Tasks:**
-- [ ] Implement `RiskManager` core (budget/leverage enforcement, exposure tracking)
-- [ ] Integrate with PositionManager/AITraderManager for real-time checks
-- [ ] Add emergency stop, risk scoring, and configuration hooks
-- [ ] Comprehensive unit tests + documentation (`RISK_MANAGER_GUIDE.md`)
+**Current Progress:**
+- [x] Implemented `RiskManager` core (budget/leverage enforcement, exposure tracking)
+- [x] Integrated with PositionManager/AITraderManager for real-time checks
+- [x] Added emergency stop, risk scoring, and configuration hooks
+- [x] Introduced StopLossManager and dedicated unit tests (`RiskManagerTest`)
+- [ ] Documentation updates (`RISK_MANAGER_GUIDE.md`) and integration tests (pending)
 
 **Deliverable**: Risk management system satisfying ATP_ProdSpec_54
 

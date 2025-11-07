@@ -203,6 +203,60 @@ class PositionManagerTest {
     }
 
     @Test
+    @DisplayName("Should block position when risk manager rejects exposure")
+    fun `test open position blocked by risk manager`() = runTest {
+        val signal = TradingSignal(
+            action = SignalAction.BUY,
+            confidence = 0.9,
+            reason = "High notional"
+        )
+        val traderId = "risk-trader"
+        val symbol = "BTCUSDT"
+
+        val ticker = Ticker(
+            symbol = symbol,
+            lastPrice = BigDecimal("60000"),
+            bidPrice = BigDecimal("59950"),
+            askPrice = BigDecimal("60010"),
+            volume = BigDecimal("1000"),
+            quoteVolume = BigDecimal("60000000"),
+            priceChange = BigDecimal("500"),
+            priceChangePercent = BigDecimal("0.2"),
+            high = BigDecimal("60500"),
+            low = BigDecimal("59000"),
+            openPrice = BigDecimal("59500")
+        )
+        coEvery { mockConnector.getTicker(symbol) } returns ticker
+
+        val riskManager = RiskManager(
+            positionProvider = manager,
+            riskConfig = RiskConfig(
+                maxTotalBudget = BigDecimal("500"),
+                maxLeveragePerTrader = 1,
+                maxTotalLeverage = 1,
+                maxExposurePerTrader = BigDecimal("500"),
+                maxTotalExposure = BigDecimal("500"),
+                maxDailyLoss = BigDecimal("1000"),
+                stopLossPercentage = 0.05
+            )
+        )
+        manager.attachRiskManager(riskManager)
+
+        val result = manager.openPosition(
+            signal = signal,
+            traderId = traderId,
+            symbol = symbol,
+            quantity = BigDecimal.ONE
+        )
+
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is PositionException)
+        coVerify(exactly = 1) { mockConnector.getTicker(symbol) }
+        coVerify(exactly = 0) { mockConnector.placeOrder(any()) }
+        riskManager.stopMonitoring()
+    }
+
+    @Test
     @DisplayName("Should update position with current price")
     fun `test update position`() = runTest {
         // Arrange - Open a position first
