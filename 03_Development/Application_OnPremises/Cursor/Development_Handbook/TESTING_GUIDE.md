@@ -96,6 +96,8 @@ cd 03_Development/Application_OnPremises
 
 > **Update (Nov 7, 2025 - PM):** Additional concurrency + end-to-end tests (`emergency stop is idempotent under concurrent calls`, `end to end risk flow closes positions and notifies handlers`) ensure stop-loss execution remains thread-safe and emits trader stop notifications. Re-run the suite after modifying monitoring or emergency-stop plumbing.
 
+> **Update (Nov 7, 2025 - Evening):** `PositionManagerTest` now asserts trailing-stop adjustments and persistence failure handling (`test trailing stop adjusts with price`, `test close position fails when repository close fails`). Run these after modifying stop-loss logic or database interactions.
+
 #### Generate coverage report (core-service):
 ```bash
 ./gradlew :core-service:jacocoTestReport

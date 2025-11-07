@@ -552,7 +552,7 @@ fun Route.configureTradeRoutes() {
             }
             
             // Update stop-loss
-            val updated = tradeRepository.updateStopLoss(id, request.stopLoss)
+            val updated = tradeRepository.updateStopLoss(id, request.stopLoss, request.trailingActivated)
             
             if (!updated) {
                 logger.error("Failed to update stop-loss for trade $id")
@@ -573,7 +573,11 @@ fun Route.configureTradeRoutes() {
             // Fetch updated trade
             val updatedTrade = tradeRepository.findById(id)!!
             
-            logger.info("Updated stop-loss for trade $id to ${request.stopLoss}")
+            if (request.trailingActivated) {
+                logger.info("Updated stop-loss for trade $id to ${request.stopLoss} (trailing enabled)")
+            } else {
+                logger.info("Updated stop-loss for trade $id to ${request.stopLoss}")
+            }
             call.respond(
                 HttpStatusCode.OK,
                 ApiResponse(

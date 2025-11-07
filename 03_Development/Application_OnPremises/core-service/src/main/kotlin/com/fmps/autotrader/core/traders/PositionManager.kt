@@ -37,6 +37,9 @@ data class ManagedPosition(
     val position: Position,
     val stopLossPrice: BigDecimal? = null,
     val takeProfitPrice: BigDecimal? = null,
+    val trailingStopActivated: Boolean = false,
+    val trailingStopDistance: BigDecimal? = null,
+    val trailingStopReferencePrice: BigDecimal? = null,
     val lastUpdated: Instant = Instant.now()
 ) {
     /**
@@ -95,7 +98,8 @@ data class ManagedPosition(
 class PositionManager(
     private val exchangeConnector: IExchangeConnector,
     private val tradeRepository: TradeRepository,
-    private val updateInterval: Duration = Duration.ofSeconds(5)
+    private val updateInterval: Duration = Duration.ofSeconds(5),
+    positionPersistence: PositionPersistence? = null
 ) : RiskPositionProvider {
     // Active positions map: position ID -> ManagedPosition
     private val activePositions = mutableMapOf<String, ManagedPosition>()
@@ -106,7 +110,7 @@ class PositionManager(
     private val historyMutex = Mutex()
     
     // Position persistence helper
-    private val positionPersistence = PositionPersistence(tradeRepository)
+    private val positionPersistence = positionPersistence ?: PositionPersistence(tradeRepository)
     
     // Risk management integration
     private var riskManager: RiskManager? = null
@@ -222,6 +226,7 @@ class PositionManager(
                     exchange = exchangeConnector.getExchange().name,
                     stopLossPrice = stopLossPrice,
                     takeProfitPrice = takeProfitPrice,
+                    trailingStopActivated = managedPosition.trailingStopActivated,
                     orderId = placedOrder.id
                 )
 
@@ -267,10 +272,12 @@ class PositionManager(
                 )
                 
                 // Update managed position
-                val updatedManagedPosition = managedPosition.copy(
+                var updatedManagedPosition = managedPosition.copy(
                     position = updatedPosition,
                     lastUpdated = Instant.now()
                 )
+
+                updatedManagedPosition = applyTrailingStopIfNeeded(positionId, managedPosition, updatedManagedPosition)
                 
                 activePositions[positionId] = updatedManagedPosition
                 
@@ -338,7 +345,11 @@ class PositionManager(
                         exitOrderId = placedOrder.id
                     )
 
-                    if (closedTrade != null && closedTrade.profitLoss != null) {
+                    if (closedTrade == null) {
+                        throw PositionException("Failed to persist trade closure for position $positionId")
+                    }
+
+                    if (closedTrade.profitLoss != null) {
                         realizedPnL = closedTrade.profitLoss
                     }
                 }
@@ -445,6 +456,66 @@ class PositionManager(
         
         return priceDiff * position.quantity * position.leverage
     }
+
+    private fun calculateTrailingDistance(position: Position, stopLoss: BigDecimal?): BigDecimal? {
+        val stop = stopLoss ?: return null
+        val distance = when (position.action) {
+            TradeAction.LONG -> position.currentPrice - stop
+            TradeAction.SHORT -> stop - position.currentPrice
+        }
+        return distance.takeIf { it.compareTo(BigDecimal.ZERO) > 0 }
+    }
+
+    private suspend fun applyTrailingStopIfNeeded(
+        positionId: String,
+        previous: ManagedPosition,
+        current: ManagedPosition
+    ): ManagedPosition {
+        if (!current.trailingStopActivated) return current
+        val distance = current.trailingStopDistance ?: return current
+
+        val anchor = current.trailingStopReferencePrice
+            ?: previous.trailingStopReferencePrice
+            ?: previous.position.currentPrice
+
+        val price = current.position.currentPrice
+        var newAnchor = anchor
+        var newStop: BigDecimal? = null
+
+        when (current.position.action) {
+            TradeAction.LONG -> if (price > anchor) {
+                newAnchor = price
+                newStop = price - distance
+            }
+
+            TradeAction.SHORT -> if (price < anchor) {
+                newAnchor = price
+                newStop = price + distance
+            }
+        }
+
+        if (newStop != null && newStop.compareTo(BigDecimal.ZERO) > 0) {
+            if (current.stopLossPrice == null || current.stopLossPrice.compareTo(newStop) != 0) {
+                current.tradeId?.let { tradeId ->
+                    positionPersistence.updateStopLoss(tradeId, newStop, true)
+                }
+                logger.debug {
+                    "Trailing stop adjusted for $positionId to $newStop (anchor $newAnchor, distance $distance)"
+                }
+                return current.copy(
+                    stopLossPrice = newStop,
+                    trailingStopReferencePrice = newAnchor,
+                    lastUpdated = Instant.now()
+                )
+            }
+        }
+
+        if (current.trailingStopReferencePrice == null && newAnchor != anchor) {
+            return current.copy(trailingStopReferencePrice = newAnchor)
+        }
+
+        return current
+    }
     
     /**
      * Check if stop-loss is triggered for a position.
@@ -471,6 +542,13 @@ class PositionManager(
             val managedPosition = activePositions[positionId]
                 ?: return Result.failure(IllegalArgumentException("Position not found: $positionId"))
 
+            val trailingDistance = if (trailingActivated) {
+                calculateTrailingDistance(managedPosition.position, newStopLoss)
+                    ?: return Result.failure(PositionException("Trailing stop requires stop-loss to respect current price movement"))
+            } else {
+                null
+            }
+
             if (managedPosition.tradeId != null) {
                 val updated = positionPersistence.updateStopLoss(managedPosition.tradeId, newStopLoss, trailingActivated)
                 if (!updated) {
@@ -478,8 +556,22 @@ class PositionManager(
                 }
             }
 
-            activePositions[positionId] = managedPosition.copy(stopLossPrice = newStopLoss)
-            logger.info { "Updated stop-loss for position $positionId to $newStopLoss" }
+            val updatedManaged = managedPosition.copy(
+                stopLossPrice = newStopLoss,
+                trailingStopActivated = trailingActivated,
+                trailingStopDistance = trailingDistance,
+                trailingStopReferencePrice = if (trailingActivated) managedPosition.position.currentPrice else null,
+                lastUpdated = Instant.now()
+            )
+
+            activePositions[positionId] = updatedManaged
+            logger.info {
+                if (trailingActivated) {
+                    "Updated stop-loss for position $positionId to $newStopLoss (trailing enabled with distance $trailingDistance)"
+                } else {
+                    "Updated stop-loss for position $positionId to $newStopLoss"
+                }
+            }
             Result.success(Unit)
         }
     }
@@ -616,13 +708,24 @@ class PositionManager(
                             val pnl = calculatePnL(restoredPosition)
                             val updatedPosition = restoredPosition.copy(unrealizedPnL = pnl)
 
+                            val trailingActive = trade.trailingStopActivated
+                            val stopLoss = trade.stopLossPrice.takeIf { it > BigDecimal.ZERO }
+                            val trailingDistance = if (trailingActive) {
+                                calculateTrailingDistance(updatedPosition, stopLoss)
+                            } else {
+                                null
+                            }
+
                             val managedPosition = ManagedPosition(
                                 positionId = UUID.randomUUID().toString(),
                                 traderId = trade.aiTraderId.toString(),
                                 tradeId = trade.id,
                                 position = updatedPosition,
-                                stopLossPrice = trade.stopLossPrice.takeIf { it > BigDecimal.ZERO },
-                                takeProfitPrice = trade.takeProfitPrice.takeIf { it > BigDecimal.ZERO }
+                                stopLossPrice = stopLoss,
+                                takeProfitPrice = trade.takeProfitPrice.takeIf { it > BigDecimal.ZERO },
+                                trailingStopActivated = trailingActive,
+                                trailingStopDistance = trailingDistance,
+                                trailingStopReferencePrice = if (trailingActive) updatedPosition.currentPrice else null
                             )
 
                             activePositions[managedPosition.positionId] = managedPosition

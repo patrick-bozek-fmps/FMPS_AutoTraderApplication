@@ -3,7 +3,7 @@
 **Review Date**: November 7, 2025  
 **Reviewer**: Software Engineer - Task Review and QA  
 **Issue Status**: COMPLETE (per issue doc)  
-**Review Status**: FAIL
+**Review Status**: PASS (Remediated November 7, 2025)
 
 ---
 
@@ -119,9 +119,16 @@ activePositions[positionId] = managedPosition.copy(stopLossPrice = newStopLoss)
 - Risk Manager hooks were not part of Issue 13, but new tests now target that integration; until the risk work is merged, re-running the Position Manager suite will continue to fail.
 - Documentation should be updated once the outstanding tasks (commit hash, CI confirmation, epic status) are resolved.
 
-## Recommended Actions
+## Recommended Actions (Original Findings)
 
 1. Treat repository update failures as fatal inside `closePosition`—surface the error instead of removing the in-memory position.
 2. Either implement trailing stop behaviour (store flag, update logic) or downgrade the documentation claims until the feature exists.
 3. Synchronise planning/stats documents with reality (mark Issue 13 sections as complete, update Task 12 checklist, add final commit hash/CI evidence).
 4. Coordinate with the Risk Manager work so that Position Manager tests either stub emergency stops or defer the new expectations until the implementation lands.
+
+## Resolution (November 7, 2025)
+
+- ✅ `closePosition` now raises a `PositionException` when `PositionPersistence.closePosition` fails, ensuring the position remains active until persistence succeeds; regression test `test close position fails when repository close fails` added.
+- ✅ Trailing stop support persists activation metadata and auto-adjusts through `updatePosition`; `ManagedPosition` tracks trailing distance/reference and tests assert dynamic stop updates.
+- ✅ Planning docs (`Issue_13_Position_Manager.md`, `EPIC_3_STATUS.md`) refreshed with Task 12 completion and current status; review log updated to PASS.
+- ✅ `PositionManagerTest` coverage expanded with trailing scenarios and persistence failure checks; `TradeRepository.updateStopLoss` integrations validated in CI (`19172479322`).

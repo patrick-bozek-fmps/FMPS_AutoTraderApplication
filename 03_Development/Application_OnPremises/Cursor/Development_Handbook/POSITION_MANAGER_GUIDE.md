@@ -113,6 +113,12 @@ positionManager.updateTakeProfit(positionId, newTarget)
 
 Both methods synchronize in-memory state and persist changes through `PositionPersistence`.
 
+#### Trailing stop behaviour
+
+- Enabling `trailingActivated = true` records the distance between the current price and the stop at activation time and stores the latest favourable price as an anchor.
+- On each `updatePosition` (manual or via monitoring), the manager moves the stop in the trade's favourable direction while preserving the original distance; the database flag is updated in sync.
+- Metadata (`ManagedPosition.trailingStopDistance` / `trailingStopReferencePrice`) is available for downstream consumers and recovered from persistence on restart.
+
 ### Recovery
 
 ```kotlin
@@ -196,5 +202,5 @@ Command:
 
 **Next steps**
 - Integrate Risk Manager (#14) to apply leverage/budget checks before opening positions
-- Add optional trailing stop-loss and time-based exits in future iterations
+- Extend trailing stop configuration (volatility-based distance, per-strategy overrides) and add time-based exits
 - Extend monitoring to broadcast telemetry metrics (planned for Epic 6)

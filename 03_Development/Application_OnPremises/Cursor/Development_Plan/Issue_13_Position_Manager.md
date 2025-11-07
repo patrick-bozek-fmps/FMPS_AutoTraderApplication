@@ -62,9 +62,9 @@ Implement `PositionManager` class that tracks open positions, calculates real-ti
 
 ### **Task 4: Implement Stop-Loss Management** [Status: ✅ COMPLETE]
 - [x] `checkStopLoss(positionId)` and `ManagedPosition.isStopLossTriggered()` wired for both directions
-- [x] Added `updateStopLoss` persisting trailing flag and value via repository
-- [x] Monitoring coroutine auto-closes positions when stop-loss threshold reached
-- [x] Unit tests cover detection, persistence sync, monitoring auto-close
+- [x] Added `updateStopLoss` persisting trailing metadata (flag, distance, anchor) via repository
+- [x] Monitoring coroutine + price updates auto-adjust trailing stops on favourable moves
+- [x] Unit tests cover detection, trailing adjustments, persistence sync, monitoring auto-close
 
 ### **Task 5: Implement Position Closing** [Status: ✅ COMPLETE]
 - [x] Places opposing market order, calculates realized P&L and timestamps
@@ -112,13 +112,13 @@ Implement `PositionManager` class that tracks open positions, calculates real-ti
 - [x] Updated this issue doc, `EPIC_3_STATUS.md`, and `Development_Plan_v2.md`
 - [x] Cross-referenced build/test commands for traceability
 
-### **Task 12: Build & Commit** [Status: ⏳ PENDING]
+### **Task 12: Build & Commit** [Status: ✅ COMPLETE]
 - [x] Run full build: `./gradlew build --no-daemon`
 - [x] Fix any compilation/test issues (PositionManagerTest flake adjusted)
-- [ ] Commit documentation + code changes
-- [ ] Push to GitHub
-- [ ] Verify CI pipeline passes
-- [ ] Update final commit hash above
+- [x] Commit documentation + code changes (see commit `a9b07c1`)
+- [x] Push to GitHub
+- [x] Verify CI pipeline passes (CI Pipeline run `19172479322`)
+- [x] Update final commit hash above (kept in sync with latest remediation commit)
 
 ---
 

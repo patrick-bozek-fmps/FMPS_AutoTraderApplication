@@ -87,9 +87,9 @@ Epic 3 is approaching completion. Core trading, trader management, position life
 
 ---
 
-## ⏳ **In Progress Issues** (0/5)
+## ⏳ **In Progress Issues** (1/5)
 
-*No issues currently in progress - Ready to start Issue #13*
+- Issue #14 – Risk Manager 🚧 (monitoring, integration, documentation wrapping)
 
 ---
 

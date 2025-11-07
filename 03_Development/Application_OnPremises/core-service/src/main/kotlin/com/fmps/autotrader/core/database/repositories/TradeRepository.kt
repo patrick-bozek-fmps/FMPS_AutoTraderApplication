@@ -30,6 +30,7 @@ class TradeRepository {
         entryAmount: BigDecimal,
         stopLossPrice: BigDecimal,
         takeProfitPrice: BigDecimal,
+        trailingStopActivated: Boolean = false,
         entryOrderId: String? = null,
         rsiValue: BigDecimal? = null,
         macdValue: BigDecimal? = null,
@@ -49,6 +50,7 @@ class TradeRepository {
             it[TradesTable.entryOrderId] = entryOrderId
             it[TradesTable.stopLossPrice] = stopLossPrice
             it[TradesTable.takeProfitPrice] = takeProfitPrice
+            it[TradesTable.trailingStopActivated] = trailingStopActivated
             it[TradesTable.rsiValue] = rsiValue
             it[TradesTable.macdValue] = macdValue
             it[TradesTable.smaShortValue] = smaShortValue

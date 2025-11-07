@@ -2,6 +2,7 @@ package com.fmps.autotrader.core.traders
 
 import com.fmps.autotrader.core.connectors.IExchangeConnector
 import com.fmps.autotrader.core.database.DatabaseFactory
+import com.fmps.autotrader.core.database.repositories.Trade
 import com.fmps.autotrader.core.database.repositories.TradeRepository
 import com.fmps.autotrader.core.traders.SignalAction
 import com.fmps.autotrader.core.traders.TradingSignal
@@ -34,6 +35,7 @@ class PositionManagerTest {
     private lateinit var tradeRepository: TradeRepository
     private lateinit var mockConnector: IExchangeConnector
     private lateinit var manager: PositionManager
+    private var originalAppEnvironment: String? = null
 
     @BeforeAll
     fun setup() {
@@ -41,6 +43,7 @@ class PositionManagerTest {
         File(testDbPath).parentFile?.mkdirs()
         File(testDbPath).delete()
         System.setProperty("database.url", "jdbc:sqlite:$testDbPath")
+        originalAppEnvironment = System.getProperty("app.environment")
         System.setProperty("app.environment", "test")
 
         val config = ConfigFactory.load()
@@ -53,6 +56,7 @@ class PositionManagerTest {
     fun teardown() {
         DatabaseFactory.close()
         File(testDbPath).delete()
+        originalAppEnvironment?.let { System.setProperty("app.environment", it) } ?: System.clearProperty("app.environment")
     }
 
     @BeforeEach
@@ -428,6 +432,75 @@ class PositionManagerTest {
     }
 
     @Test
+    @DisplayName("Close position surfaces persistence error without removing position")
+    fun `test close position fails when repository close fails`() = runTest {
+        val failingRepo = TradeRepository()
+        val failingPersistence = object : PositionPersistence(failingRepo) {
+            private var failNext = true
+            override suspend fun closePosition(
+                tradeId: Int,
+                exitPrice: BigDecimal,
+                exitAmount: BigDecimal,
+                exitReason: String,
+                exitOrderId: String?,
+                fees: BigDecimal
+            ): Trade? {
+                return if (failNext) {
+                    failNext = false
+                    null
+                } else {
+                    super.closePosition(tradeId, exitPrice, exitAmount, exitReason, exitOrderId, fees)
+                }
+            }
+        }
+        val failingManager = PositionManager(mockConnector, failingRepo, updateInterval = Duration.ofSeconds(1), positionPersistence = failingPersistence)
+
+        val signal = TradingSignal(action = SignalAction.BUY, confidence = 0.85, reason = "Persistence failure")
+        val traderId = "persist-err"
+        val symbol = "BTCUSDT"
+
+        val ticker = Ticker(
+            symbol = symbol,
+            lastPrice = BigDecimal("50000"),
+            bidPrice = BigDecimal("49990"),
+            askPrice = BigDecimal("50010"),
+            volume = BigDecimal("900"),
+            quoteVolume = BigDecimal("45000000"),
+            priceChange = BigDecimal("120"),
+            priceChangePercent = BigDecimal("0.24"),
+            high = BigDecimal("50500"),
+            low = BigDecimal("49500"),
+            openPrice = BigDecimal("49900")
+        )
+        coEvery { mockConnector.getTicker(symbol) } returns ticker
+
+        val order = Order(
+            symbol = symbol,
+            action = TradeAction.LONG,
+            type = OrderType.MARKET,
+            quantity = BigDecimal("0.001"),
+            status = TradeStatus.FILLED,
+            filledQuantity = BigDecimal("0.001"),
+            averagePrice = BigDecimal("50000")
+        )
+        coEvery { mockConnector.placeOrder(any()) } returns order
+
+        val openResult = failingManager.openPosition(signal, traderId, symbol)
+        assertTrue(openResult.isSuccess)
+        val managedPosition = openResult.getOrNull()!!
+
+        val closeResult = failingManager.closePosition(managedPosition.positionId, "MANUAL")
+        assertTrue(closeResult.isFailure)
+        assertNotNull(failingManager.getPosition(managedPosition.positionId))
+
+        val retryResult = failingManager.closePosition(managedPosition.positionId, "MANUAL")
+        assertTrue(retryResult.isSuccess)
+        assertNull(failingManager.getPosition(managedPosition.positionId))
+
+        failingManager.cleanup()
+    }
+
+    @Test
     @DisplayName("Should check stop-loss correctly")
     fun `test check stop loss`() = runTest {
         // Arrange - Open a position with stop-loss
@@ -751,6 +824,65 @@ class PositionManagerTest {
         val tradeFromRepo = tradeRepository.findById(managedPosition.tradeId!!)
         assertNotNull(tradeFromRepo)
         assertEquals(0, tradeFromRepo!!.stopLossPrice.stripTrailingZeros().compareTo(newStopLoss.stripTrailingZeros()))
+    }
+
+    @Test
+    @DisplayName("Trailing stop moves stop-loss as price improves")
+    fun `test trailing stop adjusts with price`() = runTest {
+        val signal = TradingSignal(action = SignalAction.BUY, confidence = 0.85, reason = "Trailing test")
+        val traderId = "trail-1"
+        val symbol = "BTCUSDT"
+
+        val ticker = Ticker(
+            symbol = symbol,
+            lastPrice = BigDecimal("30000"),
+            bidPrice = BigDecimal("29990"),
+            askPrice = BigDecimal("30010"),
+            volume = BigDecimal("750"),
+            quoteVolume = BigDecimal("22500000"),
+            priceChange = BigDecimal("40"),
+            priceChangePercent = BigDecimal("0.13"),
+            high = BigDecimal("30500"),
+            low = BigDecimal("29500"),
+            openPrice = BigDecimal("29960")
+        )
+        coEvery { mockConnector.getTicker(symbol) } returns ticker
+
+        val order = Order(
+            symbol = symbol,
+            action = TradeAction.LONG,
+            type = OrderType.MARKET,
+            quantity = BigDecimal("0.0015"),
+            status = TradeStatus.FILLED,
+            filledQuantity = BigDecimal("0.0015"),
+            averagePrice = BigDecimal("30000")
+        )
+        coEvery { mockConnector.placeOrder(any()) } returns order
+
+        val openResult = manager.openPosition(signal, traderId, symbol)
+        assertTrue(openResult.isSuccess)
+        val managedPosition = openResult.getOrNull()!!
+
+        val initialStop = BigDecimal("28000")
+        val updateResult = manager.updateStopLoss(managedPosition.positionId, initialStop, trailingActivated = true)
+        assertTrue(updateResult.isSuccess)
+
+        val afterUpdate = manager.getPosition(managedPosition.positionId)!!
+        assertTrue(afterUpdate.trailingStopActivated)
+        assertEquals(0, afterUpdate.stopLossPrice!!.compareTo(initialStop))
+        assertEquals(0, afterUpdate.trailingStopDistance!!.compareTo(BigDecimal("2000")))
+
+        manager.updatePosition(managedPosition.positionId, BigDecimal("32000"))
+
+        val adjusted = manager.getPosition(managedPosition.positionId)!!
+        assertEquals(0, adjusted.stopLossPrice!!.compareTo(BigDecimal("30000")))
+        assertEquals(0, adjusted.trailingStopReferencePrice!!.compareTo(BigDecimal("32000")))
+        assertEquals(0, adjusted.trailingStopDistance!!.compareTo(BigDecimal("2000")))
+
+        val tradeFromRepo = tradeRepository.findById(adjusted.tradeId!!)
+        assertNotNull(tradeFromRepo)
+        assertTrue(tradeFromRepo!!.trailingStopActivated)
+        assertEquals(0, tradeFromRepo.stopLossPrice.compareTo(BigDecimal("30000")))
     }
 
     @Test

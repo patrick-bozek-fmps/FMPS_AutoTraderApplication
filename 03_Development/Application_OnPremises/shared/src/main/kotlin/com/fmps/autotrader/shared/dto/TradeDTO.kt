@@ -79,6 +79,7 @@ data class CloseTradeRequest(
  */
 @Serializable
 data class UpdateStopLossRequest(
-    val stopLoss: @Serializable(with = BigDecimalSerializer::class) BigDecimal
+    val stopLoss: @Serializable(with = BigDecimalSerializer::class) BigDecimal,
+    val trailingActivated: Boolean = false
 )
 

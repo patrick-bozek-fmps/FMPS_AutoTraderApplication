@@ -23,7 +23,7 @@ private val logger = KotlinLogging.logger {}
  *
  * @since 1.0.0
  */
-class PositionPersistence(
+open class PositionPersistence(
     private val tradeRepository: TradeRepository
 ) {
     /**
@@ -40,6 +40,7 @@ class PositionPersistence(
             entryAmount = params.entryAmount,
             stopLossPrice = params.stopLossPrice,
             takeProfitPrice = params.takeProfitPrice,
+            trailingStopActivated = params.trailingStopActivated,
             entryOrderId = params.entryOrderId
         )
     }
@@ -47,7 +48,7 @@ class PositionPersistence(
     /**
      * Persist the closing details for a position and return the updated trade.
      */
-    suspend fun closePosition(
+    open suspend fun closePosition(
         tradeId: Int,
         exitPrice: BigDecimal,
         exitAmount: BigDecimal,
@@ -168,6 +169,7 @@ class PositionPersistence(
         exchange: String,
         stopLossPrice: BigDecimal? = null,
         takeProfitPrice: BigDecimal? = null,
+        trailingStopActivated: Boolean = false,
         orderId: String? = null
     ): TradeCreationParams {
         return TradeCreationParams(
@@ -180,6 +182,7 @@ class PositionPersistence(
             entryAmount = position.quantity,
             stopLossPrice = stopLossPrice ?: BigDecimal.ZERO,
             takeProfitPrice = takeProfitPrice ?: BigDecimal.ZERO,
+            trailingStopActivated = trailingStopActivated,
             entryOrderId = orderId
         )
     }
@@ -231,6 +234,7 @@ data class TradeCreationParams(
     val entryAmount: BigDecimal,
     val stopLossPrice: BigDecimal,
     val takeProfitPrice: BigDecimal,
+    val trailingStopActivated: Boolean = false,
     val entryOrderId: String? = null
 )
 
