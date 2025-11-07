@@ -1,7 +1,9 @@
 package com.fmps.autotrader.core.connectors.websocket
 
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -131,8 +133,15 @@ class SubscriptionManagerTest {
         manager.routeMessage(message1)
         manager.routeMessage(message2)
 
-        // Wait for async callbacks to complete
-        delay(200)
+        try {
+            withTimeout(500) {
+                while (receivedMessages.size < 3) {
+                    delay(10)
+                }
+            }
+        } catch (ex: TimeoutCancellationException) {
+            fail("Expected 3 delivered messages but received ${receivedMessages.size}")
+        }
 
         // Message 1 should be delivered to sub1 and sub2
         // Message 2 should be delivered to sub3
