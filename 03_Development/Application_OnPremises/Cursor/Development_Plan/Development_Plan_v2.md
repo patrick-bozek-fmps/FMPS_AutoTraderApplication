@@ -13,18 +13,18 @@
 |------|----------|--------|----------|------------------|
 | **Epic 1: Foundation & Infrastructure** | 2 weeks | ✅ **COMPLETE** | All 6 issues complete ✅ | Gradle, Database, REST API, Models, Config, Logging |
 | **Epic 2: Exchange Integration** | 1 week | ✅ **COMPLETE** | All 4 issues complete ✅ | Exchange Framework ✅, Binance ✅, Bitget ✅, Technical Indicators ✅ |
-| **Epic 3: AI Trading Engine** | 3 weeks | 🚀 **IN PROGRESS** | 3/5 sections (60%) | 3 AI traders with pattern storage |
+| **Epic 3: AI Trading Engine** | 3 weeks | 🚀 **IN PROGRESS** | 4/5 sections (80%) | AI traders with manager, positions, pattern storage |
 | **Epic 4: Desktop UI** | 3 weeks | ⏳ Not Started | 0/5 sections | Complete JavaFX application |
 | **Epic 5: Windows Service** | 2 weeks | ⏳ Not Started | 0/3 sections | Windows Service wrapper |
 | **Epic 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
 
 **Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues
 
-**Overall Progress**: **13 GitHub Issues completed (Epic 1: 100% COMPLETE! Epic 2: 100% COMPLETE! Epic 3: 60% IN PROGRESS!) 🎉🎉🎉🎉**
+**Overall Progress**: **14 GitHub Issues completed (Epic 1: 100% COMPLETE! Epic 2: 100% COMPLETE! Epic 3: 80% IN PROGRESS!) 🎉🎉🎉🎉**
 
-**Last Milestone**: ✅ **Issue #12** - AI Trader Manager with 22 tests and health monitoring (Nov 6, 2025) **EPIC 3: 60% COMPLETE!**
+**Last Milestone**: ✅ **Issue #13** – Position Manager with persistence, monitoring, recovery (Nov 7, 2025)
 
-**Next Up**: 🚀 **Issue #13** - Position Manager (Ready to start!)
+**Next Up**: 🚀 **Issue #14** – Risk Manager (start implementation)
 
 ### 📋 **Epic 1 Breakdown** (6/6 sections complete) ✅ **COMPLETE**
 
@@ -819,7 +819,7 @@ dependencies {
 
 ## 7. EPIC 3: AI Trading Engine (Weeks 6-8)
 
-**Status**: 🚀 **IN PROGRESS** (3/5 issues complete - 60%)  
+**Status**: 🚀 **IN PROGRESS** (4/5 issues complete - 80%)  
 **Started**: November 5, 2025  
 **Latest**: Issues #11, #12 & #15 COMPLETE! 🎉
 
@@ -905,31 +905,40 @@ dependencies {
 
 **Deliverable**: ✅ Complete AI Trader management system with lifecycle management, state persistence, recovery, and health monitoring
 
-### 7.3 Position Manager
+### 7.3 Position Manager ✅ **COMPLETE**
 
-**Tasks:**
-- [ ] Create `PositionManager` class
-- [ ] Position tracking and state management
-- [ ] P&L calculation (real-time)
-- [ ] Position history
-- [ ] Position persistence
-- [ ] Stop-loss management
-- [ ] Position recovery logic
+**Issue**: #13 – Position Manager  
+**Status**: ✅ **COMPLETE** (November 7, 2025)  
+**Duration**: 2 days (actual)  
+**Commit**: `66cf6d2`
 
-**Deliverable**: Position management system
+**Completed Tasks:**
+- [x] Implemented `PositionManager`, `PositionPersistence`, `PositionHistory`
+- [x] Open/update/close workflow with BigDecimal-safe P&L
+- [x] Stop-loss / take-profit management (including updates & auto execution)
+- [x] Background monitoring coroutine (configurable interval)
+- [x] Position recovery from database with orphan handling
+- [x] History + metrics (`getHistory*`, `getTotalPnL`, `getWinRate`)
+- [x] Persistence helpers syncing with `TradeRepository`
+- [x] 21-unit-test suite (`PositionManagerTest`) all passing
+- [x] POSITION_MANAGER_GUIDE.md published
 
-### 7.4 Risk Manager
+**Deliverable**: ✅ Position management system with persistence, monitoring, recovery, history, and analytics
 
-**Tasks:**
-- [ ] Create `RiskManager` class
-- [ ] Budget validation and tracking
-- [ ] Leverage limit enforcement
-- [ ] Stop-loss logic
-- [ ] Exposure monitoring (per trader and total)
-- [ ] Emergency stop functionality
-- [ ] Risk scoring system
+### 7.4 Risk Manager 📋 **PLANNED**
 
-**Deliverable**: Risk management system
+**Issue**: #14 – Risk Manager  
+**Status**: 📋 **PLANNED** (scheduled next)  
+**Estimated Duration**: 2-3 days  
+**Dependencies**: Issue #11 ✅, Issue #13 ✅
+
+**Planned Tasks:**
+- [ ] Implement `RiskManager` core (budget/leverage enforcement, exposure tracking)
+- [ ] Integrate with PositionManager/AITraderManager for real-time checks
+- [ ] Add emergency stop, risk scoring, and configuration hooks
+- [ ] Comprehensive unit tests + documentation (`RISK_MANAGER_GUIDE.md`)
+
+**Deliverable**: Risk management system satisfying ATP_ProdSpec_54
 
 ### 7.5 Pattern Storage System ✅ **COMPLETE**
 

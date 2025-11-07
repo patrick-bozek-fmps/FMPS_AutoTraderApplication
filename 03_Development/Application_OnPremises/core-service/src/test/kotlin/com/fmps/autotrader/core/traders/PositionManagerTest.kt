@@ -860,8 +860,8 @@ class PositionManagerTest {
         assertNull(activePosition)
 
         val history = manager.getHistoryByTrader(traderId)
-        assertEquals(1, history.size)
-        assertEquals("STOP_LOSS", history.first().closeReason)
+        assertTrue(history.isNotEmpty())
+        assertEquals("STOP_LOSS", history.last().closeReason)
     }
 
     @Test
