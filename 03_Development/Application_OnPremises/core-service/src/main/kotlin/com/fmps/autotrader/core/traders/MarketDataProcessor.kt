@@ -27,8 +27,11 @@ private val logger = KotlinLogging.logger {}
 class MarketDataProcessor(
     private val strategy: ITradingStrategy
 ) {
+    private data class CacheKey(val lastTimestamp: Instant, val size: Int)
+    private data class CachedIndicator(val key: CacheKey, val value: Any?)
+
     // Indicator cache to avoid redundant calculations
-    private val indicatorCache = mutableMapOf<String, Any?>()
+    private val indicatorCache = mutableMapOf<String, CachedIndicator>()
 
     /**
      * Process candlestick data and calculate indicators.
@@ -51,9 +54,10 @@ class MarketDataProcessor(
 
             // Get required indicators from strategy
             val requiredIndicators = strategy.getRequiredIndicators()
+            val cacheKey = buildCacheKey(candles)
 
             // Calculate indicators
-            val indicators = calculateIndicators(candles, requiredIndicators)
+            val indicators = calculateIndicators(candles, requiredIndicators, cacheKey)
 
             // Get latest price
             val latestPrice = candles.last().close
@@ -76,12 +80,19 @@ class MarketDataProcessor(
      */
     private fun calculateIndicators(
         candles: List<Candlestick>,
-        requiredIndicators: List<String>
+        requiredIndicators: List<String>,
+        cacheKey: CacheKey
     ): Map<String, Any?> {
         val calculated = mutableMapOf<String, Any?>()
 
         for (indicatorName in requiredIndicators) {
             try {
+                val cached = indicatorCache[indicatorName]
+                if (cached != null && cached.key == cacheKey) {
+                    calculated[indicatorName] = cached.value
+                    continue
+                }
+
                 val value = when (indicatorName.uppercase()) {
                     "SMA" -> {
                         // Calculate SMA for common periods
@@ -103,6 +114,7 @@ class MarketDataProcessor(
                         null
                     }
                 }
+                indicatorCache[indicatorName] = CachedIndicator(cacheKey, value)
                 calculated[indicatorName] = value
             } catch (e: Exception) {
                 logger.error(e) { "Error calculating indicator: $indicatorName" }
@@ -118,7 +130,7 @@ class MarketDataProcessor(
      */
     private fun validateData(candles: List<Candlestick>): Boolean {
         // Check minimum data points
-        val minDataPoints = strategy.getRequiredIndicators().size
+        val minDataPoints = calculateMinimumDataPoints(strategy.getRequiredIndicators())
         if (candles.size < minDataPoints) {
             logger.warn { "Insufficient data points: need at least $minDataPoints, got ${candles.size}" }
             return false
@@ -155,5 +167,30 @@ class MarketDataProcessor(
         indicatorCache.clear()
         logger.debug { "Indicator cache cleared" }
     }
+
+    private fun calculateMinimumDataPoints(requiredIndicators: List<String>): Int {
+        if (requiredIndicators.isEmpty()) {
+            return 1
+        }
+        return requiredIndicators.maxOf { requiredDataPointsFor(it) }
+    }
+
+    private fun requiredDataPointsFor(indicatorName: String): Int {
+        return when (indicatorName.uppercase()) {
+            "SMA" -> 21
+            "EMA" -> 26
+            "RSI" -> 14
+            "MACD" -> 26
+            "BOLLINGERBANDS", "BB" -> 20
+            else -> 5
+        }
+    }
+
+    private fun buildCacheKey(candles: List<Candlestick>): CacheKey {
+        val lastTimestamp = candles.last().closeTime
+        return CacheKey(lastTimestamp, candles.size)
+    }
+
+    internal fun cachedIndicatorNamesForTesting(): Set<String> = indicatorCache.keys.toSet()
 }
 

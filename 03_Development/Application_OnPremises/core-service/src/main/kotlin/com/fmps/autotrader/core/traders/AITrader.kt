@@ -1,6 +1,7 @@
 package com.fmps.autotrader.core.traders
 
 import com.fmps.autotrader.core.connectors.IExchangeConnector
+import com.fmps.autotrader.core.traders.strategies.ITradingStrategy
 import com.fmps.autotrader.core.traders.strategies.StrategyFactory
 import com.fmps.autotrader.shared.enums.TimeFrame
 import com.fmps.autotrader.shared.model.Position
@@ -8,6 +9,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import mu.KotlinLogging
+import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicReference
@@ -38,26 +40,24 @@ private val logger = KotlinLogging.logger {}
  * @since 1.0.0
  */
 class AITrader(
-    val config: AITraderConfig,
+    initialConfig: AITraderConfig,
     private val exchangeConnector: IExchangeConnector,
     private val positionManager: Any? = null, // PositionManager - will be added in Issue #13
     private val riskManager: Any? = null, // RiskManager - will be added in Issue #14
     private val patternService: com.fmps.autotrader.core.patterns.PatternService? = null // PatternService - Issue #15
 ) {
+    private var currentConfig: AITraderConfig = initialConfig
+    val config: AITraderConfig
+        get() = currentConfig
+
     // State management
     private val state = AtomicReference<AITraderState>(AITraderState.IDLE)
     private val stateMutex = Mutex()
 
     // Strategy and processors
-    private val strategy = StrategyFactory.createStrategy(config)
-    private val marketDataProcessor = MarketDataProcessor(strategy)
-    private val signalGenerator = SignalGenerator(
-        strategy = strategy,
-        minConfidenceThreshold = 0.5,
-        patternService = patternService,
-        config = config,
-        patternWeight = 0.3 // 30% weight for pattern confidence
-    )
+    private var strategy: ITradingStrategy = StrategyFactory.createStrategy(currentConfig)
+    private var marketDataProcessor: MarketDataProcessor = MarketDataProcessor(strategy)
+    private var signalGenerator: SignalGenerator = createSignalGenerator(strategy, currentConfig)
     
     // Pattern integration helper (Issue #15) - will be set via setter if dependencies are available
     private var patternIntegrationHelper: com.fmps.autotrader.core.patterns.PatternIntegrationHelper? = null
@@ -244,16 +244,26 @@ class AITrader(
      */
     suspend fun updateConfig(newConfig: AITraderConfig): Result<Unit> {
         return stateMutex.withLock {
-            if (state.get() == AITraderState.RUNNING) {
-                return Result.failure(
+            when {
+                state.get() == AITraderState.RUNNING -> Result.failure(
                     IllegalStateException("Cannot update config while trader is running")
                 )
-            }
 
-            // TODO: Validate new config
-            // TODO: Update internal state with new config
-            logger.info { "Configuration updated for trader ${newConfig.id}" }
-            Result.success(Unit)
+                newConfig.id != currentConfig.id -> Result.failure(
+                    IllegalArgumentException(
+                        "Cannot change trader ID during config update (current=${currentConfig.id}, new=${newConfig.id})"
+                    )
+                )
+
+                else -> try {
+                    rebuildForNewConfig(newConfig)
+                    logger.info { "Configuration updated for trader ${newConfig.id}" }
+                    Result.success(Unit)
+                } catch (e: Exception) {
+                    logger.error(e) { "Failed to update configuration for trader ${currentConfig.id}" }
+                    Result.failure(e)
+                }
+            }
         }
     }
 
@@ -349,6 +359,7 @@ class AITrader(
         // TODO: Integrate with PositionManager (Issue #13)
         // TODO: Integrate with RiskManager (Issue #14)
         // For now, just log
+        updateMetricsForSignal(signal)
         
         // Track pattern usage if pattern was matched (Issue #15)
         signal.matchedPatternId?.let { patternId ->
@@ -372,6 +383,9 @@ class AITrader(
         // 2. patternIntegrationHelper?.learnFromTrade(tradeId) if profitable
         
         currentPosition = null
+        metricsMutex.withLock {
+            metrics = metrics.recordCloseExecution()
+        }
     }
     
     /**
@@ -432,6 +446,36 @@ class AITrader(
         marketDataProcessor.clearCache()
         strategy.reset()
         logger.info { "Cleanup completed for trader ${config.id}" }
+    }
+
+    private fun createSignalGenerator(strategy: ITradingStrategy, config: AITraderConfig): SignalGenerator {
+        return SignalGenerator(
+            strategy = strategy,
+            minConfidenceThreshold = 0.5,
+            patternService = patternService,
+            config = config,
+            patternWeight = 0.3
+        )
+    }
+
+    private fun rebuildForNewConfig(newConfig: AITraderConfig) {
+        strategy.reset()
+        currentConfig = newConfig
+        strategy = StrategyFactory.createStrategy(currentConfig)
+        marketDataProcessor = MarketDataProcessor(strategy)
+        signalGenerator = createSignalGenerator(strategy, currentConfig)
+    }
+
+    private suspend fun updateMetricsForSignal(signal: TradingSignal) {
+        metricsMutex.withLock {
+            metrics = metrics.recordSignalExecution(signal.action, signal.confidence)
+        }
+    }
+
+    suspend fun recordTradeResult(profit: BigDecimal) {
+        metricsMutex.withLock {
+            metrics = metrics.recordTradeResult(profit)
+        }
     }
 }
 

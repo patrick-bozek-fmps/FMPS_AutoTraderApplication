@@ -52,7 +52,13 @@ data class AITraderMetrics(
     val sharpeRatio: Double? = null,
     @Serializable(with = InstantSerializer::class)
     val startTime: Instant? = null,
-    @Contextual val uptime: Duration = Duration.ZERO
+    @Contextual val uptime: Duration = Duration.ZERO,
+    val signalsExecuted: Int = 0,
+    val closeSignalsExecuted: Int = 0,
+    val lastSignalAction: SignalAction? = null,
+    val lastSignalConfidence: Double? = null,
+    @Serializable(with = InstantSerializer::class)
+    val lastSignalTime: Instant? = null
 ) {
     init {
         require(totalTrades >= 0) { "Total trades cannot be negative" }
@@ -66,6 +72,8 @@ data class AITraderMetrics(
         require(winRate >= 0.0 && winRate <= 1.0) {
             "Win rate must be between 0.0 and 1.0, got: $winRate"
         }
+        require(signalsExecuted >= 0) { "Signals executed cannot be negative" }
+        require(closeSignalsExecuted >= 0) { "Close signals executed cannot be negative" }
     }
 
     /**
@@ -111,6 +119,72 @@ data class AITraderMetrics(
         } else {
             BigDecimal.ZERO
         }
+    }
+
+    fun recordSignalExecution(
+        action: SignalAction,
+        confidence: Double,
+        executedAt: Instant = Instant.now()
+    ): AITraderMetrics {
+        return copy(
+            signalsExecuted = signalsExecuted + 1,
+            lastSignalAction = action,
+            lastSignalConfidence = confidence.coerceIn(0.0, 1.0),
+            lastSignalTime = executedAt
+        )
+    }
+
+    fun recordCloseExecution(executedAt: Instant = Instant.now()): AITraderMetrics {
+        return copy(
+            closeSignalsExecuted = closeSignalsExecuted + 1,
+            lastSignalTime = executedAt
+        )
+    }
+
+    fun recordTradeResult(profit: BigDecimal, executedAt: Instant = Instant.now()): AITraderMetrics {
+        val newTotalTrades = totalTrades + 1
+        val profitComparison = profit.compareTo(BigDecimal.ZERO)
+        val newWinningTrades = winningTrades + if (profitComparison > 0) 1 else 0
+        val newLosingTrades = losingTrades + if (profitComparison < 0) 1 else 0
+        val profitIncrease = if (profitComparison > 0) profit else BigDecimal.ZERO
+        val lossIncrease = if (profitComparison < 0) profit.abs() else BigDecimal.ZERO
+        val newTotalProfit = totalProfit + profitIncrease
+        val newTotalLoss = totalLoss + lossIncrease
+        val newNetProfit = newTotalProfit - newTotalLoss
+        val newWinRate = if (newTotalTrades > 0) {
+            newWinningTrades.toDouble() / newTotalTrades.toDouble()
+        } else {
+            0.0
+        }
+        val newAverageProfit = if (newWinningTrades > 0) {
+            newTotalProfit / BigDecimal.valueOf(newWinningTrades.toLong())
+        } else {
+            BigDecimal.ZERO
+        }
+        val newAverageLoss = if (newLosingTrades > 0) {
+            newTotalLoss / BigDecimal.valueOf(newLosingTrades.toLong())
+        } else {
+            BigDecimal.ZERO
+        }
+        val newProfitFactor = if (newTotalLoss > BigDecimal.ZERO) {
+            newTotalProfit.toDouble() / newTotalLoss.toDouble()
+        } else {
+            null
+        }
+
+        return copy(
+            totalTrades = newTotalTrades,
+            winningTrades = newWinningTrades,
+            losingTrades = newLosingTrades,
+            totalProfit = newTotalProfit,
+            totalLoss = newTotalLoss,
+            netProfit = newNetProfit,
+            winRate = newWinRate,
+            averageProfit = newAverageProfit,
+            averageLoss = newAverageLoss,
+            profitFactor = newProfitFactor,
+            lastSignalTime = executedAt
+        )
     }
 
     companion object {

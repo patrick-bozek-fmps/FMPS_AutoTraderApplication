@@ -192,7 +192,7 @@ class MarketDataProcessorTest {
         )
         
         // Should handle gracefully (may return null or process)
-        val result = processor.processCandlesticks(candles)
+        processor.processCandlesticks(candles)
         // Processor may return null for invalid data
         // (result can be null or not null, both are acceptable)
     }
@@ -216,8 +216,7 @@ class MarketDataProcessorTest {
         
         val result = processor.processCandlesticks(createCandles(prices))
         
-        // Should return null for insufficient data or handle gracefully
-        // (result can be null or not null, both are acceptable)
+        assertNull(result)
     }
 
     @Test
@@ -242,6 +241,33 @@ class MarketDataProcessorTest {
         assertNotNull(result1)
         assertNotNull(result2)
         assertEquals(result1!!.latestPrice, result2!!.latestPrice)
+    }
+
+    @Test
+    fun `test insufficient data returns null`() {
+        val prices = List(10) { 50000.0 }
+        val candles = createCandles(prices)
+
+        val result = processor.processCandlesticks(candles)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `test indicator cache stores results`() {
+        val prices = List(40) { 50000.0 + it }
+        val candles = createCandles(prices)
+
+        val result = processor.processCandlesticks(candles)
+
+        assertNotNull(result)
+        val cached = processor.cachedIndicatorNamesForTesting()
+        assertTrue(cached.isNotEmpty())
+
+        // Second run should reuse cache without clearing
+        val second = processor.processCandlesticks(candles)
+        assertNotNull(second)
+        assertEquals(cached, processor.cachedIndicatorNamesForTesting())
     }
 }
 

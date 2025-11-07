@@ -56,7 +56,7 @@ Epic 3 is approaching completion. Core trading, trader management, position life
 - **Priority**: P0 (Critical)
 - **Duration**: 1 day (actual)
 - **Dependencies**: Epic 1 ✅, Epic 2 ✅
-- **Key Deliverables**: `AITrader.kt`, strategy implementations, signal engine, analytics, 85+ tests, AI_TRADER_CORE_GUIDE.md
+- **Key Deliverables**: `AITrader.kt`, strategy implementations, signal engine, metrics tracking, market-data caching, 97 tests, AI_TRADER_CORE_GUIDE.md
 - **Test Command**: `./gradlew :core-service:test --tests "*AITraderTest*"`
 
 ### **Issue #12: AI Trader Manager** ✅ COMPLETE
@@ -218,45 +218,6 @@ Epic 3 is approaching completion. Core trading, trader management, position life
 ## 🚦 **Critical Path Analysis**
 
 ### **What's Blocking Epic 3?**
-
-```
-Epic 3: AI Trading Engine
-├─ ✅ Epic 1 COMPLETE (Foundation)
-│  └─ All dependencies satisfied
-│
-├─ ✅ Epic 2 COMPLETE (Exchange Integration)
-│  └─ All dependencies satisfied
-│
-├─ ⏳ Issue #11: AI Trader Core (PLANNED)
-│  └─ Blocks Issues #12, #13, #14
-│
-├─ ⏳ Issue #12: AI Trader Manager (PLANNED)
-│  └─ Depends on Issue #11
-│
-├─ ⏳ Issue #13: Position Manager (PLANNED)
-│  └─ Depends on Issue #11
-│
-├─ ⏳ Issue #14: Risk Manager (PLANNED)
-│  └─ Depends on Issues #11, #13
-│
-├─ ⏳ Issue #15: Pattern Storage (PLANNED)
-│  └─ Depends on Issue #11
-│
-Epic 3 Can Start NOW:
-├─ ✅ All prerequisites satisfied
-└─ ✅ Detailed planning complete
-```
-
-**Critical Path**:
-1. ⏳ Issue #11 (3-4 days) - **START HERE**
-2. ⏳ Issue #12 (2-3 days) - Depends on #11
-3. ⏳ Issue #13 (2-3 days) - Depends on #11 (can run in parallel with #12)
-4. ⏳ Issue #14 (2-3 days) - Depends on #11, #13
-5. ⏳ Issue #15 (3-4 days) - Depends on #11 (can run in parallel with #12-14)
-
-**Result**: Epic 3 ready to start! All prerequisites satisfied.  
-**Estimated Duration**: 12-17 days (2.5-3.5 weeks)  
-**Parallel Opportunities**: Issues #12, #13, and #15 can be worked on in parallel after #11 is complete
 
 ---
 

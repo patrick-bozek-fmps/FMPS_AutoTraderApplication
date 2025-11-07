@@ -218,6 +218,15 @@ class AITraderTest {
         val result = trader.updateConfig(newConfig)
         
         assertTrue(result.isSuccess)
+        assertEquals("Updated Name", trader.config.name)
+    }
+
+    @Test
+    fun `test updateConfig rejects id changes`() = runBlocking {
+        val newConfig = config.copy(id = "different-id")
+        val result = trader.updateConfig(newConfig)
+
+        assertTrue(result.isFailure)
     }
 
     @Test
@@ -227,6 +236,8 @@ class AITraderTest {
         assertNotNull(metrics)
         assertEquals(0, metrics.totalTrades)
         assertEquals(0.0, metrics.winRate)
+        assertEquals(0, metrics.signalsExecuted)
+        assertEquals(0, metrics.closeSignalsExecuted)
     }
 
     @Test
@@ -250,6 +261,31 @@ class AITraderTest {
         
         // Cleanup
         trader.stop()
+    }
+
+    @Test
+    fun `test recordTradeResult updates winning metrics`() = runBlocking {
+        trader.recordTradeResult(BigDecimal("12.50"))
+
+        val metrics = trader.getMetrics()
+        assertEquals(1, metrics.totalTrades)
+        assertEquals(1, metrics.winningTrades)
+        assertEquals(BigDecimal("12.50"), metrics.totalProfit)
+        assertEquals(BigDecimal.ZERO, metrics.totalLoss)
+        assertEquals(0, metrics.closeSignalsExecuted)
+    }
+
+    @Test
+    fun `test recordTradeResult updates losing metrics`() = runBlocking {
+        trader.recordTradeResult(BigDecimal("-5.25"))
+
+        val metrics = trader.getMetrics()
+        assertEquals(1, metrics.totalTrades)
+        assertEquals(0, metrics.winningTrades)
+        assertEquals(1, metrics.losingTrades)
+        assertEquals(BigDecimal.ZERO, metrics.totalProfit)
+        assertEquals(BigDecimal("5.25"), metrics.totalLoss)
+        assertEquals(BigDecimal("-5.25"), metrics.netProfit)
     }
 
     @Test

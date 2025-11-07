@@ -85,6 +85,8 @@ cd 03_Development/Application_OnPremises
 ./gradlew test --tests "AITraderTest"
 ```
 
+> **Update (Nov 7, 2025):** `AITraderTest` now includes configuration update and performance metrics coverage (`test updateConfig rejects id changes`, `test recordTradeResult updates winning/losing metrics`). Run the class after trader changes to ensure regressions surface locally before pushing.
+
 #### Run single test method:
 ```bash
 ./gradlew test --tests "AITraderTest.testStartTrading"
