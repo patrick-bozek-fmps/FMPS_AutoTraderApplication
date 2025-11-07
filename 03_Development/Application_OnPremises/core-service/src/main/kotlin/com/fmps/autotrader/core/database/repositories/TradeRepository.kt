@@ -116,6 +116,17 @@ class TradeRepository {
         }
         updated > 0
     }
+
+    /**
+     * Update take profit for a trade
+     */
+    suspend fun updateTakeProfit(tradeId: Int, newTakeProfit: BigDecimal): Boolean = dbQuery {
+        val updated = TradesTable.update({ TradesTable.id eq tradeId }) {
+            it[takeProfitPrice] = newTakeProfit
+            it[updatedAt] = LocalDateTime.now()
+        }
+        updated > 0
+    }
     
     /**
      * Find trade by ID
@@ -179,6 +190,33 @@ class TradeRepository {
             }
             .orderBy(TradesTable.exitTimestamp to SortOrder.DESC)
             .limit(limit)
+            .map { rowToTrade(it) }
+    }
+
+    /**
+     * Find closed trades for a trading pair symbol
+     */
+    suspend fun findClosedTradesBySymbol(symbol: String, limit: Int = 100): List<Trade> = dbQuery {
+        TradesTable.selectAll()
+            .where {
+                (TradesTable.tradingPair eq symbol) and (TradesTable.status eq "CLOSED")
+            }
+            .orderBy(TradesTable.exitTimestamp to SortOrder.DESC)
+            .limit(limit)
+            .map { rowToTrade(it) }
+    }
+
+    /**
+     * Find closed trades within a date range
+     */
+    suspend fun findClosedTradesByDateRange(start: LocalDateTime, end: LocalDateTime): List<Trade> = dbQuery {
+        TradesTable.selectAll()
+            .where {
+                (TradesTable.status eq "CLOSED") and
+                (TradesTable.exitTimestamp greaterEq start) and
+                (TradesTable.exitTimestamp lessEq end)
+            }
+            .orderBy(TradesTable.exitTimestamp to SortOrder.DESC)
             .map { rowToTrade(it) }
     }
     
