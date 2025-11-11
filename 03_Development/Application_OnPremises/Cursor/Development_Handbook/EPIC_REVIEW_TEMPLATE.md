@@ -10,57 +10,60 @@
 ---
 
 ## 1. Executive Summary
-Provide a succinct overview of the epic outcome, overall readiness, and major highlights.
+Concise overview of the epic outcome, overall readiness, and major highlights.
 
 ## 2. Scope & Objectives
-Restate key objectives, deliverables, and any scope changes that occurred during execution.
+- Core objectives / deliverables (note any scope changes).
+- Issues delivered (`<X/Y complete>`), actual vs estimated timeline.
 
 ## 3. Completion Snapshot
-- **Issues Delivered**: `<X/Y complete>`
-- **Key Milestones**: `<dates / commits>`
+- **Milestones / Key Commits**: `<commit hashes, tags>`
 - **CI / Build References**: `<pipeline IDs, coverage runs>`
+- **Project Health**: brief status of planning, dependencies, risk, documentation.
 
 ## 4. Issue Breakdown
-List each issue with status and notable notes (use table if helpful).
-
-| Issue | Status | Owner | Highlights / Risks |
-|-------|--------|-------|--------------------|
+| Issue | Status | Priority | Highlights / Risks |
+|-------|--------|----------|--------------------|
 
 ## 5. Strengths & Wins
-Bullet the major successes (e.g., ahead-of-schedule deliveries, high-quality outcomes, cross-team collaboration).
+Bulleted list of major successes (quality, schedule, collaboration, outcomes).
 
 ## 6. Findings & Open Risks
-Capture outstanding issues, technical debt, or process gaps that require follow-up.
+Summarize blockers, technical debt, or gaps needing follow-up.
 
 ## 7. Deliverables & Verification
-Summarize major artifacts (code, tests, documentation) and verification evidence (builds, demos, sign-offs).
+- Code / features shipped.
+- Tests (counts, pass/fail, coverage).
+- Documentation & guides updated.
 
 ## 8. Code & Architecture Assessment
-High-level commentary on architecture quality, maintainability, performance considerations, and adherence to standards.
+High-level notes on architecture quality, maintainability, performance, compliance with standards.
 
 ## 9. Quality & Metrics Summary
-Include test counts, coverage percentages, performance metrics, defect rates, etc. Attach dashboards where relevant.
+Key metrics (test counts, coverage %, performance benchmarks, defect rates). Link dashboards where relevant.
 
 ## 10. Requirements Traceability
-Map core requirements / user stories to issues or deliverables, noting verification status.
+Map requirements or goals to delivered issues / artifacts, including verification evidence.
 
-## 11. Cross-Team Dependencies
-Highlight any upstream/downstream work, integrations, or coordination points.
+## 11. Dependencies & Critical Path
+- Upstream/downstream dependencies and current status.
+- Critical path analysis—are prerequisites for next epic satisfied?
 
 ## 12. Action Items
-Numbered list, including owner and due date, for follow-up work (hotfixes, documentation, additional testing, etc.).
+Numbered list with owner and due date for remaining work / remediation.
 
 ## 13. Lessons Learned
-Brief bullets for what worked well and what should improve next epic (process, tooling, communication).
+- What went well.
+- Improvements for next epic (process, tooling, coordination).
 
 ## 14. Final Recommendation
-Explicit PASS / PASS WITH NOTES / FAIL decision for the epic, with supporting rationale.
+Explicit PASS / PASS WITH NOTES / FAIL with rationale.
 
 ## 15. Review Checklist
-Checkbox list confirming review activities (code review, tests verified, documentation updated, stakeholders aligned, etc.).
+Checkbox list confirming review activities (code, tests, docs, CI, stakeholder sign-off, traceability, etc.).
 
 ## 16. Post-Review Updates
-Document any actions already completed as a result of the review (merged PRs, updated docs, scheduled follow-ups).
+Document any actions already completed as a result of the review (hotfixes, updated docs, scheduled work).
 
 ## 17. Appendices
-Link to supporting materials (epic status reports, dashboards, logs, architectural diagrams, meeting notes).
+Links to supporting materials (epic status reports, dashboards, diagrams, meeting notes).
