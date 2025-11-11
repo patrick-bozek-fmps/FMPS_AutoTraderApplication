@@ -1,6 +1,6 @@
 # 🧪 FMPS AutoTrader - Testing Guide
 
-> **Last Updated:** November 6, 2025  
+> **Last Updated:** November 11, 2025  
 > **Version:** 1.1
 
 ## Table of Contents
@@ -98,13 +98,15 @@ cd 03_Development/Application_OnPremises
 
 > **Update (Nov 7, 2025 - Evening):** `PositionManagerTest` now asserts trailing-stop adjustments and persistence failure handling (`test trailing stop adjusts with price`, `test close position fails when repository close fails`). Run these after modifying stop-loss logic or database interactions.
 
+> **Update (Nov 11, 2025):** `ApiSecurityTest` validates API key enforcement (missing/invalid/valid) and `/metrics` protection. Run after touching Ktor interceptors, security configuration, or monitoring plumbing. `TradeRepositoryTest` also includes pagination coverage (`should return paginated trades`)—rerun whenever modifying repository filters or DTO mapping.
+
 #### Generate coverage report (core-service):
 ```bash
 ./gradlew :core-service:jacocoTestReport
 ```
 
 - HTML report: `core-service/build/reports/jacoco/test/html/index.html`
-- Snapshot (Nov 7, 2025): `RiskManager` 73 % line coverage, `StopLossManager` 82 %, `com.fmps.autotrader.core.traders` package 60 % overall. Use this as a baseline when extending tests.
+- Snapshot (Nov 11, 2025): Core-service aggregate ≥ 80 % lines; API module retains coverage via new `ApiSecurityTest` and pagination assertions. Use Jacoco HTML for precise module breakdown before/after major changes.
 
 #### Run single test method:
 ```bash

@@ -98,6 +98,9 @@ fun Application.module() {
         logger.debug { "Configuring HTTP features..." }
         configureHTTP()
         
+        logger.debug { "Configuring security..." }
+        configureSecurity()
+        
         logger.debug { "Configuring WebSockets..." }
         configureWebSockets()
         

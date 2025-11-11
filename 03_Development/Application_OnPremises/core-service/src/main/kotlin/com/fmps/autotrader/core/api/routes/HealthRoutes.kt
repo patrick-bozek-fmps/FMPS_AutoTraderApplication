@@ -1,5 +1,6 @@
 package com.fmps.autotrader.core.api.routes
 
+import com.fmps.autotrader.core.api.plugins.prometheusRegistry
 import com.fmps.autotrader.core.database.DatabaseFactory
 import com.fmps.autotrader.core.database.repositories.AITraderRepository
 import io.ktor.http.*
@@ -90,6 +91,15 @@ fun Route.configureHealthRoutes() {
                 apiVersion = "v1",
                 buildDate = Instant.now().toString() // TODO: Set from build process
             )
+        )
+    }
+
+    // Prometheus metrics endpoint
+    get("/metrics") {
+        val metricsContentType = ContentType.parse("text/plain; version=0.0.4; charset=utf-8")
+        call.respondText(
+            text = prometheusRegistry.scrape(),
+            contentType = metricsContentType
         )
     }
 }

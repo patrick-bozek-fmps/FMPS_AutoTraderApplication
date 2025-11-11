@@ -1,7 +1,7 @@
 # Configuration Management Guide
 
 **Version**: 1.0  
-**Last Updated**: October 28, 2025  
+**Last Updated**: November 11, 2025  
 **Status**: Complete  
 
 ---
@@ -209,6 +209,43 @@ logging {
 
 **Environment Variables**:
 - `LOG_LEVEL` → `logging.level`
+
+### **Security Configuration**
+
+```hocon
+security {
+    encryption {
+        enabled = true
+        algorithm = "AES/GCM/NoPadding"
+        keySize = 256
+    }
+
+    api {
+        enabled = true
+        header = "X-API-Key"
+        queryParam = "apiKey"
+
+        # Choose either a single key or an array of keys
+        key = "dev-api-key"
+        # keys = ["dev-api-key", "ops-api-key"]
+
+        envKey = "FMPS_API_KEY"
+        excludedPaths = [
+            "/api/health",
+            "/api/status",
+            "/api/version"
+        ]
+    }
+}
+```
+
+**Environment Variables**:
+- `FMPS_API_KEY` → overrides `security.api.key`
+- `FMPS_API_KEYS_0`, `FMPS_API_KEYS_1`, … → override list entries (optional)
+
+**Tips**:
+- Keep `/metrics` protected by default; remove it from `excludedPaths` only if Prometheus cannot send headers.
+- Rotate production keys regularly; store secrets outside of VCS (e.g., secrets manager or CI/CD variable store).
 
 ### **Exchange Configuration**
 

@@ -2,6 +2,8 @@ package com.fmps.autotrader.core.database.repositories
 
 import com.fmps.autotrader.core.database.DatabaseFactory.dbQuery
 import com.fmps.autotrader.core.database.schema.TradesTable
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.slf4j.LoggerFactory
@@ -16,6 +18,11 @@ import java.time.LocalDateTime
  */
 class TradeRepository {
     private val logger = LoggerFactory.getLogger(TradeRepository::class.java)
+    
+    data class PagedTrades(
+        val items: List<Trade>,
+        val total: Long
+    )
     
     /**
      * Create a new trade (entry)
@@ -180,6 +187,32 @@ class TradeRepository {
             .orderBy(TradesTable.entryTimestamp to SortOrder.DESC)
             .limit(limit)
             .map { rowToTrade(it) }
+    }
+
+    /**
+     * Find trades with pagination and optional filtering.
+     */
+    suspend fun findPaged(
+        page: Int,
+        pageSize: Int,
+        status: String? = null,
+        aiTraderId: Int? = null
+    ): PagedTrades = dbQuery {
+        val filters = mutableListOf<Op<Boolean>>()
+        status?.let { filters += TradesTable.status eq it }
+        aiTraderId?.let { filters += TradesTable.aiTraderId eq it }
+
+        val combinedFilter = filters.fold(Op.TRUE as Op<Boolean>) { acc, op -> acc and op }
+
+        val total = TradesTable.select { combinedFilter }.count()
+
+        val offset = ((page - 1) * pageSize).toLong()
+        val items = TradesTable.select { combinedFilter }
+            .orderBy(TradesTable.entryTimestamp to SortOrder.DESC)
+            .limit(pageSize, offset)
+            .map { rowToTrade(it) }
+
+        PagedTrades(items = items, total = total)
     }
     
     /**

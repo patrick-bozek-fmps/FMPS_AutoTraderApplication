@@ -36,6 +36,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
     implementation("io.ktor:ktor-server-default-headers:$ktorVersion")
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     
     // Ktor Client (for exchange APIs)
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -69,6 +70,7 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("net.logstash.logback:logstash-logback-encoder:7.4")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.11.5")
     
     // Testing
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")

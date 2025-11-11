@@ -1,12 +1,14 @@
 package com.fmps.autotrader.core.database.repositories
 
 import com.fmps.autotrader.core.database.DatabaseFactory
+import com.fmps.autotrader.core.database.schema.TradesTable
 import com.typesafe.config.ConfigFactory
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import java.io.File
 import java.math.BigDecimal
+import org.jetbrains.exposed.sql.deleteAll
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TradeRepositoryTest {
@@ -225,6 +227,47 @@ class TradeRepositoryTest {
         assertTrue(stats.successfulTrades >= 1)
         assertTrue(stats.failedTrades >= 1)
         assertTrue(stats.successRate > BigDecimal.ZERO)
+    }
+
+    @Test
+    fun `should return paginated trades`() = runBlocking {
+        DatabaseFactory.dbQuery { TradesTable.deleteAll() }
+
+        repeat(30) { index ->
+            val tradeId = tradeRepository.create(
+                aiTraderId = testTraderId,
+                tradeType = if (index % 2 == 0) "LONG" else "SHORT",
+                exchange = "BINANCE",
+                tradingPair = "BTC/USDT",
+                leverage = 5,
+                entryPrice = BigDecimal("50000") + BigDecimal(index * 100),
+                entryAmount = BigDecimal("0.05"),
+                stopLossPrice = BigDecimal("49000"),
+                takeProfitPrice = BigDecimal("52000")
+            )
+
+            if (index % 4 == 0) {
+                tradeRepository.close(
+                    tradeId = tradeId,
+                    exitPrice = BigDecimal("50500"),
+                    exitAmount = BigDecimal("0.05"),
+                    exitReason = "MANUAL"
+                )
+            }
+        }
+
+        val pageSize = 10
+        val paged = tradeRepository.findPaged(
+            page = 2,
+            pageSize = pageSize,
+            status = "OPEN",
+            aiTraderId = testTraderId
+        )
+
+        assertEquals(pageSize, paged.items.size)
+        assertTrue(paged.total >= paged.items.size.toLong())
+        assertTrue(paged.items.all { it.status == "OPEN" })
+        assertTrue(paged.items.all { it.aiTraderId == testTraderId })
     }
 }
 

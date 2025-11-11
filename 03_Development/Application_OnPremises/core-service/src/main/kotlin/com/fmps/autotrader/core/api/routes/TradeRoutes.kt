@@ -16,6 +16,25 @@ import java.time.Instant
 import java.time.LocalDateTime
 
 private val logger = LoggerFactory.getLogger("TradeRoutes")
+private val paginationStatusValues = setOf("OPEN", "CLOSED")
+private const val DEFAULT_PAGE_SIZE = 50
+private const val MAX_PAGE_SIZE = 200
+
+private suspend fun ApplicationCall.respondApiError(
+    status: HttpStatusCode,
+    code: String,
+    message: String,
+    details: Map<String, String>? = null
+) {
+    respond(
+        status,
+        ErrorResponse(
+            success = false,
+            error = ErrorDetail(code = code, message = message, details = details),
+            timestamp = Instant.now().toString()
+        )
+    )
+}
 
 /**
  * Configure Trade API routes
@@ -32,35 +51,83 @@ fun Route.configureTradeRoutes() {
         // GET /api/v1/trades - List all trades (with optional filtering)
         // ========================================================================
         get {
-            logger.info("GET /api/v1/trades - List all trades")
-            
-            // Optional query parameters for filtering
-            val status = call.request.queryParameters["status"]
-            val aiTraderId = call.request.queryParameters["aiTraderId"]?.toIntOrNull()
-            val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 100
-            
-            val trades = when {
-                status != null && status == "OPEN" -> {
-                    logger.info("Filtering for OPEN trades")
-                    tradeRepository.findAllOpenTrades()
-                }
-                aiTraderId != null -> {
-                    logger.info("Filtering for AI Trader ID: $aiTraderId")
-                    tradeRepository.findByAITrader(aiTraderId)
-                }
+            logger.info("GET /api/v1/trades - List trades with pagination")
+
+            val queryParameters = call.request.queryParameters
+
+            val page = queryParameters["page"]?.toIntOrNull() ?: 1
+            if (page < 1) {
+                call.respondApiError(
+                    status = HttpStatusCode.BadRequest,
+                    code = "INVALID_PAGE",
+                    message = "Query parameter 'page' must be a positive integer.",
+                    details = mapOf("page" to queryParameters["page"].orEmpty())
+                )
+                return@get
+            }
+
+            val legacyLimit = queryParameters["limit"]?.toIntOrNull()
+            val requestedPageSize = queryParameters["pageSize"]?.toIntOrNull() ?: legacyLimit ?: DEFAULT_PAGE_SIZE
+            if (requestedPageSize < 1 || requestedPageSize > MAX_PAGE_SIZE) {
+                call.respondApiError(
+                    status = HttpStatusCode.BadRequest,
+                    code = "INVALID_PAGE_SIZE",
+                    message = "Query parameter 'pageSize' must be between 1 and $MAX_PAGE_SIZE.",
+                    details = mapOf("pageSize" to queryParameters["pageSize"].orEmpty())
+                )
+                return@get
+            }
+
+            val statusParam = queryParameters["status"]?.uppercase()
+            val normalizedStatus = when {
+                statusParam == null -> null
+                statusParam in paginationStatusValues -> statusParam
                 else -> {
-                    logger.info("Getting all trades (limit: $limit)")
-                    tradeRepository.findAll(limit)
+                    call.respondApiError(
+                        status = HttpStatusCode.BadRequest,
+                        code = "INVALID_STATUS",
+                        message = "Query parameter 'status' must be one of: ${paginationStatusValues.joinToString()}.",
+                        details = mapOf("status" to statusParam)
+                    )
+                    return@get
                 }
             }
-            
-            val tradesDTO = trades.toTradeDTOs()
-            
+
+            val aiTraderIdParam = queryParameters["aiTraderId"]
+            val aiTraderId = when {
+                aiTraderIdParam.isNullOrBlank() -> null
+                aiTraderIdParam.toIntOrNull() != null -> aiTraderIdParam.toInt()
+                else -> {
+                    call.respondApiError(
+                        status = HttpStatusCode.BadRequest,
+                        code = "INVALID_TRADER_ID",
+                        message = "Query parameter 'aiTraderId' must be a numeric identifier.",
+                        details = mapOf("aiTraderId" to aiTraderIdParam)
+                    )
+                    return@get
+                }
+            }
+
+            logger.info(
+                "Listing trades with filters page=$page pageSize=$requestedPageSize status=$normalizedStatus aiTraderId=$aiTraderId"
+            )
+
+            val pagedResult = tradeRepository.findPaged(
+                page = page,
+                pageSize = requestedPageSize,
+                status = normalizedStatus,
+                aiTraderId = aiTraderId
+            )
+
+            val tradesDTO = pagedResult.items.toTradeDTOs()
+            val paginationInfo = PaginationInfo.from(page, requestedPageSize, pagedResult.total)
+
             call.respond(
                 HttpStatusCode.OK,
-                ApiResponse(
+                PaginatedResponse(
                     success = true,
                     data = tradesDTO,
+                    pagination = paginationInfo,
                     timestamp = Instant.now().toString()
                 )
             )

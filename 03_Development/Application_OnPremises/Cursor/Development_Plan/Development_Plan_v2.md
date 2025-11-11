@@ -14,7 +14,7 @@
 | **Epic 1: Foundation & Infrastructure** | 2 weeks | ✅ **COMPLETE** | All 6 issues complete ✅ | Gradle, Database, REST API, Models, Config, Logging |
 | **Epic 2: Exchange Integration** | 1 week | ✅ **COMPLETE** | All 4 issues complete ✅ | Exchange Framework ✅, Binance ✅, Bitget ✅, Technical Indicators ✅ |
 | **Epic 3: AI Trading Engine** | 3 weeks | ✅ **COMPLETE** | All 5 sections (100%) | AI traders with manager, positions, risk manager, pattern storage |
-| **Epic 4: Core Service & API** | 3 weeks | 📋 **PLANNED** | Issue #16–#18 drafted | Production-ready API, telemetry, Windows service bundle |
+| **Epic 4: Core Service & API** | 3 weeks | 🚀 **IN PROGRESS** | Issue #16 ✅, Issues #17–#18 planned | Production-ready API, telemetry, Windows service bundle |
 | **Epic 5: Desktop UI** | 3 weeks | ⏳ Not Started | 0/5 sections | Complete JavaFX application |
 | **Epic 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
 
@@ -65,11 +65,13 @@
 | **4.3** | **Nov 7, 2025** | **Issue #14: Added risk monitoring + integration tests, drafted Risk Manager guide** | **AI Assistant** |
 | **4.4** | **Nov 7, 2025** | **Issue #14 COMPLETE: emergency-stop gating, stop-loss monitoring, documentation + CI sign-off** | **AI Assistant** |
 | **4.5** | **Nov 11, 2025** | **Epic 4 planning pack published (Issue #16 REST API, #17 WebSocket, #18 Windows Service)** | **AI Assistant** |
+| **4.6** | **Nov 11, 2025** | **Issue #16 COMPLETE: REST API auth/pagination/metrics shipped + docs updated** | **AI Assistant** |
 
 **Changes from v4.4:**
-- ✅ Created detailed planning documents for Epic 4 (Issues #16–#18) covering API hardening, WebSocket telemetry, and Windows service packaging.
-- ✅ Updated `Development_Plan_v2.md` to reflect Epic 4 scope, status, and upcoming milestones.
-- ✅ Captured dependency alignment between new issues and existing Epic 3 deliverables.
+- ✅ Issue #16 delivered: REST API authentication, pagination, and Prometheus metrics merged into `core-service`.
+- ✅ Added API security regression tests (`ApiSecurityTest`) and repository pagination coverage to support new contract.
+- ✅ Instrumented Micrometer + Prometheus registry and documented operational runbook.
+- ✅ Refreshed planning artifacts (`API_REFERENCE.md`, `CONFIG_GUIDE.md`, `EPIC_4_STATUS.md`, this plan) to reflect new auth/metrics flow.
 
 **Changes from v4.1:**
 - ✅ Issue #14 (Risk Manager) fully remediated – emergency-stop gating, loss-only risk scoring, stop-loss enforcement in monitoring
@@ -954,18 +956,18 @@ dependencies {
 
 ## 8. EPIC 4: Core Service & API (Weeks 9-11)
 
-**Status**: 📋 **PLANNED** (Kickoff after Epic 3 remediation closeout)
+**Status**: 🚀 **IN PROGRESS** (Issue #16 complete; Issue #17 queued next)
 
 ### 8.1 REST API Server Hardening
 
 **Tasks:**
-- [ ] Audit existing routes (`TraderRoutes`, `PositionRoutes`, `ConfigRoutes`) for coverage against UI requirements
-- [ ] Add API key authentication middleware and configuration
-- [ ] Enhance input validation, pagination, and error envelopes
-- [ ] Introduce health/metrics endpoints (Prometheus-ready) and structured logging
-- [ ] Update API reference documentation and troubleshooting sections
+- [x] Audit existing routes (`TraderRoutes`, `PositionRoutes`, `ConfigRoutes`) for coverage against UI requirements
+- [x] Add API key authentication middleware and configuration
+- [x] Enhance input validation, pagination, and error envelopes
+- [x] Introduce health/metrics endpoints (Prometheus-ready) and structured logging
+- [x] Update API reference documentation and troubleshooting sections
 
-**Deliverable**: Hardened REST API surface (Issue #16 – Core Service REST API Hardening)
+**Deliverable**: Hardened REST API surface (Issue #16 – Core Service REST API Hardening) ✅ Delivered Nov 11, 2025
 
 ### 8.2 WebSocket Telemetry Expansion
 
@@ -992,18 +994,20 @@ dependencies {
 ### 8.4 Testing & Documentation Alignment
 
 **Tasks:**
-- [ ] Extend automated suites (`TraderRoutesTest`, `WebSocketManagerTest`, packaging smoke scripts)
-- [ ] Ensure Jacoco/CI coverage remains ≥80% for affected modules
-- [ ] Update documentation set (`API_REFERENCE.md`, `WEBSOCKET_GUIDE.md`, `Windows_Service_Guide.md`)
-- [ ] Capture Epic 4 progress in status/reporting artifacts (`EPIC_4_STATUS.md`, Dev Plan v2)
+- [x] Extend automated suites (`TraderRoutes`/API security & repository pagination tests)
+- [ ] Extend WebSocket automation (`WebSocketManagerTest`) for telemetry upgrades
+- [ ] Add packaging smoke scripts (pending Issue #18)
+- [x] Ensure Jacoco/CI coverage remains ≥80% for affected modules
+- [x] Update documentation set (`API_REFERENCE.md`, `CONFIG_GUIDE.md`, `EPIC_4_STATUS.md`, Dev Plan v2)
+- [x] Capture Epic 4 progress in status/reporting artifacts (`EPIC_4_STATUS.md`, Dev Plan v2)
 
-**Deliverable**: Verified build/test pipeline and synchronized documentation for Core service releases
+**Deliverable**: Verified build/test pipeline and synchronized documentation for Core service releases (partial – API hardening complete)
 
 ### 8.5 Milestones & Dependencies
 
 **Milestones:**
 - ✅ Planning finalized (Issue plans published – Nov 11, 2025)
-- ⏳ Start Issue #16 (REST API Hardening)
+- ✅ Issue #16 (REST API Hardening) complete – Nov 11, 2025
 - ⏳ Start Issue #17 after #16 auth middleware merges
 - ⏳ Start Issue #18 once API/WebSocket outputs stabilize
 

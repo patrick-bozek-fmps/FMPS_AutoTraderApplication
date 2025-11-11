@@ -1,22 +1,22 @@
 # Epic 4: Core Service & API Hardening - Status Report
 
 **Date**: November 11, 2025  
-**Epic Status**: 📋 **PLANNED** (0/3 issues complete – 0%)  
-**Version**: 1.0  
-**Last Updated**: November 11, 2025 (Initial planning package published)
+**Epic Status**: 🚀 **IN PROGRESS** (1/3 issues complete – 33%)  
+**Version**: 1.1  
+**Last Updated**: November 11, 2025 (Issue #16 delivered)
 
 ---
 
 ## 📊 **Executive Summary**
 
-Epic 4 moves the Core service from prototype to production readiness. The planning phase is complete: requirements, issue breakdowns, and dependencies are captured across Issues #16–#18. Work has not started yet because the team just finalized Epic 3 follow-up remediations (Issues #13–#14).
+Epic 4 moves the Core service from prototype to production readiness. Planning is complete and execution has started: Issue #16 (REST API Hardening) shipped on November 11, delivering authentication, pagination, and Prometheus metrics. Remaining issues (#17–#18) now build on the hardened API to roll out telemetry and Windows packaging.
 
-The epic focuses on three deliverables: hardening REST APIs, expanding real-time WebSocket telemetry, and packaging the Core as a Windows service. Each issue now has a dedicated plan detailing scope, testing, documentation, and CI expectations. Once execution begins, Epic 4 will unlock downstream desktop UI work (Epic 5) and the broader release pipeline (Epic 6).
+The epic still targets three deliverables—REST hardening, real-time telemetry, and Windows service packaging. Downstream dependencies (Epic 5 desktop UI, Epic 6 release prep) now have a secured API contract to integrate against.
 
-**Status**: Planning ready; implementation queued behind final Epic 3 hygiene.
+**Status**: Implementation underway; telemetry (Issue #17) queued next.
 
 **Key Components**:
-- Core REST API Hardening – 📋 Planned
+- Core REST API Hardening – ✅ Complete (Issue #16)
 - Real-Time WebSocket Telemetry – 📋 Planned
 - Windows Service Packaging – 📋 Planned
 
@@ -26,13 +26,13 @@ The epic focuses on three deliverables: hardening REST APIs, expanding real-time
 
 | Issue | Title | Status | Priority | Duration (Est.) | Dependencies |
 |-------|-------|--------|----------|-----------------|--------------|
-| #16 | Core Service REST API Hardening | 📋 Planned | P0 | ~3 days | Issue #11 ✅, #13 ✅, #14 ✅ |
-| #17 | Real-Time WebSocket Telemetry | 📋 Planned | P1 | ~2.5 days | Issue #07 ✅, #13 ✅, #16 ⏳ |
-| #18 | Windows Service Packaging & Deployment | 📋 Planned | P0 | ~4 days | Issue #16 ⏳, #17 ⏳ |
+| #16 | Core Service REST API Hardening | ✅ Complete | P0 | ~3 days (actual: 1 day) | Issue #11 ✅, #13 ✅, #14 ✅ |
+| #17 | Real-Time WebSocket Telemetry | 📋 Planned | P1 | ~2.5 days | Issue #07 ✅, #13 ✅, #16 ✅ |
+| #18 | Windows Service Packaging & Deployment | 📋 Planned | P0 | ~4 days | Issue #16 ✅, #17 ⏳ |
 
 **Total Estimated Duration**: ~9.5 working days (≈2 weeks)  
-**Actual Duration**: Not started  
-**Current Progress**: 0/3 issues complete (0%)
+**Actual Duration**: 1 day logged (Issue #16)  
+**Current Progress**: 1/3 issues complete (33%)
 
 ---
 
@@ -45,30 +45,34 @@ The epic focuses on three deliverables: hardening REST APIs, expanding real-time
 
 ---
 
-## ✅ **Completed Issues** (0/3 – None yet)
+## ✅ **Completed Issues** (1/3 – 33%)
 
-_None – execution begins after risk-management remediation sign-off._
+### Issue #16 – Core Service REST API Hardening (Completed Nov 11, 2025)
+- API key middleware with configurable key sources (single or list + env overrides).
+- Query validation & pagination standardised for `/api/v1/trades` with consistent error envelopes.
+- Prometheus metrics exposed via `/metrics` (auth-gated) and Micrometer binders enabled.
+- New API security regression tests + documentation set (API reference, config guide).
 
 ---
 
 ## ⏳ **In Progress Issues** (0/3)
 
-None – all workstreams currently scheduled.
+No active development threads; Issue #17 queued to start next.
 
 ---
 
 ## 📋 **Planned Issues** (3/3)
 
-### **Issue #16: Core Service REST API Hardening** 📋 PLANNED
+### **Issue #16: Core Service REST API Hardening** ✅ COMPLETE
 - **Priority**: P0  
-- **Estimated Duration**: ~3 days  
+- **Actual Duration**: 1 day  
 - **Dependencies**: Issue #11 ✅, #13 ✅, #14 ✅  
 
-**Planned Deliverables**:
-- [ ] API key authentication middleware and configuration
-- [ ] Pagination and validation enhancements across REST routes
-- [ ] Health/metrics endpoints with Prometheus-compatible outputs
-- [ ] Updated API reference and troubleshooting guide
+**Delivered**:
+- API key middleware (`Security.kt`) with config + env support.
+- Pagination/validation upgrades for trade routes and repository.
+- Prometheus metrics endpoint and Micrometer instrumentation.
+- Updated API reference, config guide, and epic/dev plan documentation.
 
 ---
 
@@ -115,8 +119,8 @@ None – all workstreams currently scheduled.
 
 | Component | Planned Features | Notes |
 |-----------|------------------|-------|
-| REST API | Auth middleware, validation/pagination, health metrics, error envelopes | Derived from Issue #16 plan |
-| WebSocket | Multi-channel feeds, heartbeats, metrics, replay snapshots | Requires auth pipeline from Issue #16 |
+| REST API | Auth middleware, validation/pagination, health metrics, error envelopes | ✅ Delivered in Issue #16 |
+| WebSocket | Multi-channel feeds, heartbeats, metrics, replay snapshots | Requires auth pipeline from Issue #16 (now available) |
 | Windows Service | Installer scripts, config/log templates, recovery options | Builds on logging/config work from Epic 1 |
 
 ### **Additional Features Beyond Minimum**
@@ -156,7 +160,7 @@ Epic 5: Desktop UI Application
 ```
 
 **Critical Path**:
-1. ⏳ Issue #16 – REST API Hardening (must complete before WebSocket work)
+1. ✅ Issue #16 – REST API Hardening (completed)
 2. ⏳ Issue #17 – WebSocket Telemetry (unblocks UI real-time features)
 3. ⏳ Issue #18 – Windows Service Packaging (required for integrated testing)
 
@@ -168,9 +172,9 @@ Epic 5: Desktop UI Application
 
 ### **Current Epic Status**
 
-1. 📋 Issue #16 – Core Service REST API Hardening – Planned (ready to start)
-2. 📋 Issue #17 – Real-Time WebSocket Telemetry – Planned (awaits Issue #16)
-3. 📋 Issue #18 – Windows Service Packaging & Deployment – Planned (awaits Issues #16–#17)
+1. ✅ Issue #16 – Core Service REST API Hardening – complete; waiting on CI confirmation
+2. 📋 Issue #17 – Real-Time WebSocket Telemetry – ready to kick off (auth prerequisites met)
+3. 📋 Issue #18 – Windows Service Packaging & Deployment – blocked until Issue #17 closes
 
 ### **Next: Epic 5 – Desktop UI Application**
 
@@ -188,11 +192,11 @@ Epic 5: Desktop UI Application
 
 | Metric | Status | Notes |
 |--------|--------|-------|
-| **Planning Quality** | ✅ | Issue breakdowns provide clear scope, deliverables, and testing strategy |
-| **Dependencies** | ⏳ | Awaiting final confirmation of API auth approach across services |
-| **Blockers** | ✅ | No external blockers; resource availability will determine start date |
-| **Documentation** | ✅ | Planning docs (Issue files, Development Plan v2, this status sheet) synchronized |
-| **Risk Assessment** | ⏳ | Execution risks (auth regressions, packaging edge cases) tracked per issue |
+| **Planning Quality** | ✅ | Issue breakdowns remain accurate post Issue #16 delivery |
+| **Dependencies** | ✅ | REST auth & metrics prerequisites satisfied for Issue #17 |
+| **Blockers** | ✅ | No external blockers; scheduling Issue #17 next |
+| **Documentation** | ✅ | Issue file, API reference, Dev Plan v2 updated |
+| **Risk Assessment** | ⏳ | Monitor for auth misconfiguration regressions during rollout |
 
 ---
 
