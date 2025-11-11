@@ -1,7 +1,7 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 4.2  
-**Date**: October 30, 2025  
+**Version**: 4.5  
+**Date**: November 11, 2025  
 **Status**: ✅ Epic 1 COMPLETE! (6/6) + Epic 2 COMPLETE! (4/4 - 100% with full test coverage!) 🎉  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
@@ -14,8 +14,8 @@
 | **Epic 1: Foundation & Infrastructure** | 2 weeks | ✅ **COMPLETE** | All 6 issues complete ✅ | Gradle, Database, REST API, Models, Config, Logging |
 | **Epic 2: Exchange Integration** | 1 week | ✅ **COMPLETE** | All 4 issues complete ✅ | Exchange Framework ✅, Binance ✅, Bitget ✅, Technical Indicators ✅ |
 | **Epic 3: AI Trading Engine** | 3 weeks | ✅ **COMPLETE** | All 5 sections (100%) | AI traders with manager, positions, risk manager, pattern storage |
-| **Epic 4: Desktop UI** | 3 weeks | ⏳ Not Started | 0/5 sections | Complete JavaFX application |
-| **Epic 5: Windows Service** | 2 weeks | ⏳ Not Started | 0/3 sections | Windows Service wrapper |
+| **Epic 4: Core Service & API** | 3 weeks | 📋 **PLANNED** | Issue #16–#18 drafted | Production-ready API, telemetry, Windows service bundle |
+| **Epic 5: Desktop UI** | 3 weeks | ⏳ Not Started | 0/5 sections | Complete JavaFX application |
 | **Epic 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
 
 **Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues
@@ -64,6 +64,12 @@
 | **4.2** | **Oct 30, 2025** | **CI Pipeline Optimized: Split unit/integration tests, fixed flaky timing tests** | **AI Assistant** |
 | **4.3** | **Nov 7, 2025** | **Issue #14: Added risk monitoring + integration tests, drafted Risk Manager guide** | **AI Assistant** |
 | **4.4** | **Nov 7, 2025** | **Issue #14 COMPLETE: emergency-stop gating, stop-loss monitoring, documentation + CI sign-off** | **AI Assistant** |
+| **4.5** | **Nov 11, 2025** | **Epic 4 planning pack published (Issue #16 REST API, #17 WebSocket, #18 Windows Service)** | **AI Assistant** |
+
+**Changes from v4.4:**
+- ✅ Created detailed planning documents for Epic 4 (Issues #16–#18) covering API hardening, WebSocket telemetry, and Windows service packaging.
+- ✅ Updated `Development_Plan_v2.md` to reflect Epic 4 scope, status, and upcoming milestones.
+- ✅ Captured dependency alignment between new issues and existing Epic 3 deliverables.
 
 **Changes from v4.1:**
 - ✅ Issue #14 (Risk Manager) fully remediated – emergency-stop gating, loss-only risk scoring, stop-loss enforcement in monitoring
@@ -948,57 +954,29 @@ dependencies {
 
 ## 8. EPIC 4: Core Service & API (Weeks 9-11)
 
-### 8.1 REST API Server
+**Status**: 📋 **PLANNED** – Transitioned from five conceptual sections to three execution-focused issues aligned with Epic 3 deliverables.
 
-**Tasks:**
-- [ ] Set up Ktor server
-- [ ] Implement REST endpoints:
-  - [ ] `/api/traders` - AI Trader CRUD
-  - [ ] `/api/traders/{id}/start` - Start trader
-  - [ ] `/api/traders/{id}/stop` - Stop trader
-  - [ ] `/api/traders/{id}/status` - Get status
-  - [ ] `/api/positions` - Get positions
-  - [ ] `/api/history` - Get trade history
-  - [ ] `/api/patterns` - Get patterns
-  - [ ] `/api/config` - Configuration
-  - [ ] `/api/health` - Health check
-- [ ] Add request validation
-- [ ] Implement error responses
-- [ ] Add API documentation
+| Issue | Status | Focus | Target Outcome |
+|-------|--------|-------|----------------|
+| **#16 – Core Service REST API Hardening** | 📋 Planned | Authentication, validation, metrics, pagination | Production-ready REST surface with API reference & health endpoints |
+| **#17 – Real-Time WebSocket Telemetry** | 📋 Planned | Channel expansion, auth, heartbeats, metrics | Resilient real-time feeds for traders, positions, and risk alerts |
+| **#18 – Windows Service Packaging & Deployment** | 📋 Planned | Procrun bundle, scripts, configs, operations playbook | Installable Windows service with documented lifecycle |
 
-**Deliverable**: Complete REST API
+### Why 3 Issues Instead of 5 Sections?
+- The original five-section outline (REST, WebSocket, Service, plus configuration & monitoring) was consolidated into issue-based workstreams to reduce overlap and clarify ownership.
+- Each issue bundles the necessary tasks (design, implementation, testing, documentation) for a deployable outcome while preserving the original functional scope.
+- Support tasks such as configuration hardening and monitoring now live inside Issue #16 and #18 checklists, ensuring all requirements remain covered.
 
-### 8.2 WebSocket Server
+### Upcoming Milestones
+- ✅ Finalize detailed issue plans (DONE – Nov 11, 2025)
+- ⏳ Execute Issue #16 (API hardening) → unlocks Issue #17 auth reuse
+- ⏳ Execute Issue #17 (WebSocket telemetry) → required for desktop UI dashboards
+- ⏳ Execute Issue #18 (Windows packaging) → prepares Epic 5/6 deployments
 
-**Tasks:**
-- [ ] Set up WebSocket endpoint `/ws`
-- [ ] Implement real-time updates:
-  - [ ] Market data (candlesticks, prices)
-  - [ ] Position updates
-  - [ ] Order updates
-  - [ ] AI Trader status changes
-  - [ ] System alerts
-- [ ] Add connection management
-- [ ] Implement message queuing
-- [ ] Add reconnection logic
-
-**Deliverable**: WebSocket real-time communication
-
-### 8.3 Windows Service Setup
-
-**Tasks:**
-- [ ] Create Windows service wrapper
-- [ ] Implement service lifecycle:
-  - [ ] Install
-  - [ ] Start
-  - [ ] Stop
-  - [ ] Uninstall
-- [ ] Add auto-start on boot
-- [ ] Implement graceful shutdown
-- [ ] Add service recovery options
-- [ ] Create installation scripts
-
-**Deliverable**: Core runs as Windows service
+**Deliverables (Epic Completion)**:
+- Hardened REST + WebSocket stack with auth, validation, telemetry
+- Windows service installation bundle & operational handbook
+- Updated documentation (`API_REFERENCE.md`, `WEBSOCKET_GUIDE.md`, `Windows_Service_Guide.md`)
 
 ---
 
