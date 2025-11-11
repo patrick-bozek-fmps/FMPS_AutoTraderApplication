@@ -9,7 +9,7 @@
 **Epic**: Epic 4 (Core Service & API)  
 **Priority**: P0 (Critical – prerequisite for Epic 5 UI and Epic 6 release)  
 **Dependencies**: Issue #11 ✅ (AI Trader Core), Issue #13 ✅ (Position Manager), Issue #14 ✅ (Risk Manager)  
-**Final Commit**: `e82e4c8`
+**Final Commit**: `3bbc4cf`
 
 > **NOTE**: Hardens the existing REST API surface with authentication, validation, pagination, and operational telemetry so the core service is production-ready for on-premises deployment.
 
