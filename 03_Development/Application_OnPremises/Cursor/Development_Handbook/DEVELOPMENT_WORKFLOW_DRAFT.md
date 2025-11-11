@@ -8,6 +8,41 @@ This draft streamlines the current workflow, merges redundant diagrams, and embe
 
 ---
 
+## 🧭 Unified Workflow Overview (Flowchart)
+
+```mermaid
+flowchart TD
+
+A[Step 1: Intake & Planning] -->|New Item| B1[Convert/Collect Requirements<br/>(convert_excel.bat)]
+A -->|Existing Item| B2[Review Existing Plan<br/>Update Findings]
+
+B1 --> C[Draft/Update Plan<br/>(ISSUE_TEMPLATE.md / EPIC_STATUS_TEMPLATE.md)]
+B2 --> C
+C --> D{Ready to Implement?}
+
+D -->|No| E[Resolve Blockers<br/>(Dependencies, Approvals, Inputs)]
+E --> D
+D -->|Yes| F[Step 3: Local Verification]
+
+F --> G[Implement Changes<br/>Run Local Tests<br/>(gradlew test, ktlint)]
+G --> H{All Tests Pass?}
+
+H -->|No| F
+H -->|Yes| I[Step 4: Commit & Push]
+
+I --> J[Step 5: CI Validation<br/>(check-ci-status.ps1)]
+J --> K{CI Passes?}
+
+K -->|No| L[Analyze & Fix CI Failures<br/>(analyze-ci-failures.ps1)]
+L --> F
+K -->|Yes| M[Step 6: Documentation & Reviews]
+
+M --> N[Update Issue/Epic Docs<br/>Review Artifacts<br/>Capture Lessons]
+N --> O[Step 7: Handoff & Next Item]
+```
+
+---
+
 ## 🎯 Guiding Principles
 
 - Keep `main` deployable at all times (respect CI gates and local test requirements).
@@ -20,7 +55,7 @@ This draft streamlines the current workflow, merges redundant diagrams, and embe
 
 ## 🛠️ Unified Workflow (New & Existing Workstreams)
 
-```
+```text
 STEP 1 – INTAKE & PLANNING
   Work Request / Backlog Item
     ├─ Yes → New item
@@ -164,5 +199,4 @@ Please add comments directly in this draft or open a review issue if broader dis
 2. Update cross-references across the handbook and plan documents.
 3. Schedule onboarding sessions to walk the team through the revised workflow.
 
---- 
-
+---
