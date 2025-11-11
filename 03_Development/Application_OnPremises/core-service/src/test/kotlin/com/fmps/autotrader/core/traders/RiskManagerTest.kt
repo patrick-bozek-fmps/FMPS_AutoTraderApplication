@@ -203,6 +203,18 @@ class RiskManagerTest {
     }
 
     @Test
+    fun `checkRiskLimits reports emergency stop state`() = runTest {
+        riskManager.registerTrader("trader-1")
+        riskManager.emergencyStop("trader-1")
+
+        val result = riskManager.checkRiskLimits("trader-1")
+
+        assertFalse(result.isAllowed)
+        assertTrue(result.violations.any { it.type == RiskViolationType.EMERGENCY })
+        assertEquals(RiskRecommendation.EMERGENCY_STOP, result.riskScore?.recommendation)
+    }
+
+    @Test
     fun `validateLeverage fails when global leverage limit exceeded`() = runTest {
         val constrainedConfig = riskConfig.copy(maxTotalLeverage = 3)
         val constrainedManager = RiskManager(provider, constrainedConfig)

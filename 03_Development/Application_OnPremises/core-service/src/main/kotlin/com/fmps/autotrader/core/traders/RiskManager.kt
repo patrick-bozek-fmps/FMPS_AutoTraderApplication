@@ -260,6 +260,7 @@ class RiskManager(
 
     suspend fun checkRiskLimits(traderId: String): RiskCheckResult {
         val violations = mutableListOf<RiskViolation>()
+        val emergencyStopped = isTraderEmergencyStopped(traderId)
 
         val exposure = calculateExposure(traderId)
         if (exposure > riskConfig.maxExposurePerTrader) {
@@ -292,7 +293,7 @@ class RiskManager(
             )
         }
 
-        if (isTraderEmergencyStopped(traderId)) {
+        if (emergencyStopped) {
             violations += RiskViolation(
                 RiskViolationType.EMERGENCY,
                 "Trader is currently under emergency stop",
@@ -300,8 +301,17 @@ class RiskManager(
             )
         }
 
-        val riskScore = calculateRiskScore(traderId)
-        val allowed = violations.isEmpty() &&
+        val baseScore = calculateRiskScore(traderId)
+        val riskScore = if (emergencyStopped && baseScore.recommendation != RiskRecommendation.EMERGENCY_STOP) {
+            baseScore.copy(
+                overallScore = max(1.0, baseScore.overallScore),
+                recommendation = RiskRecommendation.EMERGENCY_STOP
+            )
+        } else {
+            baseScore
+        }
+        val allowed = !emergencyStopped &&
+            violations.isEmpty() &&
             riskScore.recommendation != RiskRecommendation.BLOCK &&
             riskScore.recommendation != RiskRecommendation.EMERGENCY_STOP
 

@@ -2,59 +2,53 @@
 
 **Review Date**: November 7, 2025  
 **Reviewer**: Software Engineer – Task Review and QA  
-**Issue Status**: 🚧 **IN PROGRESS** (per plan)  
+**Issue Status**: ✅ **COMPLETE** (per plan)  
 **Review Status**: ✅ **PASS (Remediated November 7, 2025)**
 
 ---
 
 ## 📋 Executive Summary
 
-Issue #14 delivers the Risk Manager module, StopLossManager helper, supporting models, and comprehensive documentation/tests. The November 7 remediation round closed the outstanding behavioural gaps: emergency-stopped traders are blocked from opening new positions, profitable P&L no longer inflates risk scores, and the monitoring loop now enforces stop-loss logic directly. Planning artefacts were synchronised (Task 12 complete with final commit and CI run recorded).
+Follow-up remediation aligned `checkRiskLimits` with emergency-stop state, ensuring traders flagged in `emergencyStoppedTraders` surface an `EMERGENCY` violation and produce an `EMERGENCY_STOP` recommendation. A regression test (`checkRiskLimits reports emergency stop state`) now guards the path. With this correction, monitoring output, `canOpenPosition`, and `checkRiskLimits` all agree on halt status. Documentation has been refreshed to describe the behaviour.
 
-**Overall Assessment**: ✅ **PASS** – Behaviour, tests, and documentation meet ATP_ProdSpec_54 expectations.
-
----
-
-## ✅ Strengths & Achievements
-
-1. **Core module delivered** – `RiskManager`, `RiskModels`, and `StopLossManager` are present with unit coverage (13 scenarios in `RiskManagerTest`).
-2. **Integration hooks wired** – `PositionManager` and `AITraderManager` expose `attachRiskManager`, and tests assert budget/leverage gating and emergency-stop callbacks.
-3. **Documentation drafted** – `RISK_MANAGER_GUIDE.md` documents configuration, operations, and testing guidance.
+**Overall Assessment**: ✅ **PASS** – Risk enforcement, monitoring, and documentation now meet ATP_ProdSpec_54 expectations.
 
 ---
 
-## ❗ Findings & Discrepancies
+## ✅ Strengths & Positive Observations
+
+- ✅ `canOpenPosition` now blocks traders present in `emergencyStoppedTraders`, returning a `RiskViolationType.EMERGENCY`.
+- ✅ `calculateRiskScore` no longer treats positive P&L as losses (`RiskManagerTest.calculateRiskScore ignores positive pnl`).
+- ✅ Monitoring loop executes stop-loss checks and emergency stops as intended (`monitoring triggers emergency stop when thresholds breached`).
+- ✅ Planning docs marked Issue #14 complete, and CI run `19176132894` succeeded.
+
+---
+
+## ❗ Findings & Resolutions
 
 | Severity | Area | Description & Evidence |
 |----------|------|-------------------------|
-| ✅ **Resolved** | Emergency stop enforcement | `canOpenPosition` now blocks traders flagged in `emergencyStoppedTraders` and records a `RiskViolationType.EMERGENCY`; monitoring surfaces the same condition. |
-| ✅ **Resolved** | Risk scoring | `calculateRiskScore` ignores positive P&L and only considers realised losses for the `pnlScore`, eliminating false `EMERGENCY_STOP` recommendations. |
-| ✅ **Resolved** | Stop-loss integration | Monitoring loop invokes `StopLossManager` checks, closes breached positions, and escalates to `emergencyStop` when rolling trader losses exceed limits. |
-| ✅ **Resolved** | Documentation state | `Issue_14_Risk_Manager.md`, `Development_Plan_v2.md`, and `EPIC_3_STATUS.md` now mark Issue #14 as ✅ COMPLETE, reference commits `8717f9d`/`ca8aca0`, and record CI run `19176132894`. |
+| ✅ **Resolved** | Risk checks | `checkRiskLimits` now injects an `EMERGENCY` violation and elevates the `RiskScore` recommendation to `EMERGENCY_STOP` when a trader is halted, keeping `isAllowed` in sync with `canOpenPosition`. Covered by `RiskManagerTest.checkRiskLimits reports emergency stop state`. |
+| ✅ **Resolved** | Monitoring behaviour | Monitoring relies on the updated `RiskCheckResult`, so emergency-stopped traders remain blocked until manually cleared. |
+| ✅ **Resolved** | Documentation | `RISK_MANAGER_GUIDE.md` documents emergency-stop behaviour and the requirement to clear the halt before resuming trading. |
 
 ---
 
 ## 📊 Verification
 
-- `./gradlew :core-service:test --tests "*RiskManagerTest*"`
 - `./gradlew clean build --no-daemon`
-- GitHub Actions pipeline `19176132894` (success)
+- Focused suites: `./gradlew :core-service:test --tests "*RiskManagerTest*"`
+- GitHub Actions pipeline `19176765887` (success)
 
 ---
 
-## 📄 Documentation & Planning Status
+## 📄 Documentation & Planning
 
-- `Issue_14_Risk_Manager.md`, `EPIC_3_STATUS.md`, and `Development_Plan_v2.md` show Issue #14 as ✅ COMPLETE with Task 12 closed.
-- Final commit `8717f9d` (risk manager remediation) plus supplemental documentation commit `ca8aca0` are recorded alongside CI run `19176132894`.
-- `RISK_MANAGER_GUIDE.md` documents configuration, operations, testing, and troubleshooting for the final design.
+- `Issue_14_Risk_Manager.md`, `Development_Plan_v2.md`, and `EPIC_3_STATUS.md` remain aligned with the completed status.
+- `RISK_MANAGER_GUIDE.md` references the new emergency-stop behaviour of `checkRiskLimits`.
 
 ---
 
-## ✅ Resolution (November 7, 2025)
-
-- ✅ `canOpenPosition` and `checkRiskLimits` now guard against emergency-stopped traders, returning explicit `RiskViolationType.EMERGENCY` entries; new regression test `canOpenPosition returns false when trader emergency stopped` covers the path.
-- ✅ `calculateRiskScore` derives the P&L score from loss-only magnitudes; positive P&L is ignored (`calculateRiskScore ignores positive pnl` test).
-- ✅ Monitoring loop invokes `StopLossManager.checkTraderStopLoss` and `checkPositionStopLoss`, closing positions and escalating to `emergencyStop` when thresholds trigger (`monitoring closes positions when stop loss triggered` test).
-- ✅ Documentation and planning artefacts synced: Issue #14 marked complete, Task 12 checklist closed, final commit `8717f9d` + doc follow-up `ca8aca0`, CI run `19176132894 (success)` captured.
+No further actions pending.
 
 

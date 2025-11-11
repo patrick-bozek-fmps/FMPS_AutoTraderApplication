@@ -44,7 +44,7 @@ All numeric inputs are validated (non-negative budgets/exposures, positive lever
 - `validateBudget(requiredAmount, traderId, leverage)` – checks capital availability and per-trader exposure.
 - `validateLeverage(leverage, traderId)` – ensures leverage thresholds are respected.
 - `canOpenPosition(traderId, notionalAmount, leverage)` – composite gate called before `PositionManager.openPosition`; it blocks traders under emergency stop in addition to budget/leverage/exposure violations.
-- `checkRiskLimits(traderId)` – returns a `RiskCheckResult` containing violations and a `RiskScore` recommendation (ALLOW/WARN/BLOCK/EMERGENCY_STOP).
+- `checkRiskLimits(traderId)` – returns a `RiskCheckResult` containing violations and a `RiskScore` recommendation (ALLOW/WARN/BLOCK/EMERGENCY_STOP). Traders under emergency stop surface an explicit `RiskViolationType.EMERGENCY` and force the recommendation to `EMERGENCY_STOP`.
 - `emergencyStop(traderId?)` – closes positions, stops traders, and prevents further execution until manual review.
 
 `RiskScore` combines budget, leverage, exposure, and rolling P&L components; only losses contribute to the P&L score so profitable runs no longer escalate to `EMERGENCY_STOP`.
