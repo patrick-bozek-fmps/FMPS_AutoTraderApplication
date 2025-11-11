@@ -74,7 +74,7 @@ No active development threads; Issue #18 queued to start next.
 - **Priority**: P0  
 - **Actual Duration**: 1 day  
 - **Dependencies**: Issue #11 ✅, #13 ✅, #14 ✅  
-- **Final Commit**: `3bbc4cf`
+- **Final Commit**: `980973f`
 
 **Delivered**:
 - API key middleware (`Security.kt`) with config + env support.
@@ -96,7 +96,7 @@ No active development threads; Issue #18 queued to start next.
 - Prometheus metrics + structured logging for subscriptions, disconnects, and drop counters.
 - Admin REST endpoints and comprehensive `WEBSOCKET_GUIDE.md` documentation.
 - Regression suite (`TelemetryRouteTest`) verifying auth, replay, and forced disconnect flows.
-- Latest validation: `./gradlew clean build --no-daemon` (Nov 11 2025 12:28 UTC, commit `7d903cf`, 646 tests ✅).
+- Latest validation: `./gradlew clean build --no-daemon` (Nov 11 2025 12:28 UTC, commit `980973f`, 646 tests ✅).
 
 ---
 

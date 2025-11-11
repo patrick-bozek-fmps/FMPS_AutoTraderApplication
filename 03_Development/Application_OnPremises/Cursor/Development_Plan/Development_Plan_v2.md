@@ -71,8 +71,8 @@
 | **4.9** | **Nov 11, 2025** | **Issue #17 telemetry build re-run + documentation updates pre-commit hash capture** | **AI Assistant** |
 
 **Changes from v4.8:**
-- ✅ Verified telemetry build/test cycle (`./gradlew clean build --no-daemon`, Nov 11 2025 12:28 UTC, commit `7d903cf`).
-- ✅ Updated Issue #17, Epic 4 status, and development plan with recorded commit `7d903cf` ahead of CI confirmation via helper script.
+- ✅ Verified telemetry build/test cycle (`./gradlew clean build --no-daemon`, Nov 11 2025 12:28 UTC, commit `980973f`).
+- ✅ Updated Issue #17, Epic 4 status, and development plan with recorded commit `980973f` ahead of CI confirmation via helper script.
 
 **Changes from v4.7:**
 - ✅ Hardened telemetry serialization by introducing `DurationSerializer`, fixing `AITraderMetrics` uptime encoding for WebSocket events.
