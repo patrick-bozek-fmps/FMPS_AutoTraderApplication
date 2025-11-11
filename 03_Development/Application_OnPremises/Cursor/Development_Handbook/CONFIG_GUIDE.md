@@ -224,12 +224,9 @@ security {
         enabled = true
         header = "X-API-Key"
         queryParam = "apiKey"
-
-        # Choose either a single key or an array of keys
-        key = "dev-api-key"
-        # keys = ["dev-api-key", "ops-api-key"]
-
         envKey = "FMPS_API_KEY"
+        keys = []
+        metricsKey = ${?FMPS_METRICS_API_KEY}
         excludedPaths = [
             "/api/health",
             "/api/status",
@@ -240,10 +237,14 @@ security {
 ```
 
 **Environment Variables**:
-- `FMPS_API_KEY` → overrides `security.api.key`
+- `FMPS_API_KEY` → required in production to populate `security.api.key`
+- `FMPS_METRICS_API_KEY` → optional metrics-only key
 - `FMPS_API_KEYS_0`, `FMPS_API_KEYS_1`, … → override list entries (optional)
 
 **Tips**:
+- Development (`application-dev.conf`) injects a convenience key (`dev-api-key`) so local workflows keep working.
+- Tests (`application-test.conf`) ship with `test-api-key`; override in suites as needed.
+- Production requires `FMPS_API_KEY` (or explicit `security.api.keys`) to be set prior to startup; the service fails fast if no key is provided.
 - Keep `/metrics` protected by default; remove it from `excludedPaths` only if Prometheus cannot send headers.
 - Rotate production keys regularly; store secrets outside of VCS (e.g., secrets manager or CI/CD variable store).
 
@@ -362,6 +363,7 @@ Optimized for local development:
 - **Exchanges**: Disabled (demo mode only)
 - **SQL Logging**: Enabled for debugging
 - **Fast Refresh**: More frequent market data updates
+- **API Security**: Default key `dev-api-key` for local testing (do not reuse outside dev)
 
 **Usage**:
 ```bash
@@ -382,6 +384,7 @@ Optimized for unit and integration testing:
 - **WebSocket**: Disabled
 - **Metrics**: Disabled
 - **Fast Operations**: Short timeouts for quick tests
+- **API Security**: Ships with `test-api-key`; tests can override via system properties/env vars
 
 **Usage**:
 ```bash
@@ -395,7 +398,7 @@ Production-ready settings:
 - **Port**: 8080 (or from `SERVER_PORT`)
 - **Database**: `/var/lib/fmps-autotrader/data/autotrader.db`
 - **Logging**: INFO level, larger files, 30-day retention
-- **Security**: Encryption enabled, strict validation
+- **Security**: Encryption enabled, strict validation, requires `FMPS_API_KEY` at deploy time
 - **Performance**: Larger thread pools, connection pools
 - **Monitoring**: Full metrics and health checks
 

@@ -29,8 +29,11 @@ fun Application.configureSecurity() {
     }
 
     if (settings.validKeys.isEmpty() && settings.metricsKey == null) {
-        securityLogger.error { "API key security is enabled but no keys are configured. Enforcement skipped." }
-        return
+        val guidance = buildString {
+            append("API key security is enabled but no keys are configured.")
+            settings.envKeyName?.let { append(" Provide a value via environment variable '$it' or set 'security.api.keys'.") }
+        }
+        throw IllegalStateException(guidance)
     }
 
     securityLogger.info {

@@ -14,7 +14,8 @@ data class ApiSecuritySettings(
     val queryParamName: String,
     val validKeys: Set<String>,
     val excludedPaths: List<String>,
-    val metricsKey: String?
+    val metricsKey: String?,
+    val envKeyName: String?
 ) {
     fun isKeyValid(candidate: String?): Boolean {
         if (!enabled) return true
@@ -54,7 +55,8 @@ object ApiSecuritySettingsLoader {
         val validKeys = (configuredKeys + listOfNotNull(singleKey, envKey)).toSet()
 
         if (enabled && validKeys.isEmpty() && metricsKey == null) {
-            logger.error { "API key security is enabled but no keys are configured. Enforcement will effectively allow only metrics key if provided." }
+            val hint = envVarName?.let { " Ensure environment variable '$it' is set or provide 'security.api.keys'." } ?: " Configure 'security.api.keys' or 'security.api.key'."
+            logger.error { "API key security is enabled but no keys are configured.$hint" }
         }
 
         return ApiSecuritySettings(
@@ -63,7 +65,8 @@ object ApiSecuritySettingsLoader {
             queryParamName = queryParamName,
             validKeys = validKeys,
             excludedPaths = excludedPaths,
-            metricsKey = metricsKey
+            metricsKey = metricsKey,
+            envKeyName = envVarName
         )
     }
 }
