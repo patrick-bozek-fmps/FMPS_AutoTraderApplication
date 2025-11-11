@@ -13,31 +13,31 @@ This draft streamlines the current workflow, merges redundant diagrams, and embe
 ```mermaid
 flowchart TD
 
-A[Step 1: Intake & Planning] -->|New Item| B1[Convert/Collect Requirements<br/>(convert_excel.bat)]
-A -->|Existing Item| B2[Review Existing Plan<br/>Update Findings]
+A[Step 1: Intake & Planning] -->|New Item| B1[Convert/Collect Requirements\n(convert_excel.bat)]
+A -->|Existing Item| B2[Review Existing Plan\nUpdate Findings]
 
-B1 --> C[Draft/Update Plan<br/>(ISSUE_TEMPLATE.md / EPIC_STATUS_TEMPLATE.md)]
+B1 --> C[Draft/Update Plan\n(ISSUE_TEMPLATE.md / EPIC_STATUS_TEMPLATE.md)]
 B2 --> C
 C --> D{Ready to Implement?}
 
-D -->|No| E[Resolve Blockers<br/>(Dependencies, Approvals, Inputs)]
+D -->|No| E[Resolve Blockers\n(Dependencies, Approvals, Inputs)]
 E --> D
 D -->|Yes| F[Step 3: Local Verification]
 
-F --> G[Implement Changes<br/>Run Local Tests<br/>(gradlew test, ktlint)]
+F --> G[Implement Changes\nRun Local Tests\n(gradlew test, ktlint)]
 G --> H{All Tests Pass?}
 
 H -->|No| F
 H -->|Yes| I[Step 4: Commit & Push]
 
-I --> J[Step 5: CI Validation<br/>(check-ci-status.ps1)]
+I --> J[Step 5: CI Validation\n(check-ci-status.ps1)]
 J --> K{CI Passes?}
 
-K -->|No| L[Analyze & Fix CI Failures<br/>(analyze-ci-failures.ps1)]
+K -->|No| L[Analyze & Fix CI Failures\n(analyze-ci-failures.ps1)]
 L --> F
 K -->|Yes| M[Step 6: Documentation & Reviews]
 
-M --> N[Update Issue/Epic Docs<br/>Review Artifacts<br/>Capture Lessons]
+M --> N[Update Issue/Epic Docs\nReview Artifacts\nCapture Lessons]
 N --> O[Step 7: Handoff & Next Item]
 ```
 
