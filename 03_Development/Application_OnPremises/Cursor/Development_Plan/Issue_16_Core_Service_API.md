@@ -39,7 +39,7 @@ Upgrade the Core REST API to production quality by adding API key authentication
 
 ### **Task 2: Implement Authentication & Middleware** [Status: ✅ COMPLETE]
 - [x] Introduced configurable API key middleware (`Security.kt`) with support for list or single-key configs plus env override.
-- [x] Preserved local developer defaults via `dev-api-key` and explicit test harness configuration.
+- [x] Preserved local developer defaults via explicit dev/test overrides (`application-dev.conf` / `application-test.conf`) while keeping production builds keyless until provisioned.
 - [x] Ensured request logging continues via existing `CallLogging`; auth failures emit structured warnings.
 
 ### **Task 3: Validation, Pagination & Error Handling** [Status: ✅ COMPLETE]
@@ -66,6 +66,16 @@ Upgrade the Core REST API to production quality by adding API key authentication
 - [x] Ran `./gradlew clean test --no-daemon` (see Testing section).
 - [x] All changes staged for commit `docs: ...` (hash recorded post-push).
 - [x] Pending CI confirmation once pushed to `main`.
+
+---
+
+## 🔁 **Post-Review Remediation (November 11, 2025)**
+
+- Removed the default `dev-api-key` from the base configuration so production artifacts do not ship with an active credential.
+- Added explicit dev/test overrides for local convenience and enforced fail-fast behaviour when API security is enabled without keys (`Security.kt` now throws on misconfiguration).
+- Updated `CONFIG_GUIDE.md` to clarify environment expectations and captured local build evidence for remediation (`./gradlew clean build --no-daemon`, Nov 11 2025 19:22 CET).
+- GitHub Actions verification: Run [19277569694](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19277569694) on commit `72c99f5` (success).
+- Tracking commit: `72c99f5`.
 
 ---
 

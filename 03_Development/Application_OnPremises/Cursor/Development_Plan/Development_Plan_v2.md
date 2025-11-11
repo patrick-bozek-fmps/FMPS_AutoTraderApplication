@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 5.0  
+**Version**: 5.1  
 **Date**: November 11, 2025  
 **Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ⏳ NOT STARTED  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -70,11 +70,17 @@
 | **4.8** | **Nov 11, 2025** | **Issue #17 finalized with telemetry serialization fix, WebSocket admin docs, Dev Plan refresh** | **AI Assistant** |
 | **4.9** | **Nov 11, 2025** | **Issue #17 telemetry build re-run + documentation updates pre-commit hash capture** | **AI Assistant** |
 | **5.0** | **Nov 11, 2025** | **Issue #18 COMPLETE: Windows service packaging scripts, templates, and guide** | **AI Assistant** |
+| **5.1** | **Nov 11, 2025** | **Issue #16 post-review hardening (remove default API key, enforce fail-fast)** | **AI Assistant** |
+
+**Changes from v5.0:**
+- ✅ Removed `dev-api-key` from base configuration; production now requires provisioning via `FMPS_API_KEY` (commit `72c99f5`).
+- ✅ Added explicit dev/test overrides (`application-dev.conf`, `application-test.conf`) and fail-fast guard in `Security.kt`.
+- ✅ Updated `CONFIG_GUIDE.md`, Issue #16 artefacts, and status pages to capture the remediation and CI evidence.
 
 **Changes from v4.9:**
 - ✅ Added Windows service packaging toolkit (PowerShell/Batch installers, config templates) under `Cursor/Artifacts/windows-service/`.
 - ✅ Published `Windows_Service_Guide.md` and updated `.gitignore` to exclude local Procrun binaries.
-- ✅ Verified service packaging build/test cycle (`./gradlew clean build --no-daemon`, Nov 11 2025 16:03 CET, commit `0891b61`).
+- ✅ Verified service packaging build/test cycle (`./gradlew clean build --no-daemon`, Nov 11 2025 16:03 CET, commit `dc6b741`).
 - ✅ Marked Epic 4 as 100% complete; updated status documents and plan summaries.
 
 **Changes from v4.8:**

@@ -48,10 +48,9 @@ Downstream dependencies (Epic 5 desktop UI, Epic 6 release prep) now have secure
 ## ✅ **Completed Issues** (3/3 – 100%)
 
 ### Issue #16 – Core Service REST API Hardening (Completed Nov 11, 2025)
-- API key middleware with configurable key sources (single or list + env overrides).
-- Query validation & pagination standardised for `/api/v1/trades` with consistent error envelopes.
-- Prometheus metrics exposed via `/metrics` (auth-gated) and Micrometer binders enabled.
-- New API security regression tests + documentation set (API reference, config guide).
+- Removed default API key from base configuration; production now requires explicit provisioning (post-review fix `72c99f5`).
+- API key middleware, pagination validation, and Prometheus metrics delivered as planned.
+- CI evidence captured after remediation (see Issue plan for run details).
 
 ### Issue #17 – Real-Time WebSocket Telemetry (Completed Nov 11, 2025)
 - Authenticated telemetry hub with structured channel catalogue (`trader-status`, `positions`, `risk-alerts`, `market-data`).
