@@ -19,3 +19,7 @@ out/
 .gradle/
 gradle-app.setting
 !gradle-wrapper.jar
+
+# Windows service packaging artifacts (downloaded locally)
+03_Development/Application_OnPremises/Cursor/Artifacts/windows-service/prunsrv.exe
+03_Development/Application_OnPremises/Cursor/Artifacts/windows-service/prunmgr.exe
