@@ -3,52 +3,94 @@
 **Review Date**: November 7, 2025  
 **Reviewer**: Software Engineer – Task Review and QA  
 **Issue Status**: ✅ **COMPLETE** (per plan)  
-**Review Status**: ✅ **PASS (Remediated November 7, 2025)**
+**Review Status**: ✅ **PASS – REMEDIATED**
 
 ---
 
 ## 📋 Executive Summary
 
-Follow-up remediation aligned `checkRiskLimits` with emergency-stop state, ensuring traders flagged in `emergencyStoppedTraders` surface an `EMERGENCY` violation and produce an `EMERGENCY_STOP` recommendation. A regression test (`checkRiskLimits reports emergency stop state`) now guards the path. With this correction, monitoring output, `canOpenPosition`, and `checkRiskLimits` all agree on halt status. Documentation has been refreshed to describe the behaviour.
+A fresh review confirms the Risk Manager remediation is complete. The critical gap involving emergency-stopped traders has been fixed: both `canOpenPosition` and `checkRiskLimits` now honour the emergency-stop ledger, and risk monitoring escalates the appropriate violations. Updated tests (`RiskManagerTest.checkRiskLimits reports emergency stop state`) guard the behaviour, and the suite passes via `./gradlew :core-service:test --tests "*RiskManagerTest*"` and full `./gradlew clean test --no-daemon` runs.
 
-**Overall Assessment**: ✅ **PASS** – Risk enforcement, monitoring, and documentation now meet ATP_ProdSpec_54 expectations.
+**Overall Assessment**: ✅ **PASS** – Risk enforcement satisfies ATP_ProdSpec_54 requirements; only a minor documentation touch-up remains (see below).
 
 ---
 
 ## ✅ Strengths & Positive Observations
 
-- ✅ `canOpenPosition` now blocks traders present in `emergencyStoppedTraders`, returning a `RiskViolationType.EMERGENCY`.
-- ✅ `calculateRiskScore` no longer treats positive P&L as losses (`RiskManagerTest.calculateRiskScore ignores positive pnl`).
-- ✅ Monitoring loop executes stop-loss checks and emergency stops as intended (`monitoring triggers emergency stop when thresholds breached`).
-- ✅ Planning docs marked Issue #14 complete, and CI run `19176132894` succeeded.
+- ✅ Emergency-stop enforcement is consistent across APIs; `checkRiskLimits` now returns an `EMERGENCY` violation and `isAllowed = false` when traders are halted.  
+```261:318:core-service/src/main/kotlin/com/fmps/autotrader/core/traders/RiskManager.kt
+val emergencyStopped = isTraderEmergencyStopped(traderId)
+...
+if (emergencyStopped) {
+    violations += RiskViolation(
+        RiskViolationType.EMERGENCY,
+        "Trader is currently under emergency stop",
+        mapOf("traderId" to traderId)
+    )
+}
+...
+val allowed = !emergencyStopped &&
+    violations.isEmpty() &&
+    riskScore.recommendation != RiskRecommendation.BLOCK &&
+    riskScore.recommendation != RiskRecommendation.EMERGENCY_STOP
+```
+- ✅ Monitoring loop now closes positions, logs stop-loss triggers, and keeps traders in emergency-stop until reviewed.  
+```337:364:core-service/src/main/kotlin/com/fmps/autotrader/core/traders/RiskManager.kt
+if (stopLossManager.checkTraderStopLoss(traderId)) {
+    ...
+    emergencyStop(traderId)
+    continue
+}
+
+positions.filter { stopLossManager.checkPositionStopLoss(it) }
+    .forEach { positionProvider.closePosition(position.positionId, "STOP_LOSS") }
+...
+if (result.riskScore?.recommendation == RiskRecommendation.EMERGENCY_STOP) {
+    emergencyStop(traderId)
+}
+```
+- ✅ P&L scoring recognises losses only, preventing profitable traders from triggering EMERGENCY_STOP.  
+```386:410:core-service/src/main/kotlin/com/fmps/autotrader/core/traders/RiskManager.kt
+val dailyPnL = stopLossManager.calculateRollingPnL(traderId)
+val realizedLoss = if (dailyPnL < BigDecimal.ZERO) dailyPnL.abs() else BigDecimal.ZERO
+val pnlScore = if (riskConfig.maxDailyLoss > BigDecimal.ZERO) {
+    ratio(realizedLoss, riskConfig.maxDailyLoss)
+} else 0.0
+```
+- ✅ Regression coverage added:  
+  - `RiskManagerTest.checkRiskLimits reports emergency stop state`
+  - Existing tests continue to pass, including monitoring and emergency-stop scenarios.
 
 ---
 
-## ❗ Findings & Resolutions
+## ⚠️ Findings (Non-blocking)
 
-| Severity | Area | Description & Evidence |
-|----------|------|-------------------------|
-| ✅ **Resolved** | Risk checks | `checkRiskLimits` now injects an `EMERGENCY` violation and elevates the `RiskScore` recommendation to `EMERGENCY_STOP` when a trader is halted, keeping `isAllowed` in sync with `canOpenPosition`. Covered by `RiskManagerTest.checkRiskLimits reports emergency stop state`. |
-| ✅ **Resolved** | Monitoring behaviour | Monitoring relies on the updated `RiskCheckResult`, so emergency-stopped traders remain blocked until manually cleared. |
-| ✅ **Resolved** | Documentation | `RISK_MANAGER_GUIDE.md` documents emergency-stop behaviour and the requirement to clear the halt before resuming trading. |
+| Severity | Area | Description |
+|----------|------|-------------|
+| ⚠️ Minor | Documentation | `Issue_14_Risk_Manager.md` Task 12 still references commit `8717f9d`, but the latest remediation commit is `d14915b` (`fix: honour emergency stops in risk checks`). Update the final commit reference for accuracy. |
 
 ---
 
 ## 📊 Verification
 
-- `./gradlew clean build --no-daemon`
-- Focused suites: `./gradlew :core-service:test --tests "*RiskManagerTest*"`
-- GitHub Actions pipeline `19176765887` (success)
+- `./gradlew :core-service:test --tests "*RiskManagerTest*"`
+- `./gradlew clean test --no-daemon`
+- Git history shows remediation at `d14915b` confirming the emergency-stop fix.
 
 ---
 
 ## 📄 Documentation & Planning
 
-- `Issue_14_Risk_Manager.md`, `Development_Plan_v2.md`, and `EPIC_3_STATUS.md` remain aligned with the completed status.
-- `RISK_MANAGER_GUIDE.md` references the new emergency-stop behaviour of `checkRiskLimits`.
+- `Issue_14_Risk_Manager.md`, `EPIC_3_STATUS.md`, and `Development_Plan_v2.md` already mark Issue #14 as complete; after adjusting the final commit hash they will reflect the latest state.
+- `RISK_MANAGER_GUIDE.md` remains accurate; no additional changes needed.
 
 ---
 
-No further actions pending.
+## ✅ Recommendations & Next Steps
+
+1. **Update documentation commit reference** – Replace the Task 12 “Commit changes” entry with `d14915b` (and optionally note the doc follow-up commit if still relevant).
+2. **Close review** – With code/tests confirmed and docs synced, Issue #14 can remain complete.
+
+No further defects observed; risk management is operating as specified.
 
 

@@ -252,7 +252,7 @@ Implement `RiskManager` class that validates budgets, enforces leverage limits, 
 ### **Task 12: Build & Commit** [Status: ✅ COMPLETE]
 - [x] Run all tests: `./gradlew :core-service:test --no-daemon` and regression suite `./gradlew clean build --no-daemon` (Nov 7, 2025)
 - [x] Fix compilation/test issues (emergency-stop gating + stop-loss monitoring tests added)
-- [x] Commit changes: `8717f9d` – fix: harden risk manager emergency handling
+- [x] Commit changes: `d14915b` – fix: honour emergency stops in risk checks
 - [x] Documentation hash update: `ca8aca0` – docs: log issue 13 remediation commit hash (includes Issue #14 references)
 - [x] Push to GitHub (origin/main)
 - [x] Verify CI pipeline passes (CI Pipeline run `19176132894` – success)
