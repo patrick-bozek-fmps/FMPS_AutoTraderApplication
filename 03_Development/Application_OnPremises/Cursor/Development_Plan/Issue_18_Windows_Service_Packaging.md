@@ -9,7 +9,7 @@
 **Epic**: Epic 4 (Core Service & API)  
 **Priority**: P0 (Critical – enables continuous core operation)  
 **Dependencies**: Issue #16 ✅, Issue #17 ✅, Epic 1 ✅ (Foundation)  
-**Final Commit**: `dc6b741`
+**Final Commit**: `0891b61`
 
 > **NOTE**: Packages the Core service as an installable Windows service (Procrun-based) with scripts, configuration templates, and an operational playbook, ensuring reliable 24/7 operation on customer environments.
 
@@ -180,7 +180,7 @@ Deliver an installation bundle and operations guide for running the Core applica
 - [x] Documentation/playbook complete
 - [x] Tests/regressions verified locally and in CI
 - [x] Development_Plan_v2.md & EPIC_4_STATUS.md updated
-- [x] Issue closed with final commit/reference recorded *(commit `dc6b741` pushed and documented)*
+- [x] Issue closed with final commit/reference recorded *(commit `0891b61` pushed and documented)*
 
 ---
 

@@ -106,7 +106,7 @@ Downstream dependencies (Epic 5 desktop UI, Epic 6 release prep) now have secure
 - **Priority**: P0  
 - **Actual Duration**: 1 day  
 - **Dependencies**: Issue #16 ✅, Issue #17 ✅  
-- **Final Commit**: `dc6b741`
+- **Final Commit**: `0891b61`
 
 **Delivered**:
 - PowerShell + batch scripts for install/uninstall/start/stop/status (`Cursor/Artifacts/windows-service/`).

@@ -74,7 +74,7 @@
 **Changes from v4.9:**
 - ✅ Added Windows service packaging toolkit (PowerShell/Batch installers, config templates) under `Cursor/Artifacts/windows-service/`.
 - ✅ Published `Windows_Service_Guide.md` and updated `.gitignore` to exclude local Procrun binaries.
-- ✅ Verified service packaging build/test cycle (`./gradlew clean build --no-daemon`, Nov 11 2025 16:03 CET, commit `dc6b741`).
+- ✅ Verified service packaging build/test cycle (`./gradlew clean build --no-daemon`, Nov 11 2025 16:03 CET, commit `0891b61`).
 - ✅ Marked Epic 4 as 100% complete; updated status documents and plan summaries.
 
 **Changes from v4.8:**
