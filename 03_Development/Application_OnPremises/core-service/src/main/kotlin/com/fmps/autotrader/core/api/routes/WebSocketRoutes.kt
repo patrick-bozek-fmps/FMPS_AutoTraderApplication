@@ -1,170 +1,146 @@
 package com.fmps.autotrader.core.api.routes
 
-import com.fmps.autotrader.core.api.websocket.WebSocketManager
+import com.fmps.autotrader.core.api.security.ApiSecuritySettingsLoader
+import com.fmps.autotrader.core.api.websocket.TelemetryConnectionContext
+import com.fmps.autotrader.core.api.websocket.TelemetryHub
+import com.fmps.autotrader.core.api.websocket.TelemetryMetricsSnapshot
+import com.fmps.autotrader.core.telemetry.TelemetryChannel
+import com.fmps.autotrader.core.telemetry.TelemetryCollector
+import com.fmps.autotrader.shared.dto.ApiResponse
+import com.fmps.autotrader.shared.dto.ErrorDetail
+import com.fmps.autotrader.shared.dto.ErrorResponse
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
+import io.ktor.http.*
+import kotlinx.serialization.Serializable
+import java.time.Instant
+import java.util.UUID
 
-private val logger = LoggerFactory.getLogger("WebSocketRoutes")
-private val json = Json { prettyPrint = false }
+private val telemetryLogger = KotlinLogging.logger { }
+
+@Serializable
+data class TelemetryStatsResponse(
+    val metrics: TelemetryMetricsSnapshot,
+    val channelSnapshots: Map<String, Int>
+)
+
+@Serializable
+data class TelemetryClientDisconnectResponse(
+    val clientId: String,
+    val disconnected: Boolean,
+    val reason: String
+)
 
 /**
- * Configure WebSocket routes for real-time updates
+ * Configure WebSocket routes for telemetry streaming.
  */
 fun Routing.configureWebSocketRoutes() {
-    
-    // WebSocket endpoint for trader status updates
-    webSocket("/ws/trader-status") {
-        logger.info("New WebSocket connection: trader-status from ${call.request.local.remoteHost}")
-        
-        try {
-            // Register session
-            WebSocketManager.registerSession("trader-status", this)
-            
-            // Send welcome message
-            send(Frame.Text(json.encodeToString(mapOf(
-                "type" to "connection",
-                "channel" to "trader-status",
-                "message" to "Connected to trader status updates",
-                "timestamp" to System.currentTimeMillis()
-            ))))
-            
-            // Keep connection alive and handle incoming messages
-            for (frame in incoming) {
-                when (frame) {
-                    is Frame.Text -> {
-                        val text = frame.readText()
-                        logger.debug("Received message on trader-status: $text")
-                        
-                        // Echo back for ping/pong
-                        if (text.contains("ping")) {
-                            send(Frame.Text(json.encodeToString(mapOf(
-                                "type" to "pong",
-                                "timestamp" to System.currentTimeMillis()
-                            ))))
-                        }
-                    }
-                    is Frame.Close -> {
-                        logger.info("WebSocket connection closed: trader-status")
-                    }
-                    else -> {
-                        logger.debug("Received frame type: ${frame.frameType}")
-                    }
+    val environment = application.environment
+    val securitySettings = ApiSecuritySettingsLoader.load(environment.config)
+
+    webSocket("/ws/telemetry") {
+        val remoteHost = call.request.local.remoteHost
+        val requestedChannels = call.request.queryParameters["channels"]
+            ?.split(',')
+            ?.mapNotNull { TelemetryChannel.fromWireName(it.trim()) }
+            ?.toSet()
+            ?: emptySet()
+        val replayOnConnect = call.request.queryParameters["replay"]?.toBoolean() ?: false
+        val clientId = call.request.queryParameters["clientId"] ?: UUID.randomUUID().toString()
+
+        val providedKey = call.request.headers[securitySettings?.headerName ?: "X-API-Key"]
+            ?: call.request.queryParameters[securitySettings?.queryParamName ?: "apiKey"]
+
+        if (securitySettings?.enabled == true) {
+            val isExcluded = securitySettings.excludedPaths.any { path ->
+                when {
+                    path.endsWith("*") -> call.request.path().startsWith(path.removeSuffix("*"))
+                    else -> call.request.path() == path
                 }
             }
-        } catch (e: Exception) {
-            logger.error("Error in trader-status WebSocket", e)
-        } finally {
-            WebSocketManager.unregisterSession(this)
-            logger.info("WebSocket session ended: trader-status")
-        }
-    }
-    
-    // WebSocket endpoint for trade updates
-    webSocket("/ws/trades") {
-        logger.info("New WebSocket connection: trades from ${call.request.local.remoteHost}")
-        
-        try {
-            // Register session
-            WebSocketManager.registerSession("trades", this)
-            
-            // Send welcome message
-            send(Frame.Text(json.encodeToString(mapOf(
-                "type" to "connection",
-                "channel" to "trades",
-                "message" to "Connected to trade updates",
-                "timestamp" to System.currentTimeMillis()
-            ))))
-            
-            // Keep connection alive and handle incoming messages
-            for (frame in incoming) {
-                when (frame) {
-                    is Frame.Text -> {
-                        val text = frame.readText()
-                        logger.debug("Received message on trades: $text")
-                        
-                        // Echo back for ping/pong
-                        if (text.contains("ping")) {
-                            send(Frame.Text(json.encodeToString(mapOf(
-                                "type" to "pong",
-                                "timestamp" to System.currentTimeMillis()
-                            ))))
-                        }
-                    }
-                    is Frame.Close -> {
-                        logger.info("WebSocket connection closed: trades")
-                    }
-                    else -> {
-                        logger.debug("Received frame type: ${frame.frameType}")
-                    }
-                }
+            if (!isExcluded && !securitySettings.isKeyValid(providedKey)) {
+                telemetryLogger.warn { "Telemetry connection rejected for client=$clientId - invalid API key" }
+                close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Unauthorized"))
+                return@webSocket
             }
-        } catch (e: Exception) {
-            logger.error("Error in trades WebSocket", e)
-        } finally {
-            WebSocketManager.unregisterSession(this)
-            logger.info("WebSocket session ended: trades")
         }
+
+        val context = TelemetryConnectionContext(
+            clientId = clientId,
+            apiKey = providedKey,
+            initialChannels = requestedChannels,
+            replayOnConnect = replayOnConnect,
+            remoteAddress = remoteHost
+        )
+
+        TelemetryHub.handleConnection(this, environment, context)
     }
-    
-    // WebSocket endpoint for market data updates (placeholder)
-    webSocket("/ws/market-data") {
-        logger.info("New WebSocket connection: market-data from ${call.request.local.remoteHost}")
-        
-        try {
-            // Register session
-            WebSocketManager.registerSession("market-data", this)
-            
-            // Send welcome message
-            send(Frame.Text(json.encodeToString(mapOf(
-                "type" to "connection",
-                "channel" to "market-data",
-                "message" to "Connected to market data updates (placeholder)",
-                "timestamp" to System.currentTimeMillis()
-            ))))
-            
-            // Keep connection alive and handle incoming messages
-            for (frame in incoming) {
-                when (frame) {
-                    is Frame.Text -> {
-                        val text = frame.readText()
-                        logger.debug("Received message on market-data: $text")
-                        
-                        // Echo back for ping/pong
-                        if (text.contains("ping")) {
-                            send(Frame.Text(json.encodeToString(mapOf(
-                                "type" to "pong",
-                                "timestamp" to System.currentTimeMillis()
-                            ))))
-                        }
-                    }
-                    is Frame.Close -> {
-                        logger.info("WebSocket connection closed: market-data")
-                    }
-                    else -> {
-                        logger.debug("Received frame type: ${frame.frameType}")
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            logger.error("Error in market-data WebSocket", e)
-        } finally {
-            WebSocketManager.unregisterSession(this)
-            logger.info("WebSocket session ended: market-data")
-        }
-    }
-    
-    // HTTP endpoint to get WebSocket stats
+
     get("/api/v1/websocket/stats") {
-        call.respond(mapOf(
-            "success" to true,
-            "data" to WebSocketManager.getStats()
-        ))
+        val channelCounts = TelemetryChannel.values().associate { channel ->
+            channel.wireName to TelemetryCollector.snapshot(channel).size
+        }
+        val metrics = TelemetryHub.metrics()
+        call.respond(
+            ApiResponse(
+                data = TelemetryStatsResponse(metrics, channelCounts),
+                timestamp = Instant.now().toString()
+            )
+        )
+    }
+
+    get("/api/v1/websocket/clients") {
+        val clients = TelemetryHub.clients()
+        call.respond(
+            ApiResponse(
+                data = clients,
+                timestamp = Instant.now().toString()
+            )
+        )
+    }
+
+    delete("/api/v1/websocket/clients/{clientId}") {
+        val clientId = call.parameters["clientId"]
+            ?: return@delete call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(
+                    error = ErrorDetail(
+                        code = "CLIENT_ID_REQUIRED",
+                        message = "Client ID is required"
+                    ),
+                    timestamp = Instant.now().toString()
+                )
+            )
+        val reason = call.request.queryParameters["reason"] ?: "Admin disconnect"
+        val disconnected = TelemetryHub.disconnectClient(clientId, reason)
+        if (disconnected) {
+            call.respond(
+                ApiResponse(
+                    data = TelemetryClientDisconnectResponse(
+                        clientId = clientId,
+                        disconnected = true,
+                        reason = reason
+                    ),
+                    timestamp = Instant.now().toString()
+                )
+            )
+        } else {
+            call.respond(
+                HttpStatusCode.NotFound,
+                ErrorResponse(
+                    error = ErrorDetail(
+                        code = "CLIENT_NOT_FOUND",
+                        message = "Client '$clientId' is not connected"
+                    ),
+                    timestamp = Instant.now().toString()
+                )
+            )
+        }
     }
 }
 

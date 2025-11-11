@@ -1,8 +1,8 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 4.5  
+**Version**: 4.8  
 **Date**: November 11, 2025  
-**Status**: ✅ Epics 1-3 COMPLETE! (15/15 issues) + Epic 4 📋 PLANNED  
+**Status**: ✅ Epics 1-3 COMPLETE! (15/15 issues) + Epic 4 🚀 IN PROGRESS (2/3 issues)  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
 ---
@@ -14,17 +14,17 @@
 | **Epic 1: Foundation & Infrastructure** | 2 weeks | ✅ **COMPLETE** | All 6 issues complete ✅ | Gradle, Database, REST API, Models, Config, Logging |
 | **Epic 2: Exchange Integration** | 1 week | ✅ **COMPLETE** | All 4 issues complete ✅ | Exchange Framework ✅, Binance ✅, Bitget ✅, Technical Indicators ✅ |
 | **Epic 3: AI Trading Engine** | 3 weeks | ✅ **COMPLETE** | All 5 sections (100%) | AI traders with manager, positions, risk manager, pattern storage |
-| **Epic 4: Core Service & API** | 3 weeks | 🚀 **IN PROGRESS** | Issue #16 ✅, Issues #17–#18 planned | Production-ready API, telemetry, Windows service bundle |
+| **Epic 4: Core Service & API** | 3 weeks | 🚀 **IN PROGRESS** | Issues #16–#17 ✅, Issue #18 planned | Production-ready API, telemetry, Windows service bundle |
 | **Epic 5: Desktop UI** | 3 weeks | ⏳ Not Started | 0/5 sections | Complete JavaFX application |
 | **Epic 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
 
 **Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues
 
-**Overall Progress**: **15 GitHub Issues completed (Epic 1: 100% COMPLETE! Epic 2: 100% COMPLETE! Epic 3: 100% COMPLETE!) 🎉🎉🎉🎉**
+**Overall Progress**: **16 GitHub Issues completed (Epic 1: 100% COMPLETE! Epic 2: 100% COMPLETE! Epic 3: 100% COMPLETE! Epic 4: 2/3 COMPLETE!) 🎉🎉🎉🎉**
 
-**Last Milestone**: ✅ **Issue #14** – Risk Manager with emergency-stop enforcement, stop-loss monitoring, documentation (Nov 7, 2025)
+**Last Milestone**: ✅ **Issue #17** – Real-Time WebSocket Telemetry (Nov 11, 2025)
 
-**In Progress**: ✳️ Planning next Epic 3 follow-ups (Issue backlog grooming)
+**In Progress**: ✳️ Preparing Windows packaging (Issue #18) and release deliverables
 
 ### 📋 **Epic 1 Breakdown** (6/6 sections complete) ✅ **COMPLETE**
 
@@ -66,8 +66,21 @@
 | **4.4** | **Nov 7, 2025** | **Issue #14 COMPLETE: emergency-stop gating, stop-loss monitoring, documentation + CI sign-off** | **AI Assistant** |
 | **4.5** | **Nov 11, 2025** | **Epic 4 planning pack published (Issue #16 REST API, #17 WebSocket, #18 Windows Service)** | **AI Assistant** |
 | **4.6** | **Nov 11, 2025** | **Issue #16 COMPLETE: REST API auth/pagination/metrics shipped + docs updated** | **AI Assistant** |
+| **4.7** | **Nov 11, 2025** | **Issue #17 COMPLETE: Telemetry channels, Prometheus metrics, admin tooling added** | **AI Assistant** |
+| **4.8** | **Nov 11, 2025** | **Issue #17 finalized with telemetry serialization fix, WebSocket admin docs, Dev Plan refresh** | **AI Assistant** |
 
-**Changes from v4.4:**
+**Changes from v4.7:**
+- ✅ Hardened telemetry serialization by introducing `DurationSerializer`, fixing `AITraderMetrics` uptime encoding for WebSocket events.
+- ✅ Re-ran telemetry integration tests (`TelemetryRouteTest`) to validate subscribe/replay/admin flows under rate limiting.
+- ✅ Updated Epic 4 status, Issue 17 documentation, WebSocket guide, and this plan to capture the finalized telemetry release.
+
+**Changes from v4.6:**
+- ✅ Issue #17 delivered: authenticated telemetry hub with channel catalogue, replay controls, and rate limiting.
+- ✅ Added telemetry admin endpoints (`/api/v1/websocket/clients`, `/api/v1/websocket/clients/{id}`) plus Micrometer binder for per-channel metrics.
+- ✅ Extended `TelemetryRouteTest` coverage (auth, replay, forced disconnect) and published `WEBSOCKET_GUIDE.md`.
+- ✅ Updated Epic 4 status, Issue documentation, and this plan to reflect telemetry completion and focus shift to Issue #18.
+
+**Changes from v4.5:**
 - ✅ Issue #16 delivered: REST API authentication, pagination, and Prometheus metrics merged into `core-service`.
 - ✅ Added API security regression tests (`ApiSecurityTest`) and repository pagination coverage to support new contract.
 - ✅ Instrumented Micrometer + Prometheus registry and documented operational runbook.
@@ -956,7 +969,7 @@ dependencies {
 
 ## 8. EPIC 4: Core Service & API (Weeks 9-11)
 
-**Status**: 🚀 **IN PROGRESS** (Issue #16 complete; Issue #17 queued next)
+**Status**: 🚀 **IN PROGRESS** (Issues #16–#17 complete; Issue #18 in planning)
 
 ### 8.1 REST API Server Hardening
 
@@ -972,13 +985,13 @@ dependencies {
 ### 8.2 WebSocket Telemetry Expansion
 
 **Tasks:**
-- [ ] Define channel catalogue (trader status, positions, risk alerts, market data)
-- [ ] Implement authenticated subscription protocol with heartbeats/replay
-- [ ] Add backpressure controls, per-connection metrics, and admin disconnect tooling
-- [ ] Extend integration tests and create manual test checklist (wscat/Postman)
-- [ ] Produce WebSocket client guide and sample snippets for desktop UI
+- [x] Define channel catalogue (trader status, positions, risk alerts, market data)
+- [x] Implement authenticated subscription protocol with heartbeats/replay
+- [x] Add backpressure controls, per-connection metrics, and admin disconnect tooling
+- [x] Extend integration tests and create manual test checklist (wscat/Postman)
+- [x] Produce WebSocket client guide and sample snippets for desktop UI
 
-**Deliverable**: Robust WebSocket backbone (Issue #17 – Real-Time WebSocket Telemetry)
+**Deliverable**: Robust WebSocket backbone (Issue #17 – Real-Time WebSocket Telemetry) ✅ Delivered Nov 11, 2025
 
 ### 8.3 Windows Service Packaging
 
@@ -995,10 +1008,10 @@ dependencies {
 
 **Tasks:**
 - [x] Extend automated suites (`TraderRoutes`/API security & repository pagination tests)
-- [ ] Extend WebSocket automation (`WebSocketManagerTest`) for telemetry upgrades
+- [x] Extend WebSocket automation (`TelemetryRouteTest`) for telemetry upgrades
 - [ ] Add packaging smoke scripts (pending Issue #18)
 - [x] Ensure Jacoco/CI coverage remains ≥80% for affected modules
-- [x] Update documentation set (`API_REFERENCE.md`, `CONFIG_GUIDE.md`, `EPIC_4_STATUS.md`, Dev Plan v2)
+- [x] Update documentation set (`API_REFERENCE.md`, `CONFIG_GUIDE.md`, `WEBSOCKET_GUIDE.md`, `EPIC_4_STATUS.md`, Dev Plan v2)
 - [x] Capture Epic 4 progress in status/reporting artifacts (`EPIC_4_STATUS.md`, Dev Plan v2)
 
 **Deliverable**: Verified build/test pipeline and synchronized documentation for Core service releases (partial – API hardening complete)

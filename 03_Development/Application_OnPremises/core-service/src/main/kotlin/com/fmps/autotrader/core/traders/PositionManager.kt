@@ -17,6 +17,8 @@ import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 import kotlin.math.abs
+import com.fmps.autotrader.core.telemetry.PositionTelemetryStatus
+import com.fmps.autotrader.core.telemetry.TelemetryCollector
 
 private val logger = KotlinLogging.logger {}
 
@@ -121,6 +123,27 @@ class PositionManager(
     
     init {
         logger.info { "Initialized PositionManager (update interval: $updateInterval)" }
+    }
+
+    private suspend fun emitPositionTelemetry(
+        position: ManagedPosition,
+        status: PositionTelemetryStatus,
+        reason: String?,
+        realizedPnL: BigDecimal? = null
+    ) {
+        runCatching {
+            TelemetryCollector.publishPositionSnapshot(position, status, reason, realizedPnL)
+        }.onFailure {
+            logger.debug(it) { "Failed to publish position telemetry for ${position.positionId}" }
+        }
+    }
+
+    private suspend fun emitMarketData(symbol: String, price: BigDecimal, source: String) {
+        runCatching {
+            TelemetryCollector.publishMarketData(symbol, price, source)
+        }.onFailure {
+            logger.debug(it) { "Failed to publish market data telemetry for $symbol" }
+        }
     }
     
     /**
@@ -235,6 +258,8 @@ class PositionManager(
                 activePositions[positionId] = persistedManagedPosition
 
                 logger.info { "Opened position: $positionId (${position.symbol} ${position.action})" }
+                emitPositionTelemetry(persistedManagedPosition, PositionTelemetryStatus.OPEN, "OPENED")
+                emitMarketData(position.symbol, position.currentPrice, "position-open")
                 Result.success(persistedManagedPosition)
             } catch (e: Exception) {
                 logger.error(e) { "Failed to open position for trader: $traderId" }
@@ -280,6 +305,9 @@ class PositionManager(
                 updatedManagedPosition = applyTrailingStopIfNeeded(positionId, managedPosition, updatedManagedPosition)
                 
                 activePositions[positionId] = updatedManagedPosition
+
+                emitPositionTelemetry(updatedManagedPosition, PositionTelemetryStatus.UPDATED, "MARKET_TICK")
+                emitMarketData(updatedManagedPosition.position.symbol, price, "position-update")
                 
                 // Persist update (periodic, not every update)
                 // Full persistence happens on close
@@ -383,6 +411,8 @@ class PositionManager(
                 )
 
                 logger.info { "Closed position: $positionId (reason: $normalizedReason, P&L: $realizedPnL)" }
+                emitPositionTelemetry(closedManagedPosition, PositionTelemetryStatus.CLOSED, normalizedReason, realizedPnL)
+                emitMarketData(position.symbol, exitPrice, "position-close")
                 Result.success(closedManagedPosition)
             } catch (e: Exception) {
                 logger.error(e) { "Failed to close position: $positionId" }
@@ -731,6 +761,8 @@ class PositionManager(
                             activePositions[managedPosition.positionId] = managedPosition
 
                             logger.info { "Recovered position: ${managedPosition.positionId} (${trade.tradingPair})" }
+                            emitPositionTelemetry(managedPosition, PositionTelemetryStatus.OPEN, "RECOVERED")
+                            emitMarketData(managedPosition.position.symbol, managedPosition.position.currentPrice, "position-recover")
                         } else {
                             logger.warn { "Position orphaned: trade ${trade.id} (${trade.tradingPair})" }
                             positionPersistence.closePosition(

@@ -2,7 +2,7 @@ package com.fmps.autotrader.core.traders
 
 import com.fmps.autotrader.shared.dto.BigDecimalSerializer
 import com.fmps.autotrader.shared.dto.InstantSerializer
-import kotlinx.serialization.Contextual
+import com.fmps.autotrader.shared.dto.DurationSerializer
 import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import java.time.Duration
@@ -52,7 +52,8 @@ data class AITraderMetrics(
     val sharpeRatio: Double? = null,
     @Serializable(with = InstantSerializer::class)
     val startTime: Instant? = null,
-    @Contextual val uptime: Duration = Duration.ZERO,
+    @Serializable(with = DurationSerializer::class)
+    val uptime: Duration = Duration.ZERO,
     val signalsExecuted: Int = 0,
     val closeSignalsExecuted: Int = 0,
     val lastSignalAction: SignalAction? = null,

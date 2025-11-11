@@ -1,5 +1,7 @@
 package com.fmps.autotrader.core.traders
 
+import com.fmps.autotrader.core.telemetry.RiskAlertSeverity
+import com.fmps.autotrader.core.telemetry.TelemetryCollector
 import com.fmps.autotrader.shared.model.Position
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +49,30 @@ class RiskManager(
     init {
         if (positionProvider is PositionManager) {
             positionProvider.attachRiskManager(this)
+        }
+    }
+
+    private suspend fun emitRiskAlert(
+        traderId: String?,
+        severity: RiskAlertSeverity,
+        message: String,
+        violations: List<RiskViolation>,
+        recommendation: RiskRecommendation? = null,
+        status: String = "ACTIVE"
+    ) {
+        val identifier = buildString {
+            append(traderId ?: "GLOBAL")
+            append(":")
+            append(severity.name)
+            if (violations.isNotEmpty()) {
+                append(":")
+                append(violations.joinToString("-") { it.type.name })
+            }
+        }
+        runCatching {
+            TelemetryCollector.publishRiskAlert(identifier, traderId, severity, message, violations, recommendation, status)
+        }.onFailure {
+            logger.debug(it) { "Failed to publish risk telemetry for ${traderId ?: "GLOBAL"}" }
         }
     }
 
@@ -329,12 +355,53 @@ class RiskManager(
                         .onFailure { logger.error(it) { "Failed to close position ${position.positionId}" } }
                 }
                 emergencyStoppedTraders.addAll(registeredTraders)
+                registeredTraders.forEach { trader ->
+                    emitRiskAlert(
+                        traderId = trader,
+                        severity = RiskAlertSeverity.CRITICAL,
+                        message = "Emergency stop triggered",
+                        violations = listOf(
+                            RiskViolation(
+                                RiskViolationType.EMERGENCY,
+                                "Trader halted via global emergency stop",
+                                mapOf("traderId" to trader)
+                            )
+                        ),
+                        recommendation = RiskRecommendation.EMERGENCY_STOP
+                    )
+                }
+                emitRiskAlert(
+                    traderId = null,
+                    severity = RiskAlertSeverity.CRITICAL,
+                    message = "Global emergency stop triggered",
+                    violations = listOf(
+                        RiskViolation(
+                            RiskViolationType.EMERGENCY,
+                            "Global emergency stop engaged",
+                            emptyMap()
+                        )
+                    ),
+                    recommendation = RiskRecommendation.EMERGENCY_STOP
+                )
             } else {
                 logger.error { "Emergency stop invoked for trader $traderId" }
                 stopLossManager.executeStopLoss(traderId, "EMERGENCY_STOP")
                 stopTraderHandler?.invoke(traderId)
                     ?.onFailure { logger.error(it) { "Failed to stop trader $traderId" } }
                 emergencyStoppedTraders.add(traderId)
+                emitRiskAlert(
+                    traderId = traderId,
+                    severity = RiskAlertSeverity.CRITICAL,
+                    message = "Emergency stop triggered",
+                    violations = listOf(
+                        RiskViolation(
+                            RiskViolationType.EMERGENCY,
+                            "Trader halted due to emergency condition",
+                            mapOf("traderId" to traderId)
+                        )
+                    ),
+                    recommendation = RiskRecommendation.EMERGENCY_STOP
+                )
             }
             Result.success(Unit)
         }
@@ -367,6 +434,20 @@ class RiskManager(
                         val result = checkRiskLimits(traderId)
                         if (!result.isAllowed) {
                             logger.warn { "Risk violations detected for trader $traderId: ${result.violations}" }
+                        }
+                        if (result.violations.isNotEmpty()) {
+                            val severity = when (result.riskScore?.recommendation) {
+                                RiskRecommendation.EMERGENCY_STOP, RiskRecommendation.BLOCK -> RiskAlertSeverity.CRITICAL
+                                RiskRecommendation.WARN -> RiskAlertSeverity.WARNING
+                                else -> RiskAlertSeverity.INFO
+                            }
+                            emitRiskAlert(
+                                traderId = traderId,
+                                severity = severity,
+                                message = "Risk violations detected",
+                                violations = result.violations,
+                                recommendation = result.riskScore?.recommendation
+                            )
                         }
                         if (result.riskScore?.recommendation == RiskRecommendation.EMERGENCY_STOP) {
                             logger.error { "Triggering emergency stop for trader $traderId due to high risk" }

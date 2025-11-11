@@ -1,5 +1,6 @@
 package com.fmps.autotrader.core.api.plugins
 
+import com.fmps.autotrader.core.api.websocket.TelemetryMetricsBinder
 import io.ktor.server.application.*
 import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.plugins.callloging.*
@@ -46,5 +47,7 @@ fun Application.configureMonitoring() {
             UptimeMetrics()
         )
     }
+
+    TelemetryMetricsBinder.register(prometheusRegistry)
 }
 

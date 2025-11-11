@@ -3,6 +3,7 @@ package com.fmps.autotrader.core.traders
 import com.fmps.autotrader.core.connectors.ConnectorFactory
 import com.fmps.autotrader.core.connectors.IExchangeConnector
 import com.fmps.autotrader.core.database.repositories.AITraderRepository
+import com.fmps.autotrader.core.telemetry.TelemetryCollector
 import com.fmps.autotrader.shared.enums.Exchange
 import com.fmps.autotrader.shared.model.ExchangeConfig
 import kotlinx.coroutines.sync.Mutex
@@ -71,6 +72,23 @@ class AITraderManager(
         logger.info { "Initialized AITraderManager (max traders: $maxTraders)" }
         this.riskManager?.registerStopHandlers({ id -> stopTrader(id) }, null)
         this.riskManager?.startMonitoring()
+    }
+
+    private suspend fun emitTraderTelemetry(traderId: String, trader: AITrader, reason: String) {
+        runCatching {
+            TelemetryCollector.publishTraderStatus(
+                traderId = traderId,
+                name = trader.config.name,
+                state = trader.getState(),
+                exchange = trader.config.exchange.name,
+                symbol = trader.config.symbol,
+                strategy = trader.config.strategy.name,
+                reason = reason,
+                metrics = trader.getMetrics()
+            )
+        }.onFailure {
+            logger.debug(it) { "Failed to publish trader telemetry for $traderId" }
+        }
     }
 
     suspend fun attachRiskManager(riskManager: RiskManager) {
@@ -157,6 +175,7 @@ class AITraderManager(
                 statePersistence.saveState(traderId, trader.getState())
 
                 logger.info { "Created trader: $traderId (${config.name})" }
+                emitTraderTelemetry(traderId, trader, "CREATED")
                 Result.success(traderId)
             } catch (e: Exception) {
                 logger.error(e) { "Failed to create trader: ${config.name}" }
@@ -195,6 +214,7 @@ class AITraderManager(
                 statePersistence.saveState(traderId, trader.getState())
 
                 logger.info { "Started trader: $traderId" }
+                emitTraderTelemetry(traderId, trader, "STARTED")
                 Result.success(Unit)
             } catch (e: Exception) {
                 logger.error(e) { "Failed to start trader: $traderId" }
@@ -225,6 +245,7 @@ class AITraderManager(
                 statePersistence.saveState(traderId, trader.getState())
 
                 logger.info { "Stopped trader: $traderId" }
+                emitTraderTelemetry(traderId, trader, "STOPPED")
                 Result.success(Unit)
             } catch (e: Exception) {
                 logger.error(e) { "Failed to stop trader: $traderId" }
@@ -276,6 +297,7 @@ class AITraderManager(
                 }
 
                 logger.info { "Updated trader: $traderId" }
+                emitTraderTelemetry(traderId, trader, "UPDATED")
                 Result.success(Unit)
             } catch (e: Exception) {
                 logger.error(e) { "Failed to update trader: $traderId" }
@@ -320,6 +342,7 @@ class AITraderManager(
                 riskManager?.deregisterTrader(traderId)
 
                 logger.info { "Deleted trader: $traderId" }
+                emitTraderTelemetry(traderId, trader, "DELETED")
                 Result.success(Unit)
             } catch (e: Exception) {
                 logger.error(e) { "Failed to delete trader: $traderId" }
@@ -398,12 +421,14 @@ class AITraderManager(
 
                         // Restore state (but don't auto-start)
                         val traderId = dbTrader.id.toString()
-                        activeTraders[traderId] = trader
 
-                        logger.info { "Recovered trader: $traderId (${dbTrader.name})" }
+                        activeTraders[traderId] = trader
+                        statePersistence.saveState(traderId, trader.getState())
+                        emitTraderTelemetry(traderId, trader, "RECOVERED")
+
+                        logger.info { "Recovered trader: $traderId" }
                     } catch (e: Exception) {
-                        logger.error(e) { "Failed to recover trader: ${dbTrader.id}" }
-                        // Continue with other traders
+                        logger.error(e) { "Failed to recover trader from database entry: ${dbTrader.id}" }
                     }
                 }
 
