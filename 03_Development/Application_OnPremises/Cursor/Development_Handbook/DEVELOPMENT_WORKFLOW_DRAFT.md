@@ -22,87 +22,40 @@ This draft streamlines the current workflow, merges redundant diagrams, and embe
 
 ```
 STEP 1 – INTAKE & PLANNING
-┌──────────────────────────────┐
-│  Work Request / Backlog Item │
-└──────────────┬───────────────┘
-               │
-               ▼
-┌──────────────────────────────┐
-│ Is it a new item?            │
-└───────┬─────────┬────────────┘
-        │Yes      │No
-        ▼         ▼
-┌────────────────────────┐   ┌─────────────────────────────┐
-│ Collect / Convert Req. │   │ Review Existing Plans &      │
-│ - convert_excel.bat    │   │ Review Findings              │
-│ - Link requirements    │   │ - Issue/Epic docs, reviews   │
-└────────┬───────────────┘   └──────────┬──────────────────┘
-         │                               │
-         ▼                               ▼
-┌────────────────────────┐   ┌─────────────────────────────┐
-│ Draft / Update Plan    │   │ Confirm Scope & Gaps         │
-│ - ISSUE_TEMPLATE.md    │   │ - Update plans if required   │
-│ - EPIC_STATUS_TEMPLATE │   │ - Record new findings        │
-└────────┬───────────────┘   └──────────┬──────────────────┘
-         └──────────────┬───────────────┴──────────────┐
-                        │                             │
-                        ▼                             │
-STEP 2 – READINESS      │                             │
-┌──────────────────────────────┐                      │
-│ Ready to implement?          │                      │
-└───────┬─────────┬────────────┘                      │
-        │Yes      │No                                  │
-        ▼         ▼                                    │
-┌──────────────────────────┐   ┌──────────────────────┐ │
-│ Implement Changes        │   │ Resolve Blockers      │ │
-│ - Follow module guides   │   │ - Dependencies        │ │
-│ - Small, focused commits │   │ - Approvals / inputs  │ │
-└────────┬─────────────────┘   └──────────┬───────────┘ │
-         │                                │             │
-         ▼                                └─────┐       │
-STEP 3 – LOCAL VERIFICATION                (loop back once ready)
-┌──────────────────────────────┐                      │
-│ Local Tests & Static Checks  │◄─────────────────────┘
-│ - ./gradlew clean test       │
-│ - TESTING_GUIDE.md, ktlint   │
-└───────┬─────────┬────────────┘
-        │Pass     │Fail
-        ▼         ▼
-STEP 4 – COMMIT                STEP 3 (retry)
-┌──────────────────────────┐   ┌──────────────────────────┐
-│ Commit & Push            │   │ Fix Locally              │
-│ - git add/commit         │   │ - Address failures       │
-│ - Conventional message   │   │ - Rerun tests            │
-└────────┬─────────────────┘   └──────────┬──────────────┘
-         │                                │
-         ▼                                └─────┐
-STEP 5 – CI VALIDATION                       (loop back after fixes)
-┌──────────────────────────┐                     │
-│ Monitor CI Status        │◄────────────────────┘
-│ - check-ci-status.ps1    │
-│ - check-ci-annotations   │
-└───────┬─────────┬────────┘
-        │Pass     │Fail
-        ▼         ▼
-STEP 6 – DOC & REVIEWS      ┌──────────────────────────┐
-┌──────────────────────────┐│ Investigate & Fix CI      │
-│ Update Docs & Reviews    ││ - analyze-ci-failures.ps1 │
-│ - Issue/Epic plans       ││ - diagnose.bat            │
-│ - Development_Plan_v2.md ││ (then rerun local tests)  │
-│ - Review templates       │└──────────┬───────────────┘
-└────────┬─────────────────┘           │
-         │                             └─────┐
-         ▼                                   │
-STEP 7 – HANDOFF & LEARNINGS                 │
-┌──────────────────────────┐                (loop back to STEP 3)
-│ Handoff & Lessons Learned│
-│ - Notify stakeholders    │
-│ - Capture follow-up tasks│
-└────────┬─────────────────┘
-         ▼
-┌──────────────────────────┐
-│ Ready for next item      │
-└──────────────────────────┘
+  Work Request / Backlog Item
+    ├─ Yes → New item
+    │          └→ Collect / convert requirements (convert_excel.bat, link dependencies)
+    │              └→ Draft or update plan (ISSUE_TEMPLATE.md / EPIC_STATUS_TEMPLATE.md)
+    └─ No  → Existing item
+               └→ Review current plans & review findings
+                   └→ Confirm scope & gaps (update plan, record new findings)
+
+STEP 2 – READINESS CHECK
+  Decision: Ready to implement?
+    ├─ Yes → proceed to Step 3
+    └─ No  → Resolve blockers (dependencies, approvals, missing inputs)
+                 └→ reassess readiness (loop until “Yes”)
+
+STEP 3 – LOCAL VERIFICATION
+  Implement changes (follow guides, keep commits focused)
+  Run local tests & static checks (`./gradlew clean test`, TESTING_GUIDE.md, ktlint)
+    ├─ Pass → Step 4
+    └─ Fail → Fix locally, rerun tests → re-enter Step 3
+
+STEP 4 – COMMIT
+  Record work (git add/commit, conventional message), push to remote
+
+STEP 5 – CI VALIDATION
+  Monitor CI (check-ci-status.ps1, check-ci-annotations.ps1)
+    ├─ Pass → Step 6
+    └─ Fail → Investigate & fix (analyze-ci-failures.ps1, diagnose.bat)
+                 └→ return to Step 3 for re-test, then repeat Steps 4-5
+
+STEP 6 – DOCUMENTATION & REVIEWS
+  Update Issue/Epic plans, Development_Plan_v2.md, review templates
+
+STEP 7 – HANDOFF & LEARNINGS
+  Notify stakeholders, capture lessons & follow-up tasks → Ready for next item
 ```
 
 ---
