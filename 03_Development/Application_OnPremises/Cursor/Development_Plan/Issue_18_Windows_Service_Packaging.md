@@ -1,7 +1,3 @@
----
-title: Issue #18: Windows Service Packaging & Deployment
----
-
 # Issue #18: Windows Service Packaging & Deployment
 
 **Status**: 📋 **PLANNED**  

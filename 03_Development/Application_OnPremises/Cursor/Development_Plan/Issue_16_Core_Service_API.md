@@ -1,7 +1,3 @@
----
-title: Issue #16: Core Service REST API Hardening
----
-
 # Issue #16: Core Service REST API Hardening
 
 **Status**: 📋 **PLANNED**  

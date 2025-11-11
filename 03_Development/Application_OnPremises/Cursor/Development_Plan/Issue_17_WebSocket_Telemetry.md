@@ -1,7 +1,3 @@
----
-title: Issue #17: Real-Time WebSocket Telemetry
----
-
 # Issue #17: Real-Time WebSocket Telemetry
 
 **Status**: 📋 **PLANNED**  
