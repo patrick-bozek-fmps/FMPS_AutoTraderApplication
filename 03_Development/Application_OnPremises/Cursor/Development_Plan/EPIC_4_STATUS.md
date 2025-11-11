@@ -88,7 +88,7 @@ No active development threads; Issue #18 queued to start next.
 - **Priority**: P1  
 - **Actual Duration**: 1 day  
 - **Dependencies**: Issue #07 ✅, #13 ✅, Issue #16 ✅  
-- **Final Commit**: `7d903cf`
+- **Final Commit**: `980973f`
 
 **Delivered**:
 - Authenticated telemetry hub with structured channel catalogue (`trader-status`, `positions`, `risk-alerts`, `market-data`).
