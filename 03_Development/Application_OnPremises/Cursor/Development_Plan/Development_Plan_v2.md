@@ -2,7 +2,7 @@
 
 **Version**: 4.5  
 **Date**: November 11, 2025  
-**Status**: ✅ Epic 1 COMPLETE! (6/6) + Epic 2 COMPLETE! (4/4 - 100% with full test coverage!) 🎉  
+**Status**: ✅ Epics 1-3 COMPLETE! (15/15 issues) + Epic 4 📋 PLANNED  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
 ---
@@ -954,29 +954,62 @@ dependencies {
 
 ## 8. EPIC 4: Core Service & API (Weeks 9-11)
 
-**Status**: 📋 **PLANNED** – Transitioned from five conceptual sections to three execution-focused issues aligned with Epic 3 deliverables.
+**Status**: 📋 **PLANNED** (Kickoff after Epic 3 remediation closeout)
 
-| Issue | Status | Focus | Target Outcome |
-|-------|--------|-------|----------------|
-| **#16 – Core Service REST API Hardening** | 📋 Planned | Authentication, validation, metrics, pagination | Production-ready REST surface with API reference & health endpoints |
-| **#17 – Real-Time WebSocket Telemetry** | 📋 Planned | Channel expansion, auth, heartbeats, metrics | Resilient real-time feeds for traders, positions, and risk alerts |
-| **#18 – Windows Service Packaging & Deployment** | 📋 Planned | Procrun bundle, scripts, configs, operations playbook | Installable Windows service with documented lifecycle |
+### 8.1 REST API Server Hardening
 
-### Why 3 Issues Instead of 5 Sections?
-- The original five-section outline (REST, WebSocket, Service, plus configuration & monitoring) was consolidated into issue-based workstreams to reduce overlap and clarify ownership.
-- Each issue bundles the necessary tasks (design, implementation, testing, documentation) for a deployable outcome while preserving the original functional scope.
-- Support tasks such as configuration hardening and monitoring now live inside Issue #16 and #18 checklists, ensuring all requirements remain covered.
+**Tasks:**
+- [ ] Audit existing routes (`TraderRoutes`, `PositionRoutes`, `ConfigRoutes`) for coverage against UI requirements
+- [ ] Add API key authentication middleware and configuration
+- [ ] Enhance input validation, pagination, and error envelopes
+- [ ] Introduce health/metrics endpoints (Prometheus-ready) and structured logging
+- [ ] Update API reference documentation and troubleshooting sections
 
-### Upcoming Milestones
-- ✅ Finalize detailed issue plans (DONE – Nov 11, 2025)
-- ⏳ Execute Issue #16 (API hardening) → unlocks Issue #17 auth reuse
-- ⏳ Execute Issue #17 (WebSocket telemetry) → required for desktop UI dashboards
-- ⏳ Execute Issue #18 (Windows packaging) → prepares Epic 5/6 deployments
+**Deliverable**: Hardened REST API surface (Issue #16 – Core Service REST API Hardening)
 
-**Deliverables (Epic Completion)**:
-- Hardened REST + WebSocket stack with auth, validation, telemetry
-- Windows service installation bundle & operational handbook
-- Updated documentation (`API_REFERENCE.md`, `WEBSOCKET_GUIDE.md`, `Windows_Service_Guide.md`)
+### 8.2 WebSocket Telemetry Expansion
+
+**Tasks:**
+- [ ] Define channel catalogue (trader status, positions, risk alerts, market data)
+- [ ] Implement authenticated subscription protocol with heartbeats/replay
+- [ ] Add backpressure controls, per-connection metrics, and admin disconnect tooling
+- [ ] Extend integration tests and create manual test checklist (wscat/Postman)
+- [ ] Produce WebSocket client guide and sample snippets for desktop UI
+
+**Deliverable**: Robust WebSocket backbone (Issue #17 – Real-Time WebSocket Telemetry)
+
+### 8.3 Windows Service Packaging
+
+**Tasks:**
+- [ ] Finalize packaging approach (Procrun bundle + PowerShell helpers)
+- [ ] Create install/upgrade/uninstall scripts with validation steps
+- [ ] Ship configuration/logging templates and secure secrets guidance
+- [ ] Configure service recovery options and document operational playbook
+- [ ] Validate on Windows 10 & 11 VMs and record test matrix
+
+**Deliverable**: Installable Windows service bundle with operations guide (Issue #18 – Windows Service Packaging & Deployment)
+
+### 8.4 Testing & Documentation Alignment
+
+**Tasks:**
+- [ ] Extend automated suites (`TraderRoutesTest`, `WebSocketManagerTest`, packaging smoke scripts)
+- [ ] Ensure Jacoco/CI coverage remains ≥80% for affected modules
+- [ ] Update documentation set (`API_REFERENCE.md`, `WEBSOCKET_GUIDE.md`, `Windows_Service_Guide.md`)
+- [ ] Capture Epic 4 progress in status/reporting artifacts (`EPIC_4_STATUS.md`, Dev Plan v2)
+
+**Deliverable**: Verified build/test pipeline and synchronized documentation for Core service releases
+
+### 8.5 Milestones & Dependencies
+
+**Milestones:**
+- ✅ Planning finalized (Issue plans published – Nov 11, 2025)
+- ⏳ Start Issue #16 (REST API Hardening)
+- ⏳ Start Issue #17 after #16 auth middleware merges
+- ⏳ Start Issue #18 once API/WebSocket outputs stabilize
+
+**Dependencies:**
+- Upstream: Issue #11 ✅, #13 ✅, #14 ✅ (Core services available for hardening)
+- Downstream: Epic 5 (Desktop UI dashboards require REST/WebSocket updates), Epic 6 (Integration & release packaging)
 
 ---
 
