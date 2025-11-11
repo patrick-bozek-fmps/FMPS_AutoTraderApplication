@@ -88,14 +88,15 @@ No active development threads; Issue #18 queued to start next.
 - **Priority**: P1  
 - **Actual Duration**: 1 day  
 - **Dependencies**: Issue #07 ✅, #13 ✅, Issue #16 ✅  
-- **Final Commit**: `TBD`
+- **Final Commit**: `7d903cf`
 
 **Delivered**:
-- Channel catalogue + replay support implemented across telemetry collector and hub (trader, position, risk, market data).
-- API key–secured subscriptions with ack/error envelope, heartbeats, replay toggles, and duration-safe serialization (`DurationSerializer`).
+- Authenticated telemetry hub with structured channel catalogue (`trader-status`, `positions`, `risk-alerts`, `market-data`).
+- Heartbeat + replay pipeline with per-connection rate limiting, drop counters, and ISO-8601 duration serialization (`DurationSerializer`).
 - Prometheus metrics + structured logging for subscriptions, disconnects, and drop counters.
 - Admin REST endpoints and comprehensive `WEBSOCKET_GUIDE.md` documentation.
 - Regression suite (`TelemetryRouteTest`) verifying auth, replay, and forced disconnect flows.
+- Latest validation: `./gradlew clean build --no-daemon` (Nov 11 2025 12:28 UTC, commit `7d903cf`, 646 tests ✅).
 
 ---
 

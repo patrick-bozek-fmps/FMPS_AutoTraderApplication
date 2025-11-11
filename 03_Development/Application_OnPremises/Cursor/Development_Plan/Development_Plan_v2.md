@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 4.8  
+**Version**: 4.9  
 **Date**: November 11, 2025  
 **Status**: ✅ Epics 1-3 COMPLETE! (15/15 issues) + Epic 4 🚀 IN PROGRESS (2/3 issues)  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -68,6 +68,11 @@
 | **4.6** | **Nov 11, 2025** | **Issue #16 COMPLETE: REST API auth/pagination/metrics shipped + docs updated** | **AI Assistant** |
 | **4.7** | **Nov 11, 2025** | **Issue #17 COMPLETE: Telemetry channels, Prometheus metrics, admin tooling added** | **AI Assistant** |
 | **4.8** | **Nov 11, 2025** | **Issue #17 finalized with telemetry serialization fix, WebSocket admin docs, Dev Plan refresh** | **AI Assistant** |
+| **4.9** | **Nov 11, 2025** | **Issue #17 telemetry build re-run + documentation updates pre-commit hash capture** | **AI Assistant** |
+
+**Changes from v4.8:**
+- ✅ Verified telemetry build/test cycle (`./gradlew clean build --no-daemon`, Nov 11 2025 12:28 UTC, commit `7d903cf`).
+- ✅ Updated Issue #17, Epic 4 status, and development plan with recorded commit `7d903cf` ahead of CI confirmation via helper script.
 
 **Changes from v4.7:**
 - ✅ Hardened telemetry serialization by introducing `DurationSerializer`, fixing `AITraderMetrics` uptime encoding for WebSocket events.

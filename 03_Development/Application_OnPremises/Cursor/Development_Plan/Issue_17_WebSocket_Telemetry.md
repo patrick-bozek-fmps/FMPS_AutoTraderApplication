@@ -9,7 +9,7 @@
 **Epic**: Epic 4 (Core Service & API)  
 **Priority**: P1 (High – required for Desktop UI dashboards)  
 **Dependencies**: Issue #07 ✅, Issue #13 ✅, Issue #16 ✅  
-**Final Commit**: `TBD` *(set after merge)*
+**Final Commit**: `7d903cf`
 
 > **NOTE**: Delivers authenticated, resilient WebSocket channels supplying trader status, position updates, risk alerts, and market snapshots for the desktop UI and future automation clients.
 
@@ -60,12 +60,13 @@ Enhance the Core WebSocket subsystem to provide multi-channel, authenticated tel
 - [x] Authored `Development_Handbook/WEBSOCKET_GUIDE.md` with protocol, metrics, and troubleshooting guidance.
 - [x] Updated `Development_Plan_v2.md` (v4.8) and `EPIC_4_STATUS.md` to reflect delivery details.
 - [x] Noted new configuration block (`telemetry`) and admin helpers in plan/status docs.
+- [x] Confirmed latest validation run (`./gradlew clean build --no-daemon`, Nov 11 2025 12:28 UTC) to provide CI handoff evidence.
 
 ### **Task 6: Build & Commit** [Status: ✅ COMPLETE]
 - [x] Ran `./gradlew clean build --no-daemon` (all modules, 646 tests ✅, 0 failures).
 - [x] Addressed serialization regression (Duration) to unblock telemetry event dispatch.
 - [x] Staged and committed source + documentation updates.
-- [x] Pending: update commit hash above post-push and confirm CI ✅ via helper script.
+- [x] Recorded commit hash `7d903cf` above and will confirm CI ✅ via helper script post-push.
 
 ---
 
