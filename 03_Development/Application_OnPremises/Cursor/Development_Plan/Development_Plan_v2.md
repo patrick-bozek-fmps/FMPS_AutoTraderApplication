@@ -82,10 +82,10 @@
 - ✅ Added 81 new tests for RSI, MACD, and Bollinger Bands (34 → 115 tests, +238%)
 - ✅ 100% test coverage achieved for all 5 technical indicators
 - ✅ Total project tests: 434/435 passing (99.77%)
-- ✅ Documented deferred items:
-  - 🔄 Caching layer → Epic 4 (Performance Optimization)
-  - 🔄 Advanced optimization → Epic 4
-  - 🔄 Real market data validation → Epic 3 (during integration)
+- ✅ Documented deferred items (shifted to Epic 6 – Testing & Polish):
+  - 🔄 Indicator caching layer → Epic 6 (Performance Optimization)
+  - 🔄 Advanced indicator optimization → Epic 6 (Performance Optimization)
+  - 🔄 Real market data validation → Epic 6 (Integration & Validation)
 - ✅ **POSITIVE DEVIATION**: Enhanced quality without schedule impact
 - ✅ All Epic 2 documentation updated (EPIC_2_STATUS.md v2.1, ISSUE_10_VERIFICATION.md)
 
@@ -1185,6 +1185,16 @@ dependencies {
 - [ ] Beta testing with selected users
 
 **Deliverable**: Release-ready v1.0 package
+
+### 10.6 Indicator Optimization & Validation
+
+**Tasks:**
+- [ ] Implement indicator caching layer (SMA/EMA/RSI/MACD/Bollinger) with metrics
+- [ ] Perform advanced optimization (batch calculations, profiling, tuning hot paths)
+- [ ] Validate indicator outputs against real market data sources (TradingView / TA-Lib)
+- [ ] Update performance benchmarks and document gains or follow-up work
+
+**Deliverable**: Production-ready indicator stack with verified performance and real-data validation
 
 ---
 
