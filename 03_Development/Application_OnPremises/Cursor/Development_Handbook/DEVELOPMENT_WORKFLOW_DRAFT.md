@@ -21,89 +21,42 @@ This draft streamlines the current workflow, merges redundant diagrams, and embe
 ## 🛠️ Unified Workflow (New & Existing Workstreams)
 
 ```
-┌──────────────────────────────┐
-│ Work Request / Backlog Item  │
-└───────────────┬──────────────┘
-                ▼
-        ┌───────────────┐
-        │   New Item?   │
-        └──────┬────────┘
-           Yes │ No
-               ▼
-    ┌────────────────────────┐          ┌────────────────────────┐
-    │ Collect / Convert Req. │          │ Review Existing Docs & │
-    │ - convert_excel.bat    │          │ Reviews               │
-    │ - Link dependencies    │          │ - Plans & findings     │
-    └──────────┬─────────────┘          └──────────┬─────────────┘
-               ▼                                   ▼
-     ┌────────────────────────┐          ┌────────────────────────┐
-     │ Draft / Update Plan    │          │ Confirm Scope & Gaps   │
-     │ - ISSUE_TEMPLATE.md    │          │ - Note new findings    │
-     │ - EPIC_STATUS_TEMPLATE │          │ - Update plan if req.  │
-     └──────────┬─────────────┘          └──────────┬─────────────┘
-               └───────────────┬───────────────┬────┘
-                               ▼               │
-                        ┌───────────────┐      │
-                        │ Ready to      │◄─────┘
-                        │ Implement?    │
-                        └──────┬────────┘
-                               │No
-                               ▼
-                     ┌────────────────────┐
-                     │ Resolve Blockers   │
-                     │ - Approvals        │
-                     │ - Dependencies     │
-                     └──────┬─────────────┘
-                               │Yes
-                               ▼
-                     ┌────────────────────┐
-                     │ Implement Changes  │
-                     │ - Follow guides    │
-                     │ - Small commits    │
-                     └──────┬─────────────┘
-                               ▼
-                ┌────────────────────────────┐
-                │ Local Tests & Static Checks│
-                │ - ./gradlew clean test     │
-                │ - Refer TESTING_GUIDE.md   │
-                └──────┬────────────┬────────┘
-                       │Yes         │No
-                       ▼            ▼
-        ┌─────────────────────┐   ┌────────────────────┐
-        │ Commit & Push       │   │ Fix Locally        │
-        │ - git add/commit    │   │ - Re-run tests     │
-        │ - Conventional msgs │   └────────┬───────────┘
-        └──────────┬──────────┘            │
-                   ▼                       └───┐
-         ┌────────────────────┐                │
-         │ Monitor CI Status  │◄──────────────┘
-         │ - check-ci-status  │
-         │ - check-ci-annotations │
-         └──────┬─────────────┘
-                │Success
-                ▼
-      ┌───────────────────────────────┐
-      │ Update Documentation & Reviews│
-      │ - Issue/Epic plans            │
-      │ - Development_Plan_v2.md      │
-      │ - Review templates            │
-      └──────────┬────────────────────┘
+Work Request / Backlog Item
+│
+├─ Is it a new item?
+│   ├─ Yes → Collect / convert requirements (convert_excel.bat) → Draft or update plan (ISSUE_TEMPLATE.md / EPIC_STATUS_TEMPLATE.md)
+│   └─ No  → Review existing plans & review notes → Confirm scope & gaps (update plan if needed)
+│
+└─ Ready to implement?
+    ├─ No → Resolve blockers (dependencies, approvals) → return to "Ready to implement?"
+    └─ Yes
+         │
+         ▼
+      Implement changes (follow module guides, keep commits small)
+         │
+         ▼
+      Local tests & static checks (`./gradlew clean test`, TESTING_GUIDE.md)
+         │
+         ├─ Fail → Fix locally, rerun tests → back to "Local tests & static checks"
+         └─ Pass
+             │
+             ▼
+          Commit & push (conventional messages)
+             │
+             ▼
+          Monitor CI (check-ci-status.ps1, check-ci-annotations.ps1)
+             │
+             ├─ Fail → Investigate logs (GitHub UI, analyze-ci-failures.ps1, diagnose.bat) → Apply fixes → back to "Implement changes"
+             └─ Pass
+                 │
                  ▼
-      ┌───────────────────────────────┐
-      │ Handoff & Lessons Learned     │
-      │ - Notify stakeholders         │
-      │ - Log follow-up actions       │
-      └──────────┬────────────────────┘
+              Update documentation & reviews (plans, Development_Plan_v2.md, review templates)
+                 │
                  ▼
-        ┌────────────────────────┐
-        │ Ready for Next Item    │
-        └────────────────────────┘
-
-If CI fails at any point:
-
-    • Investigate logs (GitHub UI or analyze-ci-failures.ps1).  
-    • Use diagnose.bat for environment checks when needed.  
-    • Apply fixes, re-run local tests, and push amended changes.
+              Handoff & lessons learned (notify stakeholders, record follow-ups)
+                 │
+                 ▼
+              Ready for next item
 ```
 
 ---
