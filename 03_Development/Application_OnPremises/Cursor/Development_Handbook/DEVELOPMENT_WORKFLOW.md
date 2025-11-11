@@ -21,9 +21,7 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
 ┌─────────────────────────────────────────────────────────┐
 │  Step 1: Plan & Document                                │
 │  • Convert Excel requirements to Markdown (if needed)   │
-│    - From repo root use scripts in                      │
-│      ./03_Development/Application_OnPremises/           │
-│      Cursor/Artifacts/                                  │
+│    - Navigate to: 03_Development\Application_OnPremises\Cursor\Artifacts\ │
 │    - Run: convert_excel.bat (Windows)                   │
 │    - Or: py excel_to_markdown_converter.py (Windows)    │
 │    - Or: python excel_to_markdown_converter.py (Linux)  │
@@ -73,20 +71,15 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
                      ▼
 ┌─────────────────────────────────────────────────────────┐
 │  Step 5: Verify CI Passes (MANDATORY) ⏱️ AUTOMATED     │
-│  • Open GitHub Actions                                   │
-│    (https://github.com/patrick-bozek-fmps/               │
-│     FMPS_AutoTraderApplication/actions)                  │
-│  • Find the run for your commit and wait until it        │
-│    finishes with conclusion ✅ `success` (do not advance  │
-│    while it is still running).                           │
-│  • Optional helper scripts (`check-ci-status.ps1`,       │
-│    `check-ci-annotations.ps1`) are available under       │
-│    ./03_Development/Application_OnPremises/Cursor/       │
-│    Artifacts/ for manual download; they are not checked  │
-│    into git.                                             │
-│  • Review workflow annotations/warnings and confirm      │
-│    there are no failures.                                │
-│  • DO NOT PROCEED until CI reports success.              │
+│  • Run: .\03_Development\Application_OnPremises\Cursor\Artifacts\check-ci-status.ps1 -Watch -WaitSeconds 20 │
+│  • Script automatically monitors GitHub Actions          │
+│  • Wait for: [SUCCESS] message                          │
+│  • Then check annotations:                               │
+│    .\03_Development\Application_OnPremises\Cursor\Artifacts\check-ci-annotations.ps1 │
+│  • Review any warnings (cache failures are OK)           │
+│  • Verify: Green checkmark ✅                           │
+│  • DO NOT PROCEED until CI passes                       │
+│  • Alternative: Manual check at github.com/.../actions   │
 └────────────────────┬────────────────────────────────────┘
                      ▼
 ┌─────────────────────────────────────────────────────────┐
@@ -270,7 +263,7 @@ GitHub Actions may report annotations (warnings from the CI infrastructure itsel
 **Common CI Annotations**:
 1. **Cache Failures** (most common):
    - `Failed to save cache entry` - GitHub's cache service unavailable
-   - `Failed to restore cache` - Cache service errors (400, 503)
+   - `Failed to restore cache` - GitHub service errors (400, 503)
    - **Impact**: Build runs slower (no cached dependencies)
    - **Action**: None required - these are GitHub infrastructure issues
 
