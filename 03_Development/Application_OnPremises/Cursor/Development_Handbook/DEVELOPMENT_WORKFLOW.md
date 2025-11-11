@@ -21,7 +21,8 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
 ┌─────────────────────────────────────────────────────────┐
 │  Step 1: Plan & Document                                │
 │  • Convert Excel requirements to Markdown (if needed)   │
-│    - Navigate to: Cursor\Artifacts\                     │
+│    - Navigate to: 03_Development\Application_OnPremises\│
+│      Cursor\Artifacts\                                   │
 │    - Run: convert_excel.bat (Windows)                    │
 │    - Or: py excel_to_markdown_converter.py (Windows)    │
 │    - Or: python excel_to_markdown_converter.py (Linux)  │
@@ -71,15 +72,16 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
                      ▼
 ┌─────────────────────────────────────────────────────────┐
 │  Step 5: Verify CI Passes (MANDATORY) ⏱️ AUTOMATED     │
-│  • Run: .\Cursor\check-ci-status.ps1 -Watch -Wait 20    │
-│  • Script automatically monitors GitHub Actions          │
-│  • Wait for: [SUCCESS] message                          │
-│  • Then check annotations:                               │
-│    .\Cursor\check-ci-annotations.ps1                     │
-│  • Review any warnings (cache failures are OK)           │
-│  • Verify: Green checkmark ✅                           │
+│  • Check GitHub Actions for most recent run              │
+│    (https://github.com/patrick-bozek-fmps/…/actions)     │
+│  • Wait for workflow conclusion: ✅ success required     │
+│  • Optional: local helper scripts are stored in          │
+│    03_Development\Application_OnPremises\Cursor\Artifacts│
+│    (`check-ci-status.ps1`, `check-ci-annotations.ps1`). │
+│    Download or copy them locally before use; they are    │
+│    not tracked in git.                                   │
+│  • Review any annotations/warnings reported by Actions   │
 │  • DO NOT PROCEED until CI passes                       │
-│  • Alternative: Manual check at github.com/.../actions   │
 └────────────────────┬────────────────────────────────────┘
                      ▼
 ┌─────────────────────────────────────────────────────────┐
