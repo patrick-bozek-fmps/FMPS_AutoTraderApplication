@@ -21,9 +21,10 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
 ┌─────────────────────────────────────────────────────────┐
 │  Step 1: Plan & Document                                │
 │  • Convert Excel requirements to Markdown (if needed)   │
-│    - Navigate to: 03_Development\Application_OnPremises\│
-│      Cursor\Artifacts\                                   │
-│    - Run: convert_excel.bat (Windows)                    │
+│    - From repo root use scripts in                      │
+│      ./03_Development/Application_OnPremises/           │
+│      Cursor/Artifacts/                                  │
+│    - Run: convert_excel.bat (Windows)                   │
 │    - Or: py excel_to_markdown_converter.py (Windows)    │
 │    - Or: python excel_to_markdown_converter.py (Linux)  │
 │    - Ensures latest requirements are available          │
@@ -72,16 +73,20 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
                      ▼
 ┌─────────────────────────────────────────────────────────┐
 │  Step 5: Verify CI Passes (MANDATORY) ⏱️ AUTOMATED     │
-│  • Check GitHub Actions for most recent run              │
-│    (https://github.com/patrick-bozek-fmps/…/actions)     │
-│  • Wait for workflow conclusion: ✅ success required     │
-│  • Optional: local helper scripts are stored in          │
-│    03_Development\Application_OnPremises\Cursor\Artifacts│
-│    (`check-ci-status.ps1`, `check-ci-annotations.ps1`). │
-│    Download or copy them locally before use; they are    │
-│    not tracked in git.                                   │
-│  • Review any annotations/warnings reported by Actions   │
-│  • DO NOT PROCEED until CI passes                       │
+│  • Open GitHub Actions                                   │
+│    (https://github.com/patrick-bozek-fmps/               │
+│     FMPS_AutoTraderApplication/actions)                  │
+│  • Find the run for your commit and wait until it        │
+│    finishes with conclusion ✅ `success` (do not advance  │
+│    while it is still running).                           │
+│  • Optional helper scripts (`check-ci-status.ps1`,       │
+│    `check-ci-annotations.ps1`) are available under       │
+│    ./03_Development/Application_OnPremises/Cursor/       │
+│    Artifacts/ for manual download; they are not checked  │
+│    into git.                                             │
+│  • Review workflow annotations/warnings and confirm      │
+│    there are no failures.                                │
+│  • DO NOT PROCEED until CI reports success.              │
 └────────────────────┬────────────────────────────────────┘
                      ▼
 ┌─────────────────────────────────────────────────────────┐
