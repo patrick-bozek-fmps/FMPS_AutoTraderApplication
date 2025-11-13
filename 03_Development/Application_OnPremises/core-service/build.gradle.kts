@@ -113,6 +113,7 @@ val integrationTest by tasks.registering(Test::class) {
     useJUnitPlatform {
         includeTags("integration")
     }
+    maxParallelForks = 1
     
     // Pass environment variables to test JVM
     environment("BINANCE_API_KEY", System.getenv("BINANCE_API_KEY") ?: "")
@@ -126,6 +127,7 @@ tasks.test {
     useJUnitPlatform {
         excludeTags("integration")
     }
+    maxParallelForks = 1
     testLogging {
         events("passed", "skipped", "failed", "standardOut", "standardError")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL

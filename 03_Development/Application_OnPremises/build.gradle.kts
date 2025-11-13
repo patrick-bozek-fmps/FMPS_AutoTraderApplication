@@ -27,5 +27,13 @@ subprojects {
     
     tasks.withType<Test> {
         useJUnitPlatform()
+
+        val availableProcessors = Runtime.getRuntime().availableProcessors().coerceAtLeast(1)
+        maxParallelForks = when {
+            availableProcessors <= 2 -> availableProcessors
+            else -> (availableProcessors - 1).coerceAtMost(4)
+        }
+
+        jvmArgs("-Xms512m", "-Xmx2048m")
     }
 }
