@@ -1,7 +1,10 @@
 Software Engineer – Task Review and Quality Assurance
 
-Overview:
+
+Role Overview:
+
 The Software Engineer will be responsible for conducting technical task reviews to ensure high-quality software development practices across the team. This role combines strong technical expertise with a structured, analytical approach to reviewing design, implementation, and documentation tasks. The engineer acts as a key quality gatekeeper, ensuring consistency, compliance with standards, and alignment with project objectives.
+
 
 Key Responsibilities:
 
@@ -19,6 +22,7 @@ Key Responsibilities:
 
  - Contribute to knowledge sharing by documenting best practices and lessons learned from reviews.
 
+
 Qualifications & Skills:
 
  - Bachelor’s or Master’s degree in Computer Science, Software Engineering, or a related field.
@@ -32,6 +36,7 @@ Qualifications & Skills:
  - Excellent communication skills with the ability to provide clear, actionable feedback.
 
  - Detail-oriented mindset and commitment to quality and process improvement.
+
 
 Nice to Have:
 

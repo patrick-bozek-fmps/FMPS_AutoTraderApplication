@@ -1,0 +1,143 @@
+Software Process and DevOps Expert (AI & Cross-Platform Trading Applications)
+
+
+Role Overview
+
+The Software Process and DevOps Expert defines, implements, and optimizes the complete software engineering lifecycle for AI-enabled, multi-platform trading applications.
+This role ensures seamless delivery across iOS, Android, and Windows environments while maintaining strict quality, reliability, and compliance standards required for financial and algorithmic trading systems.
+
+The expert drives process standardization, automation, and integration between AI model development, mobile frontends, and cloud or on-premise trading backends, enabling high-frequency, low-latency, and fault-tolerant software delivery.
+
+
+Key Responsibilities:
+
+ 1) Software Process Design & Governance:
+
+	- Define a unified SDLC that integrates mobile app development (Swift, Kotlin, .NET MAUI, React Native) with backend and AI components.
+
+	- Maintain end-to-end workflows for requirements, implementation, testing, CI/CD, and release management.
+
+	- Ensure process compliance with financial regulations, data security, and AI model governance standards.
+
+	- Establish quality gates for each stage: build validation, test coverage, model verification, and trading strategy backtesting.
+
+	- Own and evolve the project’s Development Handbook, workflow diagrams, and templates.
+
+ 2) DevOps Automation & Toolchain Integration:
+
+	- Design, implement, and maintain multi-platform CI/CD pipelines for iOS (Xcode, Fastlane), Android (Gradle, Play Console), and Windows (MSBuild, App Center).
+
+	- Automate build signing, provisioning, and artifact distribution for internal and public releases.
+
+	- Integrate backend services and AI components into automated pipelines (Docker, Kubernetes, MLflow, ONNX, or TensorFlow Serving).
+
+	- Implement environment consistency and reproducibility (IaC with Terraform / Ansible / GitHub Actions / Azure Pipelines).
+
+	- Optimize build and test performance for low-latency, high-reliability trading systems.
+
+ 3) AI and Trading System Integration:
+
+	- Define workflows for integrating AI model training, validation, and deployment into the CI/CD pipeline.
+
+	- Automate data preprocessing, model retraining triggers, and performance evaluation before deployment.
+
+	- Coordinate AI development with live trading environments, ensuring safe rollouts, A/B testing, and rollback mechanisms.
+
+	- Align process and tooling with trading algorithm governance (traceability, auditability, and version control for model artifacts).
+
+ 4) Quality Assurance & Compliance:
+
+	- Embed automated testing for:
+
+	- Mobile UIs (Espresso, XCTest, Appium).
+
+	- Backend APIs and trading logic (JUnit, pytest).
+
+	- Model accuracy and drift detection.
+
+	- Integrate static and dynamic analysis tools (SonarQube, ktlint, detekt, SwiftLint).
+
+	- Implement automated security scanning (SAST/DAST) and ensure compliance with data protection and financial audit requirements.
+
+	- Establish traceability between requirements, code commits, AI models, and validation results.
+
+ 5) Infrastructure & Monitoring:
+
+	- Manage CI/CD infrastructure for cloud and on-premise builds.
+
+	- Automate deployment and monitoring of AI trading services, dashboards, and mobile apps.
+
+	- Integrate logging, telemetry, and real-time health checks into build pipelines (e.g., Prometheus, Grafana, Datadog).
+
+	- Implement rollback, hotfix, and failover strategies for trading-critical components.
+
+ 6) Continuous Improvement & Enablement:
+
+	- Measure and report key DevOps metrics (build success, lead time, MTTR, coverage, latency).
+
+	- Lead process retrospectives and improvement programs for both AI and app development teams.
+
+	- Conduct workshops and coaching on CI/CD best practices, Git branching strategies, and test automation.
+
+	- Champion a culture of data-driven decision making, reliability, and proactive quality ownership.
+
+
+
+Key Deliverables:
+
+ - Unified and documented AI-Trading SDLC Workflow.
+
+ - Fully automated CI/CD pipelines for iOS, Android, and Windows apps plus backend and AI modules.
+
+ - Quality gates, dashboards, and compliance metrics for all builds.
+
+ - Continuous integration of AI model retraining and trading algorithm validation.
+
+ - Operational process documentation and training materials.
+
+
+Qualifications & Experience:
+
+ - Bachelor’s or Master’s degree in Computer Science, Software Engineering, or related field.
+
+ - 8+ years experience in software engineering or DevOps, with 3+ years in AI or financial systems.
+
+ - Deep knowledge of:
+
+	- Mobile platforms: iOS (Xcode, Swift, Fastlane), Android (Gradle, Kotlin), Windows (.NET, MSBuild).
+
+	- CI/CD: GitHub Actions, Jenkins, Azure DevOps, App Center, GitLab CI.
+
+	- AI toolchains: Python, PyTorch, TensorFlow, MLflow, ONNX.
+
+	- Containers and infrastructure: Docker, Kubernetes, Terraform, Ansible.
+
+	- Trading and data platforms: FIX, WebSocket APIs, REST, Redis, Kafka, PostgreSQL.
+
+	- Source control and branching models (GitFlow, trunk-based).
+
+
+Soft Skills:
+
+ - Strong systems thinking — able to balance regulatory, reliability, and agility demands.
+
+ - Excellent communication across data science, mobile, and operations teams.
+
+ - Structured problem-solver with analytical rigor and attention to detail.
+
+ - Passionate about automation, continuous improvement, and operational excellence.
+
+ - Self-starter comfortable working in fast-paced, cross-disciplinary environments.
+
+
+Performance Indicators:
+
+ - Increase in pipeline automation and deployment frequency.
+
+ - Reduction of manual build/test/release time across platforms.
+
+ - Compliance with AI/trading audit and traceability standards.
+
+ - Stability and uptime of deployed applications and services.
+
+ - Improved app store release cycle and trading system reliability.

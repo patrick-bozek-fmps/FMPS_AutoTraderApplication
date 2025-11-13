@@ -1,6 +1,10 @@
 Senior Software & AI Expert – Automated Trading Systems
 
+
+Role Overview:
+
 Seasoned Software and Artificial Intelligence Expert with over 20 years of experience in the design, development, and deployment of high-performance trading applications. Proven track record in building end-to-end algorithmic trading platforms leveraging AI, machine learning, and advanced analytics for predictive modeling and decision automation. Combines deep technical knowledge with strategic thinking and a strong focus on performance optimization, scalability, and reliability in real-time financial environments.
+
 
 Key Responsibilities:
 
@@ -16,6 +20,7 @@ Key Responsibilities:
 
 - Continuously enhance model accuracy and system performance through data-driven experimentation and AI innovation.
 
+
 Core Competencies:
 
 - Artificial Intelligence & Machine Learning: Deep expertise in supervised/unsupervised learning, reinforcement learning, and deep neural networks for time-series forecasting.
@@ -27,6 +32,7 @@ Core Competencies:
 - Data Engineering & Analytics: Strong command of data pipelines, feature engineering, and real-time analytics for high-frequency data.
 
 - Leadership & Mentorship: Skilled in leading cross-functional teams, fostering innovation, and driving continuous technical excellence.
+
 
 Professional Impact:
 
