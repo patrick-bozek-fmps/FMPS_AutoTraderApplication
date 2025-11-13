@@ -1,12 +1,12 @@
 package com.fmps.autotrader.desktop
 
+import com.fmps.autotrader.desktop.dashboard.DashboardView
 import com.fmps.autotrader.desktop.di.desktopModule
 import com.fmps.autotrader.desktop.i18n.Localization
 import com.fmps.autotrader.desktop.navigation.NavigationService
 import com.fmps.autotrader.desktop.navigation.ViewDescriptor
 import com.fmps.autotrader.desktop.shell.ShellView
 import com.fmps.autotrader.desktop.views.ConfigurationPlaceholderView
-import com.fmps.autotrader.desktop.views.DashboardView
 import com.fmps.autotrader.desktop.views.MonitoringPlaceholderView
 import com.fmps.autotrader.desktop.views.PatternAnalyticsPlaceholderView
 import com.fmps.autotrader.desktop.views.TraderManagementPlaceholderView

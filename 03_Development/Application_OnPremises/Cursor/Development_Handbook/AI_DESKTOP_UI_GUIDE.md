@@ -1,6 +1,6 @@
 # FMPS AutoTrader Desktop UI – Developer Guide
 
-**Version**: 0.1  
+**Version**: 0.2  
 **Last Updated**: November 13, 2025  
 **Maintainer**: AI Assistant
 
@@ -23,7 +23,8 @@ This guide captures the foundational decisions for the JavaFX/TornadoFX desktop 
 | `desktop.shell` | Main shell view + view model (sidebar, breadcrumbs, quick stats) |
 | `desktop.components` | Reusable UI controls (status badge, metric tile, toolbar button) |
 | `desktop.services` | Client interfaces + stub implementations for REST/telemetry |
-| `desktop.views` | Feature placeholder views for Issues #20–#24 |
+| `desktop.dashboard` | Dashboard view + view model (Issue #20 implementation) |
+| `desktop.views` | Placeholder views for Issues #21–#24 |
 | `desktop.i18n` | Localization helper and resource bundle loader |
 | `src/main/resources/styles/theme.css` | Global theme (color system, typography, component styles) |
 | `src/main/resources/i18n/messages.properties` | Default locale strings |
@@ -60,6 +61,7 @@ val desktopModule = module {
     single<TelemetryClient> { StubTelemetryClient() }
 
     factory { ShellViewModel(get(), get(), get()) }
+    factory { DashboardViewModel(get(), get(), get()) }
     factory { DashboardView() }
     factory { TraderManagementPlaceholderView() }
     factory { MonitoringPlaceholderView() }
@@ -108,15 +110,46 @@ val desktopModule = module {
 
 ---
 
-## 8. Service Stubs & Data Binding
+## 8. Dashboard Implementation (Issue #20)
 
-- `CoreServiceClient.traderSummaries()` exposes a `Flow<List<TraderSummary>>`. The stub emits synthetic updates every 4 seconds to exercise bindings.
-- `TelemetryClient` defines `samples()` for future WebSocket integration. `StubTelemetryClient` emits JSON snippets to demonstrate structure – Issue #22 will replace this with the real telemetry hub.
-- `ShellViewModel` collects trader summaries and publishes quick stats + toast events.
+### 8.1 ViewModel
+- `DashboardViewModel` (package `desktop.dashboard`) orchestrates trader summaries and telemetry feeds.
+- State surface (`DashboardState`) captures:
+  - `traderItems`: mapped trader summaries for UI list rendering.
+  - `quickStats`: KPI counts (active/stopped traders, open positions, aggregated P&L, critical alert count).
+  - `systemStatus`: heartbeat timestamps and connectivity flags for core service + telemetry stream.
+  - `notifications`: rolling list (12 max) of `NotificationItem` derived from telemetry channels.
+- Collectors:
+  - `CoreServiceClient.traderSummaries()` (Flow) → updates traders, quick stats, `systemStatus.lastSummaryUpdate`.
+  - `TelemetryClient.samples()` (Flow) → appends notifications, toggles telemetry connectivity, increments alert count.
+- Emits user feedback via `DashboardEvent.ShowMessage` for quick actions (start/stop/open trader).
+- Lifecycle: `telemetryClient.start()` at init, `telemetryClient.stop()` in `onCleared()`.
+
+### 8.2 View
+- `DashboardView` extends `BaseView`, binds to `DashboardViewModel`, and renders:
+  - Quick metric tiles (`MetricTile`) for active/stopped traders, aggregate P&L, open positions.
+  - Trader overview list (`ListView`) with status badges, profit colouring, and quick action buttons (“Open”, “Start”, “Stop”).
+  - System health card displaying core service & telemetry status with relative timestamps.
+  - Notifications/activity feed leveraging severity icons (info/warning/critical).
+- Adds test-friendly node IDs (`#metric-active-traders`, `#dashboard-trader-list`, etc.) and styles (`status-label-ok`, `notification-*`).
+
+### 8.3 Styling & i18n
+- `theme.css` expanded with dashboard-specific classes: quick stats row, status labels, notification typography.
+- `messages.properties` extended with dashboard keys (`dashboard.title`, `dashboard.notifications`, etc.).
+
+### 8.4 Tests
+- `DashboardViewModelTest` validates state aggregation, telemetry-driven notifications, and event emission.
+- `DashboardViewTest` smoke-instantiates the view (with Koin + JavaFX toolkit) and verifies trader list binding.
+
+## 9. Service Stubs & Data Binding
+
+- `CoreServiceClient.traderSummaries()` exposes a `Flow<List<TraderSummary>>`. The stub emits synthetic updates every 4 seconds.
+- `TelemetryClient.samples()` now randomises channels (`trader.status`, `system.warning`, `risk.alert`) to exercise notification severities.
+- `ShellViewModel` continues to surface quick stats to the shell header; dashboard consumes the same flows for richer presentation.
 
 ---
 
-## 9. Run & Build Commands
+## 10. Run & Build Commands
 
 | Task | Command |
 |------|---------|
@@ -130,7 +163,7 @@ JavaFX launcher scripts honour `--add-opens=javafx.graphics/javafx.stage=ALL-UNN
 
 ---
 
-## 10. Next Steps (Epics 5 & 6)
+## 11. Next Steps (Epics 5 & 6)
 
 1. **Issue #20** – Replace `DashboardView` placeholder with real tiles bound to REST + telemetry feeds.
 2. **Issue #21** – Swap `TraderManagementPlaceholderView` with CRUD forms and command controls.
@@ -142,10 +175,11 @@ All issues should reuse the base MVVM scaffolding and follow the `Development_Wo
 
 ---
 
-## 11. Change Log
+## 12. Change Log
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 0.2 | 2025-11-13 | Added dashboard implementation details (Issue #20), DI updates, test coverage |
 | 0.1 | 2025-11-13 | Initial publication after Issue #19 foundation completion |
 
 --- 

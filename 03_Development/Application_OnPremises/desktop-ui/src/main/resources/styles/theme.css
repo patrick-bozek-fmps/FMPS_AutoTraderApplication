@@ -169,3 +169,76 @@
     -fx-font-size: 13px;
 }
 
+.dashboard-root {
+    -fx-spacing: 16px;
+}
+
+.dashboard-header {
+    -fx-spacing: 12px;
+}
+
+.quick-stats-row {
+    -fx-padding: 4px;
+}
+
+.dashboard-main-panels {
+    -fx-alignment: TOP_LEFT;
+}
+
+.status-label {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 13px;
+    -fx-padding: 4px 8px;
+    -fx-background-radius: 8px;
+}
+
+.status-label-ok {
+    -fx-background-color: linear-gradient(to bottom right, #10b981, #059669);
+}
+
+.status-label-warning {
+    -fx-background-color: linear-gradient(to bottom right, #f59e0b, #d97706);
+}
+
+.status-label-error {
+    -fx-background-color: linear-gradient(to bottom right, #f87171, #dc2626);
+}
+
+.timestamp-label {
+    -fx-text-fill: #9ca3c5;
+    -fx-font-size: 12px;
+}
+
+.status-title {
+    -fx-text-fill: #d1d5f0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.notification-icon {
+    -fx-text-fill: #e5e7ff;
+    -fx-font-size: 16px;
+}
+
+.notification-title {
+    -fx-text-fill: #f0f3ff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.notification-message {
+    -fx-text-fill: #c7cce5;
+    -fx-font-size: 12px;
+}
+
+.notification-timestamp {
+    -fx-text-fill: #94a3c7;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+}
+
+.trader-row {
+    -fx-background-color: rgba(46, 52, 72, 0.45);
+    -fx-background-radius: 10px;
+}
+

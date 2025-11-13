@@ -52,12 +52,7 @@ class StubTelemetryClient : TelemetryClient {
         scope.launch {
             while (running) {
                 delay(2_000)
-                samples.tryEmit(
-                    TelemetrySample(
-                        channel = "trader.status",
-                        payload = """{"id":"T-001","status":"RUNNING","heartbeat":"${System.currentTimeMillis()}"}"""
-                    )
-                )
+                samples.tryEmit(randomSample())
             }
         }
     }
@@ -67,6 +62,24 @@ class StubTelemetryClient : TelemetryClient {
     }
 
     override fun samples(): Flow<TelemetrySample> = samples.asSharedFlow()
+
+    private fun randomSample(): TelemetrySample {
+        val now = System.currentTimeMillis()
+        return when (Random.nextInt(0, 4)) {
+            0 -> TelemetrySample(
+                channel = "system.warning",
+                payload = """{"type":"CPU","message":"CPU usage at ${Random.nextInt(70, 95)}%","timestamp":$now}"""
+            )
+            1 -> TelemetrySample(
+                channel = "risk.alert",
+                payload = """{"trader":"T-${Random.nextInt(100, 999)}","reason":"Drawdown threshold approached","timestamp":$now}"""
+            )
+            else -> TelemetrySample(
+                channel = "trader.status",
+                payload = """{"id":"T-001","status":"RUNNING","heartbeat":$now}"""
+            )
+        }
+    }
 }
 
 

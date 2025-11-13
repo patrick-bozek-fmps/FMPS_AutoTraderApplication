@@ -25,8 +25,9 @@ Issue #19 – Desktop UI Foundation is complete. The MVVM scaffold, navigation l
 
 **Changes in v1.2**:
 - ✅ Issue #19 (Desktop UI Foundation) completed — MVVM scaffold, navigation service, shared components, and DI wiring shipped.
-- 📈 Epic progress updated to 1/6 issues complete (17%); Issue #20 dashboard work can now start.
-- 🧪 CI evidence captured via GitHub Actions run [19338273758](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19338273758) on commit `c722de26379d8d990971822ffd17c1f1aa0c828a` (manual dispatch with forced full suite).
+- 🏗️ Issue #20 (Dashboard) implementation underway — dashboard view/model, telemetry-backed notifications, system status tiles, and TestFX smoke tests added to `desktop.dashboard`.
+- 📈 Epic progress remains 1/6 issues COMPLETE (Issue #20 in development, final verification pending).
+- 🧪 CI evidence captured via GitHub Actions run [19338273758](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19338273758) on commit `c722de26379d8d990971822ffd17c1f1aa0c828a` (manual dispatch with forced full suite). Follow-up run for docs pending final Issue #20 commit.
 
 ---
 

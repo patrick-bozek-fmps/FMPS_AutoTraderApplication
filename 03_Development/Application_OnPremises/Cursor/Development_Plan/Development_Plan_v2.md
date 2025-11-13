@@ -80,6 +80,7 @@
 - ✅ Issue #19 Desktop UI foundation delivered (commit `c722de26379d8d990971822ffd17c1f1aa0c828a`); MVVM infrastructure, navigation service, shared components, and Koin module finalized.
 - 🧪 GitHub Actions run [19338273758](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19338273758) (`workflow_dispatch`, `force-full-tests=true`) confirmed the full suite remains green after CI adjustments.
 - ⚙️ CI workflow now scopes unit tests by module with manual override; Issue 19, epic status, and development plan artifacts updated with final evidence.
+- 🏗️ Issue #20 Dashboard implementation underway: new `desktop.dashboard` package, telemetry-backed notifications, status tiles, and TestFX/Unit tests added; awaiting final full build + documentation commit for completion.
 
 **Changes from v5.3:**
 - 🏗️ Issue #19 Desktop UI foundation in progress: MVVM base classes, navigation service, shared components/theme implemented; module build green (`./gradlew :desktop-ui:clean build`).
