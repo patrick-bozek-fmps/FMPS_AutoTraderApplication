@@ -5,16 +5,88 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      force-full-tests:
+        description: 'Set to true to force running all unit tests'
+        required: false
+        default: 'false'
 
 jobs:
   unit-tests:
     name: Unit Tests (exclude @integration)
     runs-on: ubuntu-latest
+    outputs:
+      run_core_tests: ${{ steps.test-flags.outputs.run_core_tests }}
+      run_desktop_tests: ${{ steps.test-flags.outputs.run_desktop_tests }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Determine changed components
+        id: changes
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            desktop_ui:
+              - '03_Development/Application_OnPremises/desktop-ui/**'
+            core_service:
+              - '03_Development/Application_OnPremises/core-service/**'
+            shared:
+              - '03_Development/Application_OnPremises/shared/**'
+            build_logic:
+              - '03_Development/Application_OnPremises/build.gradle.kts'
+              - '03_Development/Application_OnPremises/settings.gradle.kts'
+              - '03_Development/Application_OnPremises/gradle.properties'
+              - '03_Development/Application_OnPremises/gradle/**'
+
+      - name: Set unit test scope
+        id: test-flags
+        env:
+          FORCE_FULL_TESTS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force-full-tests == 'true' }}
+        run: |
+          run_core=false
+          run_desktop=false
+
+          if [[ "${FORCE_FULL_TESTS}" == "true" ]]; then
+            echo "Force flag detected - running full unit test suite."
+            run_core=true
+            run_desktop=true
+          fi
+
+          if [[ "${{ steps.changes.outputs.core_service }}" == "true" || "${{ steps.changes.outputs.shared }}" == "true" || "${{ steps.changes.outputs.build_logic }}" == "true" ]]; then
+            run_core=true
+          fi
+
+          if [[ "${{ steps.changes.outputs.desktop_ui }}" == "true" || "${{ steps.changes.outputs.shared }}" == "true" || "${{ steps.changes.outputs.build_logic }}" == "true" ]]; then
+            run_desktop=true
+          fi
+
+          targets=()
+          if [[ "$run_desktop" == "true" ]]; then
+            targets+=(":desktop-ui:test")
+          fi
+          if [[ "$run_core" == "true" ]]; then
+            targets+=(":shared:test" ":core-service:test")
+          fi
+
+          if [[ ${#targets[@]} -gt 0 ]]; then
+            echo "gradle_targets=${targets[*]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "gradle_targets=" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "run_core_tests=$run_core" >> "$GITHUB_OUTPUT"
+          echo "run_desktop_tests=$run_desktop" >> "$GITHUB_OUTPUT"
+
+      - name: Test scope summary
+        run: |
+          echo "Core service tests: ${{ steps.test-flags.outputs.run_core_tests }}"
+          echo "Desktop UI tests: ${{ steps.test-flags.outputs.run_desktop_tests }}"
+          echo "Gradle targets: ${{ steps.test-flags.outputs.gradle_targets }}"
+
       - name: Set up JDK 17
+        if: steps.test-flags.outputs.gradle_targets != ''
         uses: actions/setup-java@v3
         with:
           java-version: '17'
@@ -22,20 +94,28 @@ jobs:
           cache: 'gradle'
 
       - name: Setup Gradle
+        if: steps.test-flags.outputs.gradle_targets != ''
         uses: gradle/actions/setup-gradle@v3
 
       - name: Grant execute permission for gradlew
+        if: steps.test-flags.outputs.gradle_targets != ''
         run: chmod +x gradlew
         working-directory: 03_Development/Application_OnPremises
 
-      - name: Assemble and run unit tests (exclude @integration)
-        run: ./gradlew clean assemble test --no-daemon -Djunit.jupiter.excludeTags=integration
+      - name: Run targeted unit tests (exclude @integration)
+        if: steps.test-flags.outputs.gradle_targets != ''
+        run: ./gradlew ${{ steps.test-flags.outputs.gradle_targets }} --no-daemon -Djunit.jupiter.excludeTags=integration
         working-directory: 03_Development/Application_OnPremises
+
+      - name: No unit tests required
+        if: steps.test-flags.outputs.gradle_targets == ''
+        run: echo "No unit test suites required for this change set."
 
   integration-tests:
     name: Integration Tests (@integration)
     runs-on: ubuntu-latest
     needs: unit-tests
+    if: needs.unit-tests.outputs.run_core_tests == 'true'
     env:
       BINANCE_API_KEY: ${{ secrets.BINANCE_API_KEY }}
       BINANCE_API_SECRET: ${{ secrets.BINANCE_API_SECRET }}
