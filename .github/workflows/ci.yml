@@ -107,6 +107,11 @@ jobs:
         run: ./gradlew ${{ steps.test-flags.outputs.gradle_targets }} --no-daemon -Djunit.jupiter.excludeTags=integration
         working-directory: 03_Development/Application_OnPremises
 
+      - name: Run verification tasks (check without tests)
+        if: steps.test-flags.outputs.gradle_targets != ''
+        run: ./gradlew check --no-daemon -x test -x integrationTest
+        working-directory: 03_Development/Application_OnPremises
+
       - name: No unit tests required
         if: steps.test-flags.outputs.gradle_targets == ''
         run: echo "No unit test suites required for this change set."

@@ -371,23 +371,21 @@ Every PR must:
 
 **Pipeline stages:**
 
-**Stage 1: Build & Test**
+**Stage 1: Targeted Build & Test**
 ```
 1. Checkout code
-2. Set up JDK 17
-3. Build all modules
-4. Run unit tests
-5. Run integration tests
-6. Generate coverage report
-7. Enforce 80% coverage
-8. Upload artifacts
+2. Use paths-filter to detect impacted modules
+3. Set up JDK 17 + Gradle cache when tests are required
+4. Run targeted Gradle test tasks (excludes @integration tagged tests)
+5. Run `gradlew check -x test -x integrationTest` for detekt, ktlint, coverage gates
+6. Short-circuit with a log message if no unit tests are required
 ```
 
-**Stage 2: Code Quality**
+**Stage 2: Integration Tests**
 ```
-1. ktlint (code style)
-2. detekt (static analysis)
-3. SonarCloud scan (optional)
+1. Triggered only when core service code changes (or forced via workflow_dispatch)
+2. Requires exchange secrets; otherwise skipped automatically
+3. Runs Gradle test task with `@integration` include tag
 ```
 
 **Stage 3: Security**
