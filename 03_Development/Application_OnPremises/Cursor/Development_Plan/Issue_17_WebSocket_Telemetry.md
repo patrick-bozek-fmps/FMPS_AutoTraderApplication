@@ -9,7 +9,7 @@
 **Epic**: Epic 4 (Core Service & API)  
 **Priority**: P1 (High – required for Desktop UI dashboards)  
 **Dependencies**: Issue #07 ✅, Issue #13 ✅, Issue #16 ✅  
-**Final Commit**: `980973f`
+**Final Commit**: `30a0538`
 
 > **NOTE**: Delivers authenticated, resilient WebSocket channels supplying trader status, position updates, risk alerts, and market snapshots for the desktop UI and future automation clients.
 
@@ -65,7 +65,7 @@ Enhance the Core WebSocket subsystem to provide multi-channel, authenticated tel
 ### **Task 6: Build & Commit** [Status: ✅ COMPLETE]
 - [x] Ran `./gradlew clean build --no-daemon` (all modules, 646 tests ✅, 0 failures).
 - [x] Addressed serialization regression (Duration) to unblock telemetry event dispatch.
-- [x] Staged and committed source + documentation updates.
+- [x] Staged and committed source + documentation updates (implementation commit `30a0538`; follow-up doc polish `980973f`).
 - [x] Recorded commit hash `980973f` above and will confirm CI ✅ via helper script post-push.
 
 ---

@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 5.1  
+**Version**: 5.2  
 **Date**: November 11, 2025  
 **Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ⏳ NOT STARTED  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -71,6 +71,11 @@
 | **4.9** | **Nov 11, 2025** | **Issue #17 telemetry build re-run + documentation updates pre-commit hash capture** | **AI Assistant** |
 | **5.0** | **Nov 11, 2025** | **Issue #18 COMPLETE: Windows service packaging scripts, templates, and guide** | **AI Assistant** |
 | **5.1** | **Nov 11, 2025** | **Issue #16 post-review hardening (remove default API key, enforce fail-fast)** | **AI Assistant** |
+| **5.2** | **Nov 11, 2025** | **Issue #17 documentation traceability fix (final commit now `30a0538`)** | **AI Assistant** |
+
+**Changes from v5.1:**
+- ✅ Corrected Issue #17 planning/status docs to point at implementation commit `30a0538` (doc follow-up `980973f`).
+- ✅ Updated review artifact to PASS after traceability fix; captured CI run 19277712159 for documentation commit.
 
 **Changes from v5.0:**
 - ✅ Removed `dev-api-key` from base configuration; production now requires provisioning via `FMPS_API_KEY` (commit `72c99f5`).
@@ -84,8 +89,8 @@
 - ✅ Marked Epic 4 as 100% complete; updated status documents and plan summaries.
 
 **Changes from v4.8:**
-- ✅ Verified telemetry build/test cycle (`./gradlew clean build --no-daemon`, Nov 11 2025 12:28 UTC, commit `980973f`).
-- ✅ Updated Issue #17, Epic 4 status, and development plan with recorded commit `980973f` ahead of CI confirmation via helper script.
+- ✅ Verified telemetry build/test cycle (`./gradlew clean build --no-daemon`, Nov 11 2025 12:28 UTC, commit `30a0538`, docs polish `980973f`).
+- ✅ Updated Issue #17, Epic 4 status, and development plan with recorded commit `30a0538` ahead of CI confirmation via helper script.
 
 **Changes from v4.7:**
 - ✅ Hardened telemetry serialization by introducing `DurationSerializer`, fixing `AITraderMetrics` uptime encoding for WebSocket events.

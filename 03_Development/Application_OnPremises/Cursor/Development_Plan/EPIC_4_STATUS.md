@@ -89,7 +89,7 @@ Downstream dependencies (Epic 5 desktop UI, Epic 6 release prep) now have secure
 - **Priority**: P1  
 - **Actual Duration**: 1 day  
 - **Dependencies**: Issue #07 ✅, #13 ✅, Issue #16 ✅  
-- **Final Commit**: `980973f`
+- **Final Commit**: `30a0538`
 
 **Delivered**:
 - Authenticated telemetry hub with structured channel catalogue (`trader-status`, `positions`, `risk-alerts`, `market-data`).
