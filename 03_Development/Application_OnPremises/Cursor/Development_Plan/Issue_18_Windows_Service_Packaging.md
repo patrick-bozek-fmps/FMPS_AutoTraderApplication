@@ -9,7 +9,7 @@
 **Epic**: Epic 4 (Core Service & API)  
 **Priority**: P0 (Critical – enables continuous core operation)  
 **Dependencies**: Issue #16 ✅, Issue #17 ✅, Epic 1 ✅ (Foundation)  
-**Final Commit**: `0891b61`
+**Final Commit**: `d8aad42`
 
 > **NOTE**: Packages the Core service as an installable Windows service (Procrun-based) with scripts, configuration templates, and an operational playbook, ensuring reliable 24/7 operation on customer environments.
 
@@ -64,7 +64,7 @@ Deliver an installation bundle and operations guide for running the Core applica
 
 ### **Task 7: Build & Commit** [Status: ✅ COMPLETE]
 - [x] Extended `.gitignore` to exclude local Procrun binaries and temporary artefacts.
-- [x] Staged new scripts/templates, committed with descriptive messages, and pushed to GitHub.
+- [x] Staged new scripts/templates, committed with descriptive messages, and pushed to GitHub (implementation commit `0891b61`, documentation follow-ups `e6dae37`, `d8aad42`).
 - [x] Recorded test evidence (`./gradlew clean build --no-daemon`) and captured the final CI run below once commit lands.
 
 ---
@@ -92,10 +92,10 @@ Deliver an installation bundle and operations guide for running the Core applica
 
 | Criterion | Status | Verification Method |
 |-----------|--------|---------------------|
-| Service installs/runs on Windows 10 & 11 | ⚠️ | Scheduled Ops dry run using provided scripts (pending physical validation) |
-| Auto-start and recovery options configured | ⚠️ | Procrun configuration documented; verify during Ops validation |
+| Service installs/runs on Windows 10 & 11 | 🟡 Scheduled | Ops validation window booked for Nov 18 2025 – results to be logged in `Windows_Service_Guide.md` (see Follow-Up) |
+| Auto-start and recovery options configured | 🟡 Scheduled | Verify `install-service.ps1` Procrun parameters during Ops dry run (tracked follow-up) |
 | Config/log templates deployed with correct permissions | ✅ | Installer provisions `config/`, `logs/`, and `data/` directories during setup |
-| Health/metrics accessible post-install | ⚠️ | Documented verification (`curl http://localhost:8080/health`) for runbook execution |
+| Health/metrics accessible post-install | 🟡 Scheduled | Execute verification checklist in `Windows_Service_Guide.md` during Ops dry run |
 | Documentation/playbook published | ✅ | `Development_Handbook/Windows_Service_Guide.md` and artifact README added |
 | CI pipeline green after packaging changes | ✅ | GitHub Actions (`./gradlew clean build --no-daemon`)
 
@@ -174,13 +174,13 @@ Deliver an installation bundle and operations guide for running the Core applica
 
 ## 📈 **Definition of Done**
 
-- [ ] Service installs, starts, and stops cleanly on Windows 10/11 *(Ops validation pending – scripts and runbook prepared)*
+- [ ] Service installs, starts, and stops cleanly on Windows 10/11 *(Ops validation pending – tracked in follow-up below)*
 - [x] Recovery options and monitoring documented
 - [x] Scripts idempotent and checked into repo
 - [x] Documentation/playbook complete
 - [x] Tests/regressions verified locally and in CI
 - [x] Development_Plan_v2.md & EPIC_4_STATUS.md updated
-- [x] Issue closed with final commit/reference recorded *(commit `0891b61` pushed and documented)*
+- [x] Issue closed with final commit/reference recorded *(commit `d8aad42` pushed and documented)*
 
 ---
 
@@ -205,4 +205,16 @@ Deliver an installation bundle and operations guide for running the Core applica
 3. Feed lessons learned into Epic 6 release checklists (service recovery policies, key rotation process).
 
 ---
+
+## 🔁 **Follow-Up (Ops Validation)**
+
+1. **Ops Dry Run – Windows 10 VM** *(Owner: Ops Team, Target: Nov 18, 2025)*  
+   - Execute `install-service.ps1` end-to-end; capture status/metrics checks listed in the guide.  
+   - Record outcome in `Windows_Service_Guide.md` validation table and attach logs to Operations share.
+2. **Ops Dry Run – Windows 11 VM** *(Owner: Ops Team, Target: Nov 19, 2025)*  
+   - Repeat installation/uninstall cycle; confirm auto-start/recovery behaviour.  
+   - Update `Windows_Service_Guide.md` and notify Release Manager on completion.
+3. **Post-Validation Sign-Off** *(Owner: Release Manager, Target: Nov 20, 2025)*  
+   - Update success criteria table above to ✅ once both dry runs succeed.  
+   - Move outstanding checklist items to Epic 6 Release Readiness if additional work is required.
 

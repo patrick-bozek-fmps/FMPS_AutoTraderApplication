@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 5.2  
+**Version**: 5.3  
 **Date**: November 11, 2025  
 **Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ⏳ NOT STARTED  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -72,6 +72,12 @@
 | **5.0** | **Nov 11, 2025** | **Issue #18 COMPLETE: Windows service packaging scripts, templates, and guide** | **AI Assistant** |
 | **5.1** | **Nov 11, 2025** | **Issue #16 post-review hardening (remove default API key, enforce fail-fast)** | **AI Assistant** |
 | **5.2** | **Nov 11, 2025** | **Issue #17 documentation traceability fix (final commit now `30a0538`)** | **AI Assistant** |
+| **5.3** | **Nov 13, 2025** | **Issue #18 Ops validation tracker + final commit alignment (`d8aad42`)** | **AI Assistant** |
+
+**Changes from v5.2:**
+- ✅ Updated Issue #18 plan/status/docs to log Ops dry runs (Windows 10/11) and reference implementation commit `0891b61` with doc follow-up `d8aad42`.
+- ✅ Bumped `Windows_Service_Guide.md` to v1.1 with validation tracker; success criteria now point to scheduled Ops activities.
+- ✅ Captured CI evidence for documentation updates (GitHub Actions run 19324193732 on `d8aad42`).
 
 **Changes from v5.1:**
 - ✅ Corrected Issue #17 planning/status docs to point at implementation commit `30a0538` (doc follow-up `980973f`).

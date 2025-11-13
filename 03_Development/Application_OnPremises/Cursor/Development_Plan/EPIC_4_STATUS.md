@@ -62,8 +62,9 @@ Downstream dependencies (Epic 5 desktop UI, Epic 6 release prep) now have secure
 ### Issue #18 – Windows Service Packaging & Deployment (Completed Nov 11, 2025)
 - Delivered PowerShell/Batch installers (`install-service.ps1/.bat`, `uninstall-service.ps1/.bat`) plus maintenance helpers (`start/stop/status`).
 - Added configuration templates (`service-config.template.conf`, `service-logging.xml`, `env.example`) and README guidance under `Cursor/Artifacts/windows-service/`.
-- Authored `Windows_Service_Guide.md` to document prerequisites, installation, upgrades, and troubleshooting.
+- Authored `Windows_Service_Guide.md` to document prerequisites, installation, upgrades, and troubleshooting (v1.1 now includes Ops validation tracker).
 - Ensured `.gitignore` excludes local Procrun binaries; scripts provision config/log/data directories automatically.
+- Ops dry runs for Windows 10/11 scheduled for week of Nov 18 (tracked in Issue #18 follow-up); success criteria will flip to ✅ after results are logged.
 
 ---
 
@@ -105,7 +106,7 @@ Downstream dependencies (Epic 5 desktop UI, Epic 6 release prep) now have secure
 - **Priority**: P0  
 - **Actual Duration**: 1 day  
 - **Dependencies**: Issue #16 ✅, Issue #17 ✅  
-- **Final Commit**: `0891b61`
+- **Final Commit**: `d8aad42`
 
 **Delivered**:
 - PowerShell + batch scripts for install/uninstall/start/stop/status (`Cursor/Artifacts/windows-service/`).

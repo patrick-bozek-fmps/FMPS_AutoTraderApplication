@@ -1,7 +1,7 @@
 # Windows Service Deployment Guide
 
-**Version**: 1.0  
-**Last Updated**: November 11, 2025  
+**Version**: 1.1  
+**Last Updated**: November 13, 2025  
 **Status**: Active  
 
 ---
@@ -140,6 +140,18 @@ Omit `-RemoveFiles` to keep configuration/logs for forensic analysis.
 - FMPS AutoTrader `Development_Workflow.md`
 - Issue documentation: `Issue_18_Windows_Service_Packaging.md`
 - Status tracking: `EPIC_4_STATUS.md`, `Development_Plan_v2.md`
+- Validation tracker below (update after each Ops dry run)
+
+---
+
+## 11. Validation Tracker (Ops)
+
+| Date (Target) | Platform | Responsible | Status | Notes |
+|---------------|----------|-------------|--------|-------|
+| 2025-11-18 | Windows 10 (64-bit) | Ops Team | Scheduled | Run full install/start/stop checklist and log results here |
+| 2025-11-19 | Windows 11 (64-bit) | Ops Team | Scheduled | Repeat validation; capture metrics/health checks |
+
+> After each run, record command output, service status, and any remediation steps in this table and attach logs to the Operations share. Once both rows read `Completed`, notify the Release Manager to flip success criteria in Issue #18 to ✅.
 
 ---
 
