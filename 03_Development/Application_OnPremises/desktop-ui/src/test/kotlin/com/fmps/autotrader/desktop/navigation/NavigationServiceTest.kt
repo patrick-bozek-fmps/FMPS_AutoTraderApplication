@@ -1,14 +1,11 @@
 package com.fmps.autotrader.desktop.navigation
 
-import javafx.application.Platform
-import javafx.embed.swing.JFXPanel
-import javafx.scene.layout.StackPane
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import tornadofx.Fragment
 import tornadofx.UIComponent
 
 class NavigationServiceTest {
@@ -16,7 +13,7 @@ class NavigationServiceTest {
     @Test
     fun `register and navigate sets current view`() {
         val service = NavigationService()
-        service.register(ViewDescriptor(route = "home", title = "Home", factory = { FakeView() }))
+        service.register(ViewDescriptor(route = "home", title = "Home", factory = { fakeView() }))
 
         service.navigate("home")
 
@@ -28,8 +25,8 @@ class NavigationServiceTest {
     @Test
     fun `go back restores previous view`() {
         val service = NavigationService()
-        service.register(ViewDescriptor(route = "home", title = "Home", factory = { FakeView("Home") }))
-        service.register(ViewDescriptor(route = "settings", title = "Settings", factory = { FakeView("Settings") }))
+        service.register(ViewDescriptor(route = "home", title = "Home", factory = { fakeView("Home") }))
+        service.register(ViewDescriptor(route = "settings", title = "Settings", factory = { fakeView("Settings") }))
 
         service.navigate("home")
         service.navigate("settings")
@@ -42,27 +39,17 @@ class NavigationServiceTest {
     @Test
     fun `duplicate route registration throws`() {
         val service = NavigationService()
-        service.register(ViewDescriptor(route = "home", title = "Home", factory = { FakeView() }))
+        service.register(ViewDescriptor(route = "home", title = "Home", factory = { fakeView() }))
 
         assertThrows(IllegalArgumentException::class.java) {
-            service.register(ViewDescriptor(route = "home", title = "Duplicate", factory = { FakeView() }))
+            service.register(ViewDescriptor(route = "home", title = "Duplicate", factory = { fakeView() }))
         }
     }
 
-    private class FakeView(title: String = "Home") : Fragment(title) {
-        override val root: StackPane = StackPane()
-    }
-
-    companion object {
-        @JvmStatic
-        @BeforeAll
-        fun initToolkit() {
-            // Initialises the JavaFX toolkit for tests.
-            JFXPanel()
-            if (!Platform.isImplicitExit()) {
-                Platform.setImplicitExit(false)
-            }
-        }
+    private fun fakeView(title: String = "Home"): UIComponent {
+        val component = mockk<UIComponent>(relaxed = true)
+        every { component.title } returns title
+        return component
     }
 }
 
