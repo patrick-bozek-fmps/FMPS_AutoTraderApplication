@@ -1,8 +1,8 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 5.3  
-**Date**: November 11, 2025  
-**Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ⏳ NOT STARTED  
+**Version**: 5.5  
+**Date**: November 13, 2025  
+**Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 🏗️ IN PROGRESS (1/6 issues complete – 17%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
 ---
@@ -15,16 +15,16 @@
 | **Epic 2: Exchange Integration** | 1 week | ✅ **COMPLETE** | All 4 issues complete ✅ | Exchange Framework ✅, Binance ✅, Bitget ✅, Technical Indicators ✅ |
 | **Epic 3: AI Trading Engine** | 3 weeks | ✅ **COMPLETE** | All 5 sections (100%) | AI traders with manager, positions, risk manager, pattern storage |
 | **Epic 4: Core Service & API** | 3 weeks | ✅ **COMPLETE** | All 3 issues complete ✅ | Production-ready API, telemetry, Windows service bundle |
-| **Epic 5: Desktop UI** | 3 weeks | ⏳ Not Started | 0/5 sections | Complete JavaFX application |
+| **Epic 5: Desktop UI** | 3 weeks | 🏗️ In Progress | 1/6 issues (17%) | Complete JavaFX application |
 | **Epic 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
 
 **Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues
 
-**Overall Progress**: **18 GitHub Issues completed (Epic 1: 100% ✅, Epic 2: 100% ✅, Epic 3: 100% ✅, Epic 4: 100% ✅)**
+**Overall Progress**: **19 GitHub Issues completed (Epic 1: 100% ✅, Epic 2: 100% ✅, Epic 3: 100% ✅, Epic 4: 100% ✅, Epic 5: 17%)**
 
-**Last Milestone**: ✅ **Issue #18** – Windows Service Packaging & Deployment (Nov 11, 2025)
+**Last Milestone**: ✅ **Issue #19** – Desktop UI Foundation (Nov 13, 2025)
 
-**In Progress**: ✳️ Epic 5 – Desktop UI backlog grooming (not yet started)
+**In Progress**: 🏗️ Epic 5 – Desktop UI Main Dashboard (Issue #20) preparation
 
 ### 📋 **Epic 1 Breakdown** (6/6 sections complete) ✅ **COMPLETE**
 
@@ -73,6 +73,18 @@
 | **5.1** | **Nov 11, 2025** | **Issue #16 post-review hardening (remove default API key, enforce fail-fast)** | **AI Assistant** |
 | **5.2** | **Nov 11, 2025** | **Issue #17 documentation traceability fix (final commit now `30a0538`)** | **AI Assistant** |
 | **5.3** | **Nov 13, 2025** | **Issue #18 Ops validation tracker + final commit alignment (`d8aad42`)** | **AI Assistant** |
+| **5.4** | **Nov 13, 2025** | **Epic 5 kicked off – Issue #19 foundation build/tests passing, plan/status updated** | **AI Assistant** |
+| **5.5** | **Nov 13, 2025** | **Issue #19 foundation completed, CI optimization documented, run 19338273758 recorded** | **AI Assistant** |
+
+**Changes from v5.4:**
+- ✅ Issue #19 Desktop UI foundation delivered (commit `c722de26379d8d990971822ffd17c1f1aa0c828a`); MVVM infrastructure, navigation service, shared components, and Koin module finalized.
+- 🧪 GitHub Actions run [19338273758](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19338273758) (`workflow_dispatch`, `force-full-tests=true`) confirmed the full suite remains green after CI adjustments.
+- ⚙️ CI workflow now scopes unit tests by module with manual override; Issue 19, epic status, and development plan artifacts updated with final evidence.
+
+**Changes from v5.3:**
+- 🏗️ Issue #19 Desktop UI foundation in progress: MVVM base classes, navigation service, shared components/theme implemented; module build green (`./gradlew :desktop-ui:clean build`).
+- 📚 Added `AI_DESKTOP_UI_GUIDE.md` to capture new architecture conventions for downstream UI issues.
+- 🔄 Epic 5 status updated to 🏗️ IN PROGRESS with refreshed next steps (documentation + CI follow-up on Issue #19).
 
 **Changes from v5.2:**
 - ✅ Updated Issue #18 plan/status/docs to log Ops dry runs (Windows 10/11) and reference implementation commit `0891b61` with doc follow-up `d8aad42`.
