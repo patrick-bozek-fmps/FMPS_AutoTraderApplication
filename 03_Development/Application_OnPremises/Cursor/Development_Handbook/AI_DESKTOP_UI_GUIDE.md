@@ -1,6 +1,6 @@
 # FMPS AutoTrader Desktop UI – Developer Guide
 
-**Version**: 0.4  
+**Version**: 0.5  
 **Last Updated**: November 14, 2025  
 **Maintainer**: AI Assistant
 
@@ -25,6 +25,7 @@ This guide captures the foundational decisions for the JavaFX/TornadoFX desktop 
 | `desktop.services` | Client interfaces + stub implementations for REST/telemetry |
 | `desktop.dashboard` | Dashboard view + view model (Issue #20 implementation) |
 | `desktop.traders` | Trader management contract/view/viewmodel (Issue #21) |
+| `desktop.monitoring` | Monitoring contract/view/viewmodel (Issue #22) |
 | `desktop.views` | Placeholder views for upcoming screens (monitoring/config/patterns) |
 | `desktop.i18n` | Localization helper and resource bundle loader |
 | `src/main/resources/styles/theme.css` | Global theme (color system, typography, component styles) |
@@ -199,6 +200,27 @@ val desktopModule = module {
 
 ---
 
+## 10. Trading Monitoring Workspace (Issue #22)
+
+- `MonitoringViewModel` consumes `MarketDataService` flows:
+  - `candlesticks(timeframe)` – updates price chart, tracks `latencyMs`/`lastUpdated`.
+  - `positions()` – drives active positions table.
+  - `tradeHistory()` – surfaces rolling trade history.
+  - `connectionStatus()` – toggles connection badge classes.
+- `MonitoringView` features:
+  - Connection badge + metadata pills for last updated and latency.
+  - Manual refresh button (disabled while refresh in-flight).
+  - Timeframe picker (1m/5m/15m/1h) triggers re-subscription.
+  - Side panel summarizing positions/trades.
+- `StubMarketDataService` simulates candlesticks, positions, trades, and fluctuating connection states.
+- Manual QA flow:
+  1. Navigate to **Monitoring** route.
+  2. Switch timeframe; chart re-renders and latency resets.
+  3. Toggle manual refresh — button disables briefly, then badge/latency update.
+  4. Observe connection badge cycling between Connected/Reconnecting/Disconnected from stub.
+
+---
+
 ## 11. Run & Build Commands
 
 | Task | Command |
@@ -228,6 +250,7 @@ All issues should reuse the base MVVM scaffolding and follow the `Development_Wo
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 0.5 | 2025-11-14 | Added monitoring workspace section, DI/navigation updates |
 | 0.4 | 2025-11-14 | Added trader management workspace section, DI/navigation updates |
 | 0.3 | 2025-11-14 | Added dashboard usage/manual validation flow + workflow reminders |
 | 0.2 | 2025-11-13 | Added dashboard implementation details (Issue #20), DI updates, test coverage |

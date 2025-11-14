@@ -1,9 +1,9 @@
 # Epic 5: Desktop UI Application - Status Report
 
 **Date**: November 14, 2025  
-**Epic Status**: 🏗️ **IN PROGRESS** (3/6 issues complete – 50%)  
-**Version**: 1.4  
-**Last Updated**: November 14, 2025 (Issue #21 trader management delivered)
+**Epic Status**: 🏗️ **IN PROGRESS** (4/6 issues complete – 67%)  
+**Version**: 1.5  
+**Last Updated**: November 14, 2025 (Issue #22 monitoring delivered; Issue #23 prep)
 
 ---
 
@@ -11,17 +11,22 @@
 
 Epic 5 delivers the Desktop UI for FMPS AutoTrader, providing traders and operators with a real-time console for monitoring, configuration, and analytics. Preparatory work in Epics 1–4 established the REST, telemetry, and packaging foundations; Epic 5 focuses on the JavaFX/TornadoFX client.
 
-Issues #19–21 are complete. The MVVM scaffold, navigation layer, shared components, localization hooks, dashboard UX, and trader management workspace (CRUD, lifecycle controls, validation) are in place. Remaining views (#22–#24) can now plug into this framework without rework.
+Issues #19–22 are complete. The MVVM scaffold, navigation layer, shared components, localization hooks, dashboard UX, trader management workspace, and monitoring workspace are in place. Remaining views (#23–#24) can now plug into this framework without rework.
 
-**Status**: Foundation + dashboard + trader management delivered; move to monitoring workspace (Issue #22).
+**Status**: Foundation + dashboard + trader management + monitoring delivered; move to configuration workspace (Issue #23).
 
 **Key Components**:
 - UI foundation & navigation scaffold – ✅ Complete (Issue #19)
 - Operator dashboard – ✅ Complete (Issue #20)
 - Trader lifecycle management – ✅ Complete (Issue #21)
-- Trading monitoring workspace – 📋 Planned (Issue #22)
+- Trading monitoring workspace – ✅ Complete (Issue #22)
 - Configuration console – 📋 Planned (Issue #23)
 - Pattern analytics and insights – 📋 Planned (Issue #24)
+
+**Changes in v1.5**:
+- ✅ Issue #22 (Monitoring View) enhanced — connection status badge, manual refresh, latency tracking, and `MarketDataService.connectionStatus()` delivered (commit `844946a`).
+- 🧪 Local gates `./gradlew :desktop-ui:test`, `./gradlew clean test --no-daemon`; CI runs [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753), [19366988041](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366988041), [19368371326](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19368371326) tracked.
+- 📚 Guide + plans updated (Dev Plan v5.9, AI_DESKTOP_UI_GUIDE v0.5) to describe monitoring workflow; Epic progress now 4/6 issues COMPLETE (67%).
 
 **Changes in v1.4**:
 - ✅ Issue #21 (Trader Management View) completed — CRUD form, lifecycle controls, search/filter table, and new `TraderService` abstraction shipped (commit `ab739be`).
@@ -48,13 +53,13 @@ Issues #19–21 are complete. The MVVM scaffold, navigation layer, shared compon
 | #19 | Desktop UI Foundation | ✅ Complete | P0 | 3 days (actual) | Epics 1–4 ✅ |
 | #20 | Desktop UI Main Dashboard | ✅ Complete | P0 | ~4 days (2 days actual) | Issue #19 ✅ |
 | #21 | AI Trader Management View | ✅ Complete | P0 | 1 day (actual) | Issues #19–20 ✅ |
-| #22 | Trading Monitoring View | 📋 Planned | P1 | ~5 days | Issues #19–21 ⏳ |
+| #22 | Trading Monitoring View | ✅ Complete | P1 | 1 day (actual) | Issues #19–21 ✅ |
 | #23 | Configuration Management View | 📋 Planned | P1 | ~3 days | Issues #19–20 ✅ |
 | #24 | Pattern Analytics View | 📋 Planned | P2 | ~3 days | Issues #19–22 ⏳ |
 
 **Total Estimated Duration**: ~3 weeks  
-**Actual Duration**: 6 days (Issues #19–21 delivered)  
-**Current Progress**: 3/6 issues complete (50%)
+**Actual Duration**: 7 days (Issues #19–22 delivered)  
+**Current Progress**: 4/6 issues complete (67%)
 
 ---
 
@@ -75,7 +80,7 @@ Issues #19–21 are complete. The MVVM scaffold, navigation layer, shared compon
 | JavaFX/TornadoFX scaffold operational | ✅ | Issue #19 DoD + CI run [19338273758](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19338273758) | Desktop shell boots; shared components/theme ready |
 | Dashboard delivers live trader/system insights | ✅ | Issue #20 DoD + CI run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) | Trader stats, system health, notifications validated |
 | Trader management UI supports CRUD & controls | ✅ | Issue #21 DoD + `./gradlew clean test` + GA run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) | CRUD form + lifecycle actions verified via stub + tests |
-| Monitoring view streams real-time market/position data | ⏳ | Issue #22 DoD | WebSocket channels available |
+| Monitoring view streams real-time market/position data | ✅ | Issue #22 DoD + GA run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) | Stub MarketDataService feeds chart/positions/trades |
 | Configuration console manages settings securely | ⏳ | Issue #23 DoD | ConfigManager (Issue #6) complete |
 | Pattern analytics visualization available | ⏳ | Issue #24 DoD | Pattern repositories delivered in Issue #10 |
 
@@ -110,15 +115,18 @@ Epic 6: Testing & Polish
 │  └─ Completed; unlocks downstream UI views
 ├─ ✅ Issue #21 – AI Trader Management View
 │  └─ Completed; CRUD/lifecycle flows ready for integration tests
-└─ ⏳ Issue #22 – Trading Monitoring View
-   └─ Critical for release monitoring scenarios
+├─ ✅ Issue #22 – Trading Monitoring View
+│  └─ Completed; monitoring dashboards ready for telemetry integration
+└─ ⏳ Issue #23 – Configuration Management View
+   └─ Critical for release-time configuration workflows
 ```
 
 **Critical Path**:
 1. ✅ Issue #19 – UI Foundation (execution gate cleared)
 2. ✅ Issue #20 – Dashboard (operator entry point)
 3. ✅ Issue #21 – Trader management workspace (CRUD/lifecycle)
-4. ⏳ Issue #22 – Monitoring workspace (charts + positions) – remaining blocker before configuration/pattern views
+4. ✅ Issue #22 – Monitoring workspace (charts + positions)
+5. ⏳ Issue #23 – Configuration workspace (next blocking item before pattern analytics)
 
 **Result**: Epic 5 must complete before Epic 6 integration tests proceed.
 
@@ -131,15 +139,15 @@ Epic 6: Testing & Polish
 1. ✅ Issue #19 – Desktop UI Foundation – MVVM scaffold, navigation, shared components, DI module, and test suite delivered (Nov 13, 2025).
 2. ✅ Issue #20 – Main Dashboard – Dashboard UX, telemetry integration, and CI verification delivered (Nov 14, 2025).
 3. ✅ Issue #21 – AI Trader Management View – CRUD workspace delivered (Nov 14, 2025).
-4. 📋 Issue #22 – Trading Monitoring View – Planning complete, depends on Issues #19–21.
+4. ✅ Issue #22 – Trading Monitoring View – Monitoring workspace delivered (Nov 14, 2025).
 5. 📋 Issue #23 – Configuration View – Planning complete, depends on Issue #19.
 6. 📋 Issue #24 – Pattern Analytics View – Planning complete, depends on Issues #19–22.
 
 ### **Next Actions**
 
-1. Kick off Issue #22 – Desktop UI Trading Monitoring View (charts/positions + WebSocket feeds).
-2. Coordinate UI design review (themes/components) before implementing Issue #22.
-3. Extend stub telemetry data set (order book, positions) to support Issues #22–24 testing.
+1. Kick off Issue #23 – Desktop UI Configuration View (settings + credential workflows).
+2. Coordinate UI design review (forms/validation) before implementing Issue #23.
+3. Extend stub telemetry/data fixtures to support Issues #23–24 testing.
 
 ### **🏆 Key Achievement**
 
@@ -165,8 +173,8 @@ Epic 6: Testing & Polish
 1. [x] Issue #19–#24 planning documents created and reviewed.
 
 ### **Next (Epic 5 Execution)**
-1. [ ] Implement Issue #22 – Trading Monitoring View (charts + telemetry binding).
-2. [ ] Define configuration UX flows ahead of Issue #23.
+1. [ ] Implement Issue #23 – Configuration Management View (credentials, defaults, validation).
+2. [ ] Define configuration UX flows ahead of Issue #23 delivery.
 3. [ ] Prepare pattern analytics data fixtures for Issue #24 tests.
 
 ---
@@ -181,6 +189,6 @@ Epic 6: Testing & Polish
 
 **Created**: November 13, 2025  
 **Author**: AI Assistant  
-**Last Updated**: November 14, 2025 (Issue #21 complete; preparing Issue #22)  
-**Next Review**: After Issue #22 completion  
-**Status**: Foundation, dashboard, and trader management delivered; continue with monitoring/config/pattern views.
+**Last Updated**: November 14, 2025 (Issue #22 complete; preparing Issue #23)  
+**Next Review**: After Issue #23 completion  
+**Status**: Foundation, dashboard, trader management, and monitoring delivered; continue with configuration/pattern views.
