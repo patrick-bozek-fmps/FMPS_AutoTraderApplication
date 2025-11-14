@@ -1,6 +1,6 @@
 # FMPS AutoTrader Desktop UI – Developer Guide
 
-**Version**: 0.5  
+**Version**: 0.6  
 **Last Updated**: November 14, 2025  
 **Maintainer**: AI Assistant
 
@@ -26,6 +26,7 @@ This guide captures the foundational decisions for the JavaFX/TornadoFX desktop 
 | `desktop.dashboard` | Dashboard view + view model (Issue #20 implementation) |
 | `desktop.traders` | Trader management contract/view/viewmodel (Issue #21) |
 | `desktop.monitoring` | Monitoring contract/view/viewmodel (Issue #22) |
+| `desktop.config` | Configuration contract/view/viewmodel (Issue #23) |
 | `desktop.views` | Placeholder views for upcoming screens (monitoring/config/patterns) |
 | `desktop.i18n` | Localization helper and resource bundle loader |
 | `src/main/resources/styles/theme.css` | Global theme (color system, typography, component styles) |
@@ -221,7 +222,24 @@ val desktopModule = module {
 
 ---
 
-## 11. Run & Build Commands
+## 11. Configuration Workspace (Issue #23)
+
+- `ConfigurationViewModel` leverages `ConfigService` to stream/persist settings:
+  - `configuration()` – snapshot flow consumed on init.
+  - `saveExchangeSettings`, `saveGeneralSettings`, `saveTraderDefaults` – persist sections individually.
+  - `testExchangeConnection` – async validation with toast feedback and inline status chip.
+  - `exportConfiguration` / `importConfiguration` – text-based import/export with validation + preview.
+- `ConfigurationView` is tabbed; highlights:
+  - Exchange tab: API key/secret/passphrase fields, exchange selector, validation hints, manual connection test button.
+  - General tab: numeric inputs for update interval/telemetry polling, logging level dropdown, theme preference toggle.
+  - Trader defaults tab: budget/leverage/stop-loss/strategy fields feeding Issue #21 defaults.
+  - Import/Export tab: read-only export area, editable import textarea, status label (success/error).
+- `StubConfigService` hosts in-memory snapshot + fake connection test; replace with backend adapter prior to GA.
+- Security: secrets remain masked in UI; encryption handled by server-side `ConfigManager` (Issue #6) — see Config Guide v1.1.
+
+---
+
+## 12. Run & Build Commands
 
 | Task | Command |
 |------|---------|
@@ -235,7 +253,7 @@ JavaFX launcher scripts honour `--add-opens=javafx.graphics/javafx.stage=ALL-UNN
 
 ---
 
-## 12. Next Steps (Epics 5 & 6)
+## 13. Next Steps (Epics 5 & 6)
 
 1. **Issue #22** – Trading Monitoring View (charts/positions, WebSocket bindings).
 2. **Issue #23** – Configuration Management View (API credentials, defaults, import/export).
@@ -246,10 +264,11 @@ All issues should reuse the base MVVM scaffolding and follow the `Development_Wo
 
 ---
 
-## 13. Change Log
+## 14. Change Log
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 0.6 | 2025-11-14 | Added configuration workspace section + module references |
 | 0.5 | 2025-11-14 | Added monitoring workspace section, DI/navigation updates |
 | 0.4 | 2025-11-14 | Added trader management workspace section, DI/navigation updates |
 | 0.3 | 2025-11-14 | Added dashboard usage/manual validation flow + workflow reminders |

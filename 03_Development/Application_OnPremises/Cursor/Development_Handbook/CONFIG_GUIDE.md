@@ -1,7 +1,7 @@
 # Configuration Management Guide
 
-**Version**: 1.0  
-**Last Updated**: November 11, 2025  
+**Version**: 1.1  
+**Last Updated**: November 14, 2025  
 **Status**: Complete  
 
 ---
@@ -104,6 +104,20 @@ export DB_PATH=/custom/path/to/db
 export BINANCE_API_KEY=your_api_key
 export BINANCE_API_SECRET=your_api_secret
 ```
+
+---
+
+## 🖥️ Desktop Configuration Workspace (Issue #23)
+
+- **Location**: `desktop-ui` → route `configuration` (registered in `DesktopApp`).
+- **Structure**: Tabbed layout (Exchange, General, Trader Defaults, Import/Export) backed by `ConfigurationViewModel` + `ConfigService`.
+- **Exchange Tab**: API key/secret/passphrase fields, exchange selector, validation, and “Test Connection” action (calls `ConfigService.testExchangeConnection`).
+- **General Tab**: Update interval, telemetry polling, logging level, and theme preference controls.
+- **Trader Defaults Tab**: Default budget, leverage, stop-loss %, and strategy fields used as templates for Issue #21 flows.
+- **Import/Export Tab**: Snapshot export text area plus import text area; import performs validation and only applies changes after confirmation.
+- **Stub Support**: `StubConfigService` keeps an in-memory snapshot for local development; replace with real backend adapters before GA.
+- **Security**: API secrets remain masked in UI; actual encryption is delegated to `ConfigManager` (Issue #6). Epic 6 will wire secure storage providers.
+- **Audit Trail TODO**: Placeholder hook recorded—log configuration changes once audit subsystem ships (Epic 6).
 
 ---
 

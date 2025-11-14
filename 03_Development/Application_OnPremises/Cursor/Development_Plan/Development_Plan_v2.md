@@ -1,8 +1,8 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 5.9  
+**Version**: 6.0  
 **Date**: November 14, 2025  
-**Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 🏗️ IN PROGRESS (4/6 issues complete – 67%)  
+**Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 🏗️ IN PROGRESS (5/6 issues complete – 83%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
 ---
@@ -15,16 +15,16 @@
 | **Epic 2: Exchange Integration** | 1 week | ✅ **COMPLETE** | All 4 issues complete ✅ | Exchange Framework ✅, Binance ✅, Bitget ✅, Technical Indicators ✅ |
 | **Epic 3: AI Trading Engine** | 3 weeks | ✅ **COMPLETE** | All 5 sections (100%) | AI traders with manager, positions, risk manager, pattern storage |
 | **Epic 4: Core Service & API** | 3 weeks | ✅ **COMPLETE** | All 3 issues complete ✅ | Production-ready API, telemetry, Windows service bundle |
-| **Epic 5: Desktop UI** | 3 weeks | 🏗️ In Progress | 4/6 issues (67%) | Complete JavaFX application |
+| **Epic 5: Desktop UI** | 3 weeks | 🏗️ In Progress | 5/6 issues (83%) | Complete JavaFX application |
 | **Epic 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
 
 **Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues
 
-**Overall Progress**: **22 GitHub Issues completed (Epic 1: 100% ✅, Epic 2: 100% ✅, Epic 3: 100% ✅, Epic 4: 100% ✅, Epic 5: 67%)**
+**Overall Progress**: **23 GitHub Issues completed (Epic 1: 100% ✅, Epic 2: 100% ✅, Epic 3: 100% ✅, Epic 4: 100% ✅, Epic 5: 83%)**
 
-**Last Milestone**: ✅ **Issue #22** – Trading Monitoring View (Nov 14, 2025)
+**Last Milestone**: ✅ **Issue #23** – Configuration Management View (Nov 14, 2025)
 
-**In Progress**: 🏗️ Epic 5 – Configuration Management View (Issue #23) planning
+**In Progress**: 🏗️ Epic 5 – Pattern Analytics View (Issue #24) planning
 
 ### 📋 **Epic 1 Breakdown** (6/6 sections complete) ✅ **COMPLETE**
 
@@ -77,9 +77,8 @@
 | **5.5** | **Nov 13, 2025** | **Issue #19 foundation completed, CI optimization documented, run 19338273758 recorded** | **AI Assistant** |
 | **5.6** | **Nov 14, 2025** | **Issue #20 resumed after workflow refresh – reran `clean test`/`clean build` ahead of documentation + CI steps** | **AI Assistant** |
 | **5.7** | **Nov 14, 2025** | **Issue #20 dashboard delivered (commit `535e114`); forced CI run 19366650753 logged; docs/status artifacts updated** | **AI Assistant** |
-| **5.8** | **Nov 14, 2025** | **Issue #21 trader management workspace delivered (commit `ab739be`); docs refreshed (EPIC 5 v1.4, UI guide v0.4)** | **AI Assistant** |
+| **6.0** | **Nov 14, 2025** | **Issue #23 configuration workspace delivered (commit `24c84b3`); Config Guide v1.1 + UI guide v0.6 updated** | **AI Assistant** |
 | **5.9** | **Nov 14, 2025** | **Issue #22 monitoring workspace enhanced (commit `844946a`); connection badge/manual refresh added; docs v1.5/0.5 updated** | **AI Assistant** |
-| **5.9** | **Nov 14, 2025** | **Issue #22 monitoring view delivered (commit `6d8b359`); MarketDataService added; docs/CI updated** | **AI Assistant** |
 | **5.8** | **Nov 14, 2025** | **Issue #21 trader management workspace delivered (commit `ab739be`); docs refreshed (EPIC 5 v1.4, UI guide v0.4)** | **AI Assistant** |
 
 **Changes from v5.7:**
@@ -88,13 +87,19 @@
 - 📚 Documentation refreshed: Issue 21 marked complete, Epic 5 status v1.4, AI Desktop UI Guide v0.4 trader management chapter.
 - 🎯 Focus now shifts to Issue #22 (Trading Monitoring View) implementation.
 
+**Changes from v5.9:**
+- ✅ Issue #23 Configuration View delivered (commit `24c84b3`): `ConfigService`, configuration tabs, import/export workflow, connection testing.
+- 🧪 Tests: `./gradlew :desktop-ui:test`, `./gradlew clean build --no-daemon`; CI run [19370918030](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19370918030) recorded.
+- 📚 Documentation: Issue 23 marked complete, EPIC 5 status v1.6, Dev Plan v6.0, Config Guide v1.1, UI Handbook v0.6.
+- 🔜 Next up: Issue #24 Pattern Analytics View implementation.
+
 **Changes from v5.8:**
 - ✅ Issue #22 Trading Monitoring View delivered (commit `6d8b359`) – monitoring view/model, MarketDataService, chart + tables shipped.
 - 🧪 Tests: `./gradlew :desktop-ui:test`, `./gradlew clean test`; CI runs [19366650753], [19366988041], [19368371326] recorded.
 - 📚 Documentation: Issue 22 marked complete, EPIC 5 status v1.5, Dev Plan v5.9, AI Desktop UI Guide v0.5.
-- 🔜 Next up: Issue #23 Configuration View planning/implementation.
+- 🔜 Next up: Issue #24 Pattern Analytics View planning/implementation.
 
-**Changes from v5.8:**
+**Changes from v5.8 (Incremental Enhancements):**
 - ✅ Issue #22 Trading Monitoring View enhanced (commit `844946a`): connection status badge, latency tracking, manual refresh UX, and `MarketDataService.connectionStatus()` added.
 - 🧪 Local gates `./gradlew :desktop-ui:test` + `./gradlew clean test --no-daemon`; CI runs [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753), [19366988041](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366988041), [19368371326](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19368371326) monitored.
 - 📚 Documentation updated: `Issue_22_Trading_Monitoring_View.md`, `EPIC_5_STATUS.md` v1.5, UI guide v0.5.
