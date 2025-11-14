@@ -1,13 +1,13 @@
 # Issue #13: Position Manager - Task Review & QA Report
 
 **Review Date**: November 7, 2025  
-**Reviewer**: Software Engineer - Task Review and QA  
-**Issue Status**: COMPLETE (per issue doc)  
-**Review Status**: PASS (Remediated November 7, 2025)
+**Reviewer**: Software Engineer – Task Review and QA  
+**Issue Status**: ✅ **COMPLETE** (per issue doc)  
+**Review Status**: ✅ **PASS** (remediated November 7, 2025)
 
 ---
 
-## Summary
+## 📋 **Executive Summary**
 
 Retested the Position Manager after the remediation drop and confirmed that the previously reported gaps are closed:
 
@@ -54,7 +54,7 @@ Original findings and recommendations are preserved below for traceability.
 
 ---
 
-## Findings
+## ⚠️ **Findings**
 
 | Status | Area | Description & Evidence |
 |--------|------|-------------------------|
@@ -80,24 +80,24 @@ Command: `./gradlew :core-service:test --tests "*PositionManagerTest*"`
 
 ---
 
-## Verification
+## 🧪 **Verification**
 
 - `./gradlew :core-service:test --tests "*PositionManagerTest*"` *(passes; JaCoCo report generated)*
 
-## Observations
+## 👀 **Observations**
 
 - Latest remediation introduces optional `riskManager` hooks; the Risk Manager integration is feature-flagged and does not regress Position Manager behaviour.
 - Documentation references the remediation commit (`eca58b7`) and CI run (`19172479322`). The top-level “Final Commit” field in `Issue_13_Position_Manager.md` still lists `66cf6d2`; consider updating it to the actual remediation commit for full alignment.
 - Epic status now reflects Issue #13 completion, but the “Final Commit” cell remains `_Pending documentation commit_`; follow-up housekeeping can replace that placeholder with the remediation hash.
 
-## Recommended Actions (Original Findings)
+## 🛠️ **Recommended Actions (Original Findings)**
 
 1. Treat repository update failures as fatal inside `closePosition`—surface the error instead of removing the in-memory position.
 2. Either implement trailing stop behaviour (store flag, update logic) or downgrade the documentation claims until the feature exists.
 3. Synchronise planning/stats documents with reality (mark Issue 13 sections as complete, update Task 12 checklist, add final commit hash/CI evidence).
 4. Coordinate with the Risk Manager work so that Position Manager tests either stub emergency stops or defer the new expectations until the implementation lands.
 
-## Resolution (November 7, 2025)
+## ✅ **Resolution (November 7, 2025)**
 
 - ✅ `closePosition` now raises a `PositionException` when `PositionPersistence.closePosition` fails, ensuring the position remains active until persistence succeeds; regression test `test close position fails when repository close fails` added.
 - ✅ Trailing stop support persists activation metadata and auto-adjusts through `updatePosition`; `ManagedPosition` tracks trailing distance/reference and tests assert dynamic stop updates.
