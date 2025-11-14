@@ -2,7 +2,7 @@
 
 **Version**: 5.5  
 **Date**: November 13, 2025  
-**Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 🏗️ IN PROGRESS (1/6 issues complete – 17%)  
+**Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 🏗️ IN PROGRESS (2/6 issues complete – 33%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
 ---
@@ -15,16 +15,16 @@
 | **Epic 2: Exchange Integration** | 1 week | ✅ **COMPLETE** | All 4 issues complete ✅ | Exchange Framework ✅, Binance ✅, Bitget ✅, Technical Indicators ✅ |
 | **Epic 3: AI Trading Engine** | 3 weeks | ✅ **COMPLETE** | All 5 sections (100%) | AI traders with manager, positions, risk manager, pattern storage |
 | **Epic 4: Core Service & API** | 3 weeks | ✅ **COMPLETE** | All 3 issues complete ✅ | Production-ready API, telemetry, Windows service bundle |
-| **Epic 5: Desktop UI** | 3 weeks | 🏗️ In Progress | 1/6 issues (17%) | Complete JavaFX application |
+| **Epic 5: Desktop UI** | 3 weeks | 🏗️ In Progress | 2/6 issues (33%) | Complete JavaFX application |
 | **Epic 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
 
 **Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues
 
-**Overall Progress**: **19 GitHub Issues completed (Epic 1: 100% ✅, Epic 2: 100% ✅, Epic 3: 100% ✅, Epic 4: 100% ✅, Epic 5: 17%)**
+**Overall Progress**: **20 GitHub Issues completed (Epic 1: 100% ✅, Epic 2: 100% ✅, Epic 3: 100% ✅, Epic 4: 100% ✅, Epic 5: 33%)**
 
-**Last Milestone**: ✅ **Issue #19** – Desktop UI Foundation (Nov 13, 2025)
+**Last Milestone**: ✅ **Issue #20** – Desktop UI Main Dashboard (Nov 14, 2025)
 
-**In Progress**: 🏗️ Epic 5 – Desktop UI Main Dashboard (Issue #20) preparation
+**In Progress**: 🏗️ Epic 5 – AI Trader Management View (Issue #21) preparation
 
 ### 📋 **Epic 1 Breakdown** (6/6 sections complete) ✅ **COMPLETE**
 
@@ -76,6 +76,13 @@
 | **5.4** | **Nov 13, 2025** | **Epic 5 kicked off – Issue #19 foundation build/tests passing, plan/status updated** | **AI Assistant** |
 | **5.5** | **Nov 13, 2025** | **Issue #19 foundation completed, CI optimization documented, run 19338273758 recorded** | **AI Assistant** |
 | **5.6** | **Nov 14, 2025** | **Issue #20 resumed after workflow refresh – reran `clean test`/`clean build` ahead of documentation + CI steps** | **AI Assistant** |
+| **5.7** | **Nov 14, 2025** | **Issue #20 dashboard delivered (commit `535e114`); forced CI run 19366650753 logged; docs/status artifacts updated** | **AI Assistant** |
+
+**Changes from v5.6:**
+- ✅ Issue #20 Desktop UI Main Dashboard delivered (commit `535e114`) – dashboard UX, telemetry-backed notifications, system health tiles, and TestFX/UI tests complete.
+- 🧪 Forced GitHub Actions run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) executed full desktop/core/shared unit suites; follow-up doc run [19366757467](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366757467) captured status updates.
+- 📚 Documentation refreshed: `Issue_20_Main_Dashboard.md` marked ✅, `EPIC_5_STATUS.md` v1.3, `AI_DESKTOP_UI_GUIDE.md` v0.3 usage instructions, Dev Plan v5.7 entry logged.
+- 🔜 Focus shifts to Issue #21 (Trader Management View) now that foundation + dashboard are complete.
 
 **Changes from v5.4:**
 - ✅ Issue #19 Desktop UI foundation delivered (commit `c722de26379d8d990971822ffd17c1f1aa0c828a`); MVVM infrastructure, navigation service, shared components, and Koin module finalized.

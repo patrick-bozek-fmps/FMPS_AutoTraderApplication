@@ -1,9 +1,9 @@
 # Epic 5: Desktop UI Application - Status Report
 
-**Date**: November 13, 2025  
-**Epic Status**: 🏗️ **IN PROGRESS** (1/6 issues complete – 17%)  
-**Version**: 1.2  
-**Last Updated**: November 13, 2025 (Issue #19 foundation delivered; Issue #20 prepping)
+**Date**: November 14, 2025  
+**Epic Status**: 🏗️ **IN PROGRESS** (2/6 issues complete – 33%)  
+**Version**: 1.3  
+**Last Updated**: November 14, 2025 (Issue #20 dashboard delivered; Issue #21 prep)
 
 ---
 
@@ -11,17 +11,22 @@
 
 Epic 5 delivers the Desktop UI for FMPS AutoTrader, providing traders and operators with a real-time console for monitoring, configuration, and analytics. Preparatory work in Epics 1–4 established the REST, telemetry, and packaging foundations; Epic 5 focuses on the JavaFX/TornadoFX client.
 
-Issue #19 – Desktop UI Foundation is complete. The MVVM scaffold, navigation layer, shared components, localization hooks, and module build tooling are in place (`./gradlew :desktop-ui:clean build`). Remaining views (#20–#24) can now plug into this framework without rework.
+Issues #19–20 are complete. The MVVM scaffold, navigation layer, shared components, localization hooks, and dashboard UX (trader summaries, system health, notifications) are in place. Remaining views (#21–#24) can now plug into this framework without rework.
 
-**Status**: Foundation delivered; dashboard implementation (#20) ready to start.
+**Status**: Foundation + dashboard delivered; move to trader management (Issue #21).
 
 **Key Components**:
 - UI foundation & navigation scaffold – ✅ Complete (Issue #19)
-- Operator dashboard – 📋 Planned (Issue #20)
+- Operator dashboard – ✅ Complete (Issue #20)
 - Trader lifecycle management – 📋 Planned (Issue #21)
 - Trading monitoring workspace – 📋 Planned (Issue #22)
 - Configuration console – 📋 Planned (Issue #23)
 - Pattern analytics and insights – 📋 Planned (Issue #24)
+
+**Changes in v1.3**:
+- ✅ Issue #20 (Dashboard) completed — dashboard view/model, telemetry-backed notifications, system health tiles, and TestFX suite finalized (commit `535e114`).
+- 🧪 Forced GitHub Actions run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) (`workflow_dispatch`, `force-full-tests=true`) confirmed desktop/core/shared unit suites pass after dashboard integration; doc follow-up run [19366757467](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366757467) recorded status updates.
+- 📈 Epic progress now 2/6 issues COMPLETE (33%); focus shifts to Issue #21 (Trader Management View) planning/implementation.
 
 **Changes in v1.2**:
 - ✅ Issue #19 (Desktop UI Foundation) completed — MVVM scaffold, navigation service, shared components, and DI wiring shipped.
@@ -36,15 +41,15 @@ Issue #19 – Desktop UI Foundation is complete. The MVVM scaffold, navigation l
 | Issue | Title | Status | Priority | Duration (Est.) | Dependencies |
 |-------|-------|--------|----------|-----------------|--------------|
 | #19 | Desktop UI Foundation | ✅ Complete | P0 | 3 days (actual) | Epics 1–4 ✅ |
-| #20 | Desktop UI Main Dashboard | 📋 Planned | P0 | ~4 days | Issue #19 ⏳ |
-| #21 | AI Trader Management View | 📋 Planned | P0 | ~4 days | Issues #19–20 ⏳ |
+| #20 | Desktop UI Main Dashboard | ✅ Complete | P0 | ~4 days (2 days actual) | Issue #19 ✅ |
+| #21 | AI Trader Management View | 📋 Planned | P0 | ~4 days | Issues #19–20 ✅ |
 | #22 | Trading Monitoring View | 📋 Planned | P1 | ~5 days | Issues #19–21 ⏳ |
-| #23 | Configuration Management View | 📋 Planned | P1 | ~3 days | Issues #19–20 ⏳ |
+| #23 | Configuration Management View | 📋 Planned | P1 | ~3 days | Issues #19–20 ✅ |
 | #24 | Pattern Analytics View | 📋 Planned | P2 | ~3 days | Issues #19–22 ⏳ |
 
 **Total Estimated Duration**: ~3 weeks  
-**Actual Duration**: 3 days (Issue #19 delivered)  
-**Current Progress**: 1/6 issues complete (17%)
+**Actual Duration**: 5 days (Issues #19–20 delivered)  
+**Current Progress**: 2/6 issues complete (33%)
 
 ---
 
@@ -63,7 +68,7 @@ Issue #19 – Desktop UI Foundation is complete. The MVVM scaffold, navigation l
 | Criterion | Status | Verification Method | Notes |
 |-----------|--------|---------------------|-------|
 | JavaFX/TornadoFX scaffold operational | ✅ | Issue #19 DoD + CI run [19338273758](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19338273758) | Desktop shell boots; shared components/theme ready |
-| Dashboard delivers live trader/system insights | ⏳ | Issue #20 DoD | Requires telemetry integration from Issue #17 (ready) |
+| Dashboard delivers live trader/system insights | ✅ | Issue #20 DoD + CI run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) | Trader stats, system health, notifications validated |
 | Trader management UI supports CRUD & controls | ⏳ | Issue #21 DoD | Ties into REST endpoints hardened in Issue #16 |
 | Monitoring view streams real-time market/position data | ⏳ | Issue #22 DoD | WebSocket channels available |
 | Configuration console manages settings securely | ⏳ | Issue #23 DoD | ConfigManager (Issue #6) complete |
@@ -118,7 +123,7 @@ Epic 6: Testing & Polish
 ### **Current Epic Status**
 
 1. ✅ Issue #19 – Desktop UI Foundation – MVVM scaffold, navigation, shared components, DI module, and test suite delivered (Nov 13, 2025).
-2. 📋 Issue #20 – Main Dashboard – Planning complete, depends on Issue #19.
+2. ✅ Issue #20 – Main Dashboard – Dashboard UX, telemetry integration, and CI verification delivered (Nov 14, 2025).
 3. 📋 Issue #21 – AI Trader Management View – Planning complete, depends on Issues #19–20.
 4. 📋 Issue #22 – Trading Monitoring View – Planning complete, depends on Issues #19–21.
 5. 📋 Issue #23 – Configuration View – Planning complete, depends on Issue #19.
@@ -126,9 +131,9 @@ Epic 6: Testing & Polish
 
 ### **Next Actions**
 
-1. Kick off Issue #20 – Desktop UI Main Dashboard implementation and UX alignment.
-2. Coordinate UI design review (themes/components) before implementing Issue #20.
-3. Prepare mock telemetry data set for testing Issues #21–22.
+1. Kick off Issue #21 – Desktop UI Trader Management View; align UX with foundation components.
+2. Coordinate UI design review (themes/components) before implementing Issue #21.
+3. Prepare mock telemetry + CRUD fixtures for testing Issues #21–22 (reuse stubs created in Issue #20).
 
 ### **🏆 Key Achievement**
 
