@@ -6,9 +6,9 @@ import com.fmps.autotrader.desktop.i18n.Localization
 import com.fmps.autotrader.desktop.navigation.NavigationService
 import com.fmps.autotrader.desktop.navigation.ViewDescriptor
 import com.fmps.autotrader.desktop.shell.ShellView
+import com.fmps.autotrader.desktop.monitoring.MonitoringView
 import com.fmps.autotrader.desktop.traders.TraderManagementView
 import com.fmps.autotrader.desktop.views.ConfigurationPlaceholderView
-import com.fmps.autotrader.desktop.views.MonitoringPlaceholderView
 import com.fmps.autotrader.desktop.views.PatternAnalyticsPlaceholderView
 import javafx.stage.Stage
 import org.koin.core.KoinApplication
@@ -53,7 +53,7 @@ class DesktopApp : App(ShellView::class) {
             listOf(
                 ViewDescriptor(route = "dashboard", title = "Overview", factory = { koin.get<DashboardView>() }),
                 ViewDescriptor(route = "traders", title = "AI Traders", factory = { koin.get<TraderManagementView>() }),
-                ViewDescriptor(route = "monitoring", title = "Monitoring", factory = { koin.get<MonitoringPlaceholderView>() }),
+                ViewDescriptor(route = "monitoring", title = "Monitoring", factory = { koin.get<MonitoringView>() }),
                 ViewDescriptor(route = "configuration", title = "Configuration", factory = { koin.get<ConfigurationPlaceholderView>() }),
                 ViewDescriptor(route = "patterns", title = "Pattern Analytics", factory = { koin.get<PatternAnalyticsPlaceholderView>() })
             )

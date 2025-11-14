@@ -6,12 +6,16 @@ import com.fmps.autotrader.desktop.mvvm.DefaultDispatcherProvider
 import com.fmps.autotrader.desktop.mvvm.DispatcherProvider
 import com.fmps.autotrader.desktop.navigation.NavigationService
 import com.fmps.autotrader.desktop.services.CoreServiceClient
+import com.fmps.autotrader.desktop.services.MarketDataService
 import com.fmps.autotrader.desktop.services.StubCoreServiceClient
 import com.fmps.autotrader.desktop.services.StubTelemetryClient
+import com.fmps.autotrader.desktop.services.StubMarketDataService
 import com.fmps.autotrader.desktop.services.StubTraderService
 import com.fmps.autotrader.desktop.services.TelemetryClient
 import com.fmps.autotrader.desktop.services.TraderService
 import com.fmps.autotrader.desktop.shell.ShellViewModel
+import com.fmps.autotrader.desktop.monitoring.MonitoringView
+import com.fmps.autotrader.desktop.monitoring.MonitoringViewModel
 import com.fmps.autotrader.desktop.traders.TraderManagementView
 import com.fmps.autotrader.desktop.traders.TraderManagementViewModel
 import com.fmps.autotrader.desktop.views.ConfigurationPlaceholderView
@@ -25,13 +29,15 @@ val desktopModule = module {
     single<CoreServiceClient> { StubCoreServiceClient() }
     single<TelemetryClient> { StubTelemetryClient() }
     single<TraderService> { StubTraderService() }
+    single<MarketDataService> { StubMarketDataService() }
 
     factory { ShellViewModel(get(), get(), get()) }
     factory { DashboardViewModel(get(), get(), get()) }
     factory { DashboardView() }
     factory { TraderManagementViewModel(get(), get()) }
     factory { TraderManagementView() }
-    factory { MonitoringPlaceholderView() }
+    factory { MonitoringViewModel(get(), get()) }
+    factory { MonitoringView() }
     factory { ConfigurationPlaceholderView() }
     factory { PatternAnalyticsPlaceholderView() }
 }
