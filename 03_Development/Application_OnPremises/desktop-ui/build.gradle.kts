@@ -60,8 +60,9 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.1")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("io.kotest:kotest-assertions-core:5.8.0")
-    testImplementation("org.testfx:testfx-core:4.0.17")
-    testImplementation("org.testfx:testfx-junit5:4.0.17")
+val testFxVersion = "4.0.17"
+testImplementation("org.testfx:testfx-core:$testFxVersion")
+testImplementation("org.testfx:testfx-junit5:$testFxVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("io.insert-koin:koin-test:$koinVersion")
 }
@@ -92,8 +93,27 @@ tasks.register<JavaExec>("runDesktopMac") {
     standardInput = System.`in`
 }
 
+val includeUiTests = (findProperty("includeUiTests") as? String)?.toBooleanStrictOrNull()
+    ?: System.getProperty("includeUiTests")?.toBooleanStrictOrNull()
+    ?: false
+val skipDesktopUiTests = (findProperty("skipDesktopUiTests") as? String)?.toBooleanStrictOrNull()
+    ?: System.getenv("SKIP_DESKTOP_UI_TESTS")?.toBooleanStrictOrNull()
+    ?: false
+
 tasks.test {
-    useJUnitPlatform()
+    onlyIf {
+        if (skipDesktopUiTests) {
+            logger.lifecycle("desktop-ui:test skipped (skipDesktopUiTests=true)")
+        }
+        !skipDesktopUiTests
+    }
+    useJUnitPlatform {
+        if (!includeUiTests) {
+            excludeTags("ui")
+        }
+    }
+    maxParallelForks = 1
+    forkEvery = 1
     testLogging {
         events("passed", "skipped", "failed")
     }

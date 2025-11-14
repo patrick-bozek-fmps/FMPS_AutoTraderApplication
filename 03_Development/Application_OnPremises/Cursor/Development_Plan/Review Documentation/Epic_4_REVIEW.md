@@ -105,6 +105,7 @@ Architecture changes are cohesive: security middleware centralized, telemetry hu
 ## 12. Action Items
 1. **Ops Team (Nov 18–19, 2025)** – Execute Windows 10/11 service installation dry runs using provided scripts and log results in `Windows_Service_Guide.md`.  
 2. **Release Manager (Nov 20, 2025)** – Update Issue #18 success criteria to ✅ and feed outcomes into Epic 6 release checklist.
+3. **Frontend/DevOps (Epic 6)** – Restore `desktop-ui:test` automation in CI once TestFX suite can run reliably on Windows runners (currently skipped via `-PskipDesktopUiTests=true`).
 
 ---
 
@@ -141,4 +142,6 @@ Architecture changes are cohesive: security middleware centralized, telemetry hu
 - Plan reference: `Development_Plan_v2.md` (v5.3)
 - Operations guide: `Development_Handbook/Windows_Service_Guide.md`
 - Packaging artifacts: `Cursor/Artifacts/windows-service/`
+
+
 

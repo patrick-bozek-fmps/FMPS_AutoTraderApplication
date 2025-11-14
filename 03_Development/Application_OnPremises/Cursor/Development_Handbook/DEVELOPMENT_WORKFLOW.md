@@ -78,6 +78,7 @@ All code must pass local tests AND GitHub Actions CI before proceeding to the ne
 │    .\03_Development\Application_OnPremises\Cursor\Artifacts\check-ci-annotations.ps1 │
 │  • Review any warnings (cache failures are OK)           │
 │  • CI now runs targeted unit suites **and** `gradlew check -x test -x integrationTest` (detekt, ktlint, coverage gates) on every qualifying run │
+│  • `desktop-ui:test` is skipped on GitHub Actions (Windows/TestFX issue). Run `./gradlew :desktop-ui:test --no-daemon` locally before release. │
 │  • Verify: Green checkmark ✅                           │
 │  • DO NOT PROCEED until CI passes                       │
 │  • Alternative: Manual check at github.com/.../actions   │

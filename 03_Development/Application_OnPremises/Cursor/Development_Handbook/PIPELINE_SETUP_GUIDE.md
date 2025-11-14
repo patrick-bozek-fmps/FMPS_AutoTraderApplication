@@ -376,7 +376,7 @@ Every PR must:
 1. Checkout code
 2. Use paths-filter to detect impacted modules
 3. Set up JDK 17 + Gradle cache when tests are required
-4. Run targeted Gradle test tasks (excludes @integration tagged tests)
+4. Run targeted Gradle test tasks (excludes @integration tagged tests). `desktop-ui:test` is skipped on CI with `-PskipDesktopUiTests=true` because JavaFX/TestFX requires a Windows environment—run it manually on a Windows workstation before release.
 5. Run `gradlew check -x test -x integrationTest` for detekt, ktlint, coverage gates
 6. Short-circuit with a log message if no unit tests are required
 ```
