@@ -338,4 +338,75 @@ class StubMarketDataService : MarketDataService {
     }
 }
 
+class StubConfigService : ConfigService {
+    private val snapshotFlow = MutableStateFlow(
+        ConfigurationSnapshot(
+            exchange = ExchangeSettings(
+                apiKey = "BINANCE_KEY",
+                secretKey = "BINANCE_SECRET",
+                passphrase = "123456",
+                exchange = Exchange.BINANCE
+            ),
+            general = GeneralSettings(
+                updateIntervalSeconds = 30,
+                telemetryPollingSeconds = 5,
+                loggingLevel = LoggingLevel.INFO,
+                theme = ThemePreference.AUTO
+            ),
+            traderDefaults = TraderDefaults(
+                budgetUsd = 1500.0,
+                leverage = 3,
+                stopLossPercent = 4.5,
+                strategy = "Momentum"
+            )
+        )
+    )
+
+    override fun configuration(): Flow<ConfigurationSnapshot> = snapshotFlow.asStateFlow()
+
+    override suspend fun saveExchangeSettings(settings: ExchangeSettings) {
+        snapshotFlow.update { it.copy(exchange = settings) }
+    }
+
+    override suspend fun saveGeneralSettings(settings: GeneralSettings) {
+        snapshotFlow.update { it.copy(general = settings) }
+    }
+
+    override suspend fun saveTraderDefaults(defaults: TraderDefaults) {
+        snapshotFlow.update { it.copy(traderDefaults = defaults) }
+    }
+
+    override suspend fun testExchangeConnection(settings: ExchangeSettings): ConnectionTestResult {
+        delay(500)
+        val success = settings.apiKey.isNotBlank() && settings.secretKey.isNotBlank()
+        val message = if (success) {
+            "${settings.exchange} connection successful"
+        } else {
+            "Missing credentials for ${settings.exchange}"
+        }
+        return ConnectionTestResult(success, message)
+    }
+
+    override suspend fun exportConfiguration(): String {
+        delay(300)
+        val snapshot = snapshotFlow.value
+        return buildString {
+            appendLine("# FMPS AutoTrader Configuration")
+            appendLine("exchange=${snapshot.exchange.exchange}")
+            appendLine("apiKey=${snapshot.exchange.apiKey}")
+            appendLine("general.theme=${snapshot.general.theme}")
+            appendLine("traderDefaults.strategy=${snapshot.traderDefaults.strategy}")
+        }
+    }
+
+    override suspend fun importConfiguration(serialized: String): ConfigurationSnapshot {
+        delay(400)
+        val snapshot = snapshotFlow.value.copy(
+            general = snapshotFlow.value.general.copy(theme = ThemePreference.DARK)
+        )
+        snapshotFlow.value = snapshot
+        return snapshot
+    }
+}
+
 
