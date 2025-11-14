@@ -169,6 +169,11 @@
     -fx-font-size: 13px;
 }
 
+.validation-label {
+    -fx-text-fill: #f87171;
+    -fx-font-size: 12px;
+}
+
 .dashboard-root {
     -fx-spacing: 16px;
 }
