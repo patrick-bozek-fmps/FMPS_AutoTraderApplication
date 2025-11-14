@@ -9,7 +9,7 @@
 **Epic**: Epic 5 (Desktop UI Application)  
 **Priority**: P0 (High visibility UI entry point)  
 **Dependencies**: Issue #19 ⏳ (UI Foundation)
-**Final Commit**: `TBD`
+**Final Commit**: `f36a59c`
 
 > **NOTE**: Builds the primary dashboard surface providing trader summaries, system status, notifications, and quick stats atop the UI foundation delivered in Issue #19.
 

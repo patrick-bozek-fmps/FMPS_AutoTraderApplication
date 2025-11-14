@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -75,6 +76,16 @@ class DashboardViewTest {
         stopKoin()
         coreServiceClient.reset()
         telemetryClient.reset()
+    }
+
+    @AfterAll
+    fun shutdownToolkit() {
+        val latch = CountDownLatch(1)
+        Platform.runLater {
+            Platform.exit()
+            latch.countDown()
+        }
+        latch.await(5, TimeUnit.SECONDS)
     }
 
     @Test
