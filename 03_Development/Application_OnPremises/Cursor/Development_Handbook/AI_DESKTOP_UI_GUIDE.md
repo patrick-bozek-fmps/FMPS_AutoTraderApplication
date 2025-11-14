@@ -1,6 +1,6 @@
 # FMPS AutoTrader Desktop UI – Developer Guide
 
-**Version**: 0.6  
+**Version**: 0.7  
 **Last Updated**: November 14, 2025  
 **Maintainer**: AI Assistant
 
@@ -27,7 +27,7 @@ This guide captures the foundational decisions for the JavaFX/TornadoFX desktop 
 | `desktop.traders` | Trader management contract/view/viewmodel (Issue #21) |
 | `desktop.monitoring` | Monitoring contract/view/viewmodel (Issue #22) |
 | `desktop.config` | Configuration contract/view/viewmodel (Issue #23) |
-| `desktop.views` | Placeholder views for upcoming screens (monitoring/config/patterns) |
+| `desktop.patterns` | Pattern analytics contract/view/viewmodel (Issue #24) |
 | `desktop.i18n` | Localization helper and resource bundle loader |
 | `src/main/resources/styles/theme.css` | Global theme (color system, typography, component styles) |
 | `src/main/resources/i18n/messages.properties` | Default locale strings |
@@ -63,15 +63,21 @@ val desktopModule = module {
     single<CoreServiceClient> { StubCoreServiceClient() }
     single<TelemetryClient> { StubTelemetryClient() }
     single<TraderService> { StubTraderService() }
+    single<MarketDataService> { StubMarketDataService() }
+    single<ConfigService> { StubConfigService() }
+    single<PatternAnalyticsService> { StubPatternAnalyticsService() }
 
     factory { ShellViewModel(get(), get(), get()) }
     factory { DashboardViewModel(get(), get(), get()) }
     factory { DashboardView() }
     factory { TraderManagementViewModel(get(), get()) }
     factory { TraderManagementView() }
-    factory { MonitoringPlaceholderView() }
-    factory { ConfigurationPlaceholderView() }
-    factory { PatternAnalyticsPlaceholderView() }
+    factory { MonitoringViewModel(get(), get()) }
+    factory { MonitoringView() }
+    factory { ConfigurationViewModel(get(), get()) }
+    factory { ConfigurationView() }
+    factory { PatternAnalyticsViewModel(get(), get()) }
+    factory { PatternAnalyticsView() }
 }
 ```
 
@@ -91,9 +97,9 @@ val desktopModule = module {
 |-------|-------|------|
 | `dashboard` | Overview | `DashboardView` |
 | `traders` | AI Traders | `TraderManagementView` |
-| `monitoring` | Monitoring | `MonitoringPlaceholderView` |
-| `configuration` | Configuration | `ConfigurationPlaceholderView` |
-| `patterns` | Pattern Analytics | `PatternAnalyticsPlaceholderView` |
+| `monitoring` | Monitoring | `MonitoringView` |
+| `configuration` | Configuration | `ConfigurationView` |
+| `patterns` | Pattern Analytics | `PatternAnalyticsView` |
 
 ---
 
@@ -239,7 +245,22 @@ val desktopModule = module {
 
 ---
 
-## 12. Run & Build Commands
+## 12. Pattern Analytics Workspace (Issue #24)
+
+- `PatternAnalyticsViewModel` consumes `PatternAnalyticsService.patternSummaries()` (Flow) and keeps `PatternAnalyticsState` in sync:
+  - Filters: search, exchange, timeframe, performance status, minimum success slider.
+  - `selectPattern(id)` lazily loads `patternDetail(id)` for the side panel.
+  - `refresh`, `archiveSelected`, `deleteSelected` delegate to service and emit toasts on completion.
+- `PatternAnalyticsView` splits layout into:
+  - Left column list with badges for success %, profit factor, status colour.
+  - Filter toolbar (search, dropdowns, slider, refresh button).
+  - Detail pane containing KPI cards, indicator/criteria summary, AreaChart overlay (success % & profit factor), and management buttons.
+- `StubPatternAnalyticsService` streams synthetic summaries, generates detail snapshots (indicators, entry/exit criteria, performance points) to keep UI interactive offline.
+- Management actions currently mutate stub state in-memory; real implementation will call pattern repository endpoints (Issue #10). Audit logging is deferred to Epic 6.
+
+---
+
+## 13. Run & Build Commands
 
 | Task | Command |
 |------|---------|
@@ -253,21 +274,22 @@ JavaFX launcher scripts honour `--add-opens=javafx.graphics/javafx.stage=ALL-UNN
 
 ---
 
-## 13. Next Steps (Epics 5 & 6)
+## 14. Next Steps (Epics 5 & 6)
 
-1. **Issue #22** – Trading Monitoring View (charts/positions, WebSocket bindings).
-2. **Issue #23** – Configuration Management View (API credentials, defaults, import/export).
-3. **Issue #24** – Pattern Analytics View (pattern list/detail/visualisations).
-4. **Epic 6 Prep** – Documentation polish, installer workflow, secure secret storage.
+1. **Issue #22** – Trading Monitoring View (charts/positions, WebSocket bindings) ✅
+2. **Issue #23** – Configuration Management View (API credentials, defaults, import/export) ✅
+3. **Issue #24** – Pattern Analytics View (pattern list/detail/visualisations) ✅
+4. **Epic 6 Prep** – Regression plan, installer workflow, secure secret storage hardening (in progress)
 
 All issues should reuse the base MVVM scaffolding and follow the `Development_Workflow.md` gating steps.
 
 ---
 
-## 14. Change Log
+## 15. Change Log
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 0.7 | 2025-11-14 | Added pattern analytics workspace section + updated DI/navigation |
 | 0.6 | 2025-11-14 | Added configuration workspace section + module references |
 | 0.5 | 2025-11-14 | Added monitoring workspace section, DI/navigation updates |
 | 0.4 | 2025-11-14 | Added trader management workspace section, DI/navigation updates |
