@@ -92,7 +92,8 @@ Expose pattern analytics to operators by listing learned patterns, displaying de
 - Automated: `./gradlew :desktop-ui:test`
 - Automated: `./gradlew clean build --no-daemon`
 - Manual: Verified filters/charts using stub analytics feed in desktop app.
-- CI: [19370918030](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19370918030) (covers Issue #24 commit)
+- CI (feature): [19370918030](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19370918030)
+- CI (docs/status): [19373713581](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19373713581)
 
 ---
 
