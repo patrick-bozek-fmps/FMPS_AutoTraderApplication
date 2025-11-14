@@ -1,6 +1,6 @@
 # FMPS AutoTrader Desktop UI – Developer Guide
 
-**Version**: 0.3  
+**Version**: 0.4  
 **Last Updated**: November 14, 2025  
 **Maintainer**: AI Assistant
 
@@ -24,7 +24,8 @@ This guide captures the foundational decisions for the JavaFX/TornadoFX desktop 
 | `desktop.components` | Reusable UI controls (status badge, metric tile, toolbar button) |
 | `desktop.services` | Client interfaces + stub implementations for REST/telemetry |
 | `desktop.dashboard` | Dashboard view + view model (Issue #20 implementation) |
-| `desktop.views` | Placeholder views for Issues #21–#24 |
+| `desktop.traders` | Trader management contract/view/viewmodel (Issue #21) |
+| `desktop.views` | Placeholder views for upcoming screens (monitoring/config/patterns) |
 | `desktop.i18n` | Localization helper and resource bundle loader |
 | `src/main/resources/styles/theme.css` | Global theme (color system, typography, component styles) |
 | `src/main/resources/i18n/messages.properties` | Default locale strings |
@@ -59,11 +60,13 @@ val desktopModule = module {
     single { NavigationService() }
     single<CoreServiceClient> { StubCoreServiceClient() }
     single<TelemetryClient> { StubTelemetryClient() }
+    single<TraderService> { StubTraderService() }
 
     factory { ShellViewModel(get(), get(), get()) }
     factory { DashboardViewModel(get(), get(), get()) }
     factory { DashboardView() }
-    factory { TraderManagementPlaceholderView() }
+    factory { TraderManagementViewModel(get(), get()) }
+    factory { TraderManagementView() }
     factory { MonitoringPlaceholderView() }
     factory { ConfigurationPlaceholderView() }
     factory { PatternAnalyticsPlaceholderView() }
@@ -85,7 +88,7 @@ val desktopModule = module {
 | Route | Title | View |
 |-------|-------|------|
 | `dashboard` | Overview | `DashboardView` |
-| `traders` | AI Traders | `TraderManagementPlaceholderView` |
+| `traders` | AI Traders | `TraderManagementView` |
 | `monitoring` | Monitoring | `MonitoringPlaceholderView` |
 | `configuration` | Configuration | `ConfigurationPlaceholderView` |
 | `patterns` | Pattern Analytics | `PatternAnalyticsPlaceholderView` |
@@ -160,7 +163,35 @@ val desktopModule = module {
    This uses the headless configuration (Monocle) described in `DEVELOPMENT_WORKFLOW.md` to ensure TestFX smoke tests don’t hang CI.
 6. **Full workflow gate** – For Issue #20, run `./gradlew clean test --no-daemon` and `./gradlew clean build --no-daemon` prior to committing, then monitor CI via `Cursor\Artifacts\check-ci-status.ps1`.
 
-## 9. Service Stubs & Data Binding
+---
+
+## 9. Trader Management Workspace (Issue #21)
+
+### 9.1 ViewModel
+- `TraderManagementViewModel` owns `TraderManagementState` (trader list, filtered list, selected trader, form state, filters, saving flag).
+- Subscribes to `TraderService.traders()` (Flow) to keep UI list + form synchronized; filters applied via `TraderStatusFilter` + search query.
+- Exposes actions: `newTrader`, `updateForm`, `saveTrader`, `startTrader`, `stopTrader`, `deleteSelectedTrader`, `updateSearch`, `updateStatusFilter`.
+- Emits `TraderManagementEvent.ShowMessage` for toast-style feedback (info/success/error). Validation errors stored inline via `form.errors`.
+
+### 9.2 View
+- `TraderManagementView` replaces the placeholder route (`traders`) with:
+  - **Left sidebar** – search box, status filter, “New / Delete” actions.
+  - **Center table** – constrained `TableView` showing name/exchange/strategy/status/P&L; selection drives detail form.
+  - **Right form** – editable fields (name, exchange, strategy, risk, base/quote asset, budget) plus validation banner and Save/Start/Stop buttons.
+- Uses shared styling (`content-card`, `section-title`, new `.validation-label`) and `ToolbarButton` component.
+- `StubTraderService` feeds sample data and simulates lifecycle changes (profit updates, open position jitter) so UI remains interactive without backend.
+
+### 9.3 Usage Flow
+1. Navigate to **AI Traders** tab (route `traders`).
+2. Use search or status filter to narrow list; table auto-refreshes as stub emits updates.
+3. To create a trader, press **New Trader**, fill out the form, and click **Save**.
+4. Select an existing trader and press **Start** / **Stop** to toggle lifecycle, or **Delete** to remove.
+5. Validation errors appear inline under the form with red banner + toast; successful actions emit success toasts.
+6. Pre-push checks: `./gradlew :desktop-ui:test --no-daemon` then `./gradlew clean test --no-daemon`; monitor CI as usual.
+
+---
+
+## 10. Service Stubs & Data Binding
 
 - `CoreServiceClient.traderSummaries()` exposes a `Flow<List<TraderSummary>>`. The stub emits synthetic updates every 4 seconds.
 - `TelemetryClient.samples()` now randomises channels (`trader.status`, `system.warning`, `risk.alert`) to exercise notification severities.
