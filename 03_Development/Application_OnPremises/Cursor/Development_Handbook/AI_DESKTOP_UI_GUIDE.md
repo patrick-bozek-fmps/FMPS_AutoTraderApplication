@@ -199,7 +199,7 @@ val desktopModule = module {
 
 ---
 
-## 10. Run & Build Commands
+## 11. Run & Build Commands
 
 | Task | Command |
 |------|---------|
@@ -213,22 +213,22 @@ JavaFX launcher scripts honour `--add-opens=javafx.graphics/javafx.stage=ALL-UNN
 
 ---
 
-## 11. Next Steps (Epics 5 & 6)
+## 12. Next Steps (Epics 5 & 6)
 
-1. **Issue #20** – Replace `DashboardView` placeholder with real tiles bound to REST + telemetry feeds.
-2. **Issue #21** – Swap `TraderManagementPlaceholderView` with CRUD forms and command controls.
-3. **Issue #22** – Wire `TelemetryClient` to WebSocket hub (`TelemetryHub` from Issue #17) and build chart overlays.
-4. **Issue #23** – Implement configuration forms leveraging `CoreServiceClient` + secure credential storage.
-5. **Issue #24** – Build pattern analytics grid/visualisation using `PatternSummary` DTOs from the core service.
+1. **Issue #22** – Trading Monitoring View (charts/positions, WebSocket bindings).
+2. **Issue #23** – Configuration Management View (API credentials, defaults, import/export).
+3. **Issue #24** – Pattern Analytics View (pattern list/detail/visualisations).
+4. **Epic 6 Prep** – Documentation polish, installer workflow, secure secret storage.
 
 All issues should reuse the base MVVM scaffolding and follow the `Development_Workflow.md` gating steps.
 
 ---
 
-## 12. Change Log
+## 13. Change Log
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 0.4 | 2025-11-14 | Added trader management workspace section, DI/navigation updates |
 | 0.3 | 2025-11-14 | Added dashboard usage/manual validation flow + workflow reminders |
 | 0.2 | 2025-11-13 | Added dashboard implementation details (Issue #20), DI updates, test coverage |
 | 0.1 | 2025-11-13 | Initial publication after Issue #19 foundation completion |

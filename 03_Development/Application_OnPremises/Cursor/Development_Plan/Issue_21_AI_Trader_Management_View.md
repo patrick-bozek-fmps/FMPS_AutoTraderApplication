@@ -90,7 +90,7 @@ Provide a dedicated management workspace for AI traders, including list/detail v
 
 - Automated: `./gradlew :desktop-ui:test --no-daemon` (Nov 14 2025) – dashboard + trader suites green.
 - Automated: `./gradlew clean test --no-daemon` (Nov 14 2025) – full multi-module regression ✅.
-- CI: GitHub Actions run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) (`workflow_dispatch`, `force-full-tests=true`) on `ab739be`; doc follow-up run [19366988041](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366988041`) green.
+- CI: GitHub Actions run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) (`workflow_dispatch`, `force-full-tests=true`) on `ab739be`; doc follow-up run [19366988041](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366988041) green.
 - Manual: exercised stub-powered CRUD/start/stop flows via new UI; validated validation banners & toast events.
 
 ---

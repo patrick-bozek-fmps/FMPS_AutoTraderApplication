@@ -1,8 +1,8 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 5.5  
-**Date**: November 13, 2025  
-**Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 🏗️ IN PROGRESS (2/6 issues complete – 33%)  
+**Version**: 5.8  
+**Date**: November 14, 2025  
+**Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 🏗️ IN PROGRESS (3/6 issues complete – 50%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
 ---
@@ -15,16 +15,16 @@
 | **Epic 2: Exchange Integration** | 1 week | ✅ **COMPLETE** | All 4 issues complete ✅ | Exchange Framework ✅, Binance ✅, Bitget ✅, Technical Indicators ✅ |
 | **Epic 3: AI Trading Engine** | 3 weeks | ✅ **COMPLETE** | All 5 sections (100%) | AI traders with manager, positions, risk manager, pattern storage |
 | **Epic 4: Core Service & API** | 3 weeks | ✅ **COMPLETE** | All 3 issues complete ✅ | Production-ready API, telemetry, Windows service bundle |
-| **Epic 5: Desktop UI** | 3 weeks | 🏗️ In Progress | 2/6 issues (33%) | Complete JavaFX application |
+| **Epic 5: Desktop UI** | 3 weeks | 🏗️ In Progress | 3/6 issues (50%) | Complete JavaFX application |
 | **Epic 6: Testing & Polish** | 2 weeks | ⏳ Not Started | 0/4 sections | Testing, docs, release |
 
 **Total Project**: 15 weeks estimated → 27 major sections → ~50-80 GitHub issues
 
-**Overall Progress**: **20 GitHub Issues completed (Epic 1: 100% ✅, Epic 2: 100% ✅, Epic 3: 100% ✅, Epic 4: 100% ✅, Epic 5: 33%)**
+**Overall Progress**: **21 GitHub Issues completed (Epic 1: 100% ✅, Epic 2: 100% ✅, Epic 3: 100% ✅, Epic 4: 100% ✅, Epic 5: 50%)**
 
-**Last Milestone**: ✅ **Issue #20** – Desktop UI Main Dashboard (Nov 14, 2025)
+**Last Milestone**: ✅ **Issue #21** – AI Trader Management View (Nov 14, 2025)
 
-**In Progress**: 🏗️ Epic 5 – AI Trader Management View (Issue #21) preparation
+**In Progress**: 🏗️ Epic 5 – Trading Monitoring View (Issue #22) planning
 
 ### 📋 **Epic 1 Breakdown** (6/6 sections complete) ✅ **COMPLETE**
 
@@ -77,6 +77,13 @@
 | **5.5** | **Nov 13, 2025** | **Issue #19 foundation completed, CI optimization documented, run 19338273758 recorded** | **AI Assistant** |
 | **5.6** | **Nov 14, 2025** | **Issue #20 resumed after workflow refresh – reran `clean test`/`clean build` ahead of documentation + CI steps** | **AI Assistant** |
 | **5.7** | **Nov 14, 2025** | **Issue #20 dashboard delivered (commit `535e114`); forced CI run 19366650753 logged; docs/status artifacts updated** | **AI Assistant** |
+| **5.8** | **Nov 14, 2025** | **Issue #21 trader management workspace delivered (commit `ab739be`); docs refreshed (EPIC 5 v1.4, UI guide v0.4)** | **AI Assistant** |
+
+**Changes from v5.7:**
+- ✅ Issue #21 – AI Trader Management View shipped (commit `ab739be`): new `TraderService`, CRUD form, lifecycle controls, and `TraderManagementViewModel`.
+- 🧪 Local gates (`:desktop-ui:test`, `clean test`) and GA run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) confirmed module + full-suite health.
+- 📚 Documentation refreshed: Issue 21 marked complete, Epic 5 status v1.4, AI Desktop UI Guide v0.4 trader management chapter.
+- 🎯 Focus now shifts to Issue #22 (Trading Monitoring View) implementation.
 
 **Changes from v5.6:**
 - ✅ Issue #20 Desktop UI Main Dashboard delivered (commit `535e114`) – dashboard UX, telemetry-backed notifications, system health tiles, and TestFX/UI tests complete.
