@@ -409,4 +409,125 @@ class StubConfigService : ConfigService {
     }
 }
 
+class StubPatternAnalyticsService : PatternAnalyticsService {
+    private val scope = CoroutineScope(Dispatchers.Default)
+    private val summaries = MutableStateFlow(generateSummaries())
+    private val detailCache = mutableMapOf<String, PatternDetail>()
+
+    init {
+        scope.launch {
+            while (true) {
+                delay(5_000)
+                summaries.update { list ->
+                    list.map { summary ->
+                        val delta = Random.nextDouble(-1.0, 1.0)
+                        summary.copy(
+                            successRate = (summary.successRate + delta).coerceIn(40.0, 85.0),
+                            profitFactor = (summary.profitFactor + delta / 10).coerceIn(0.8, 3.5),
+                            lastUpdated = Instant.now()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    override fun patternSummaries(): Flow<List<PatternSummary>> = summaries.asStateFlow()
+
+    override suspend fun patternDetail(id: String): PatternDetail {
+        return detailCache.getOrPut(id) {
+            val summary = summaries.value.first { it.id == id }
+            PatternDetail(
+                summary = summary,
+                description = "Pattern focusing on ${summary.symbol} momentum bursts within ${summary.timeframe} timeframe.",
+                indicators = listOf("RSI(14) crossing 30", "MACD histogram positive"),
+                entryCriteria = listOf("RSI < 35 then up-cross", "MACD bullish crossover"),
+                exitCriteria = listOf("Target profit 2%", "Stop loss 1%"),
+                averageHoldMinutes = Random.nextInt(45, 240),
+                winRate = summary.successRate,
+                averagePnL = Random.nextDouble(0.8, 2.5),
+                drawdown = Random.nextDouble(0.5, 3.0),
+                performance = generatePerformancePoints(),
+                distribution = listOf(
+                    PatternDistributionEntry("Binance", Random.nextDouble(0.4, 0.7)),
+                    PatternDistributionEntry("Bitget", Random.nextDouble(0.2, 0.4)),
+                    PatternDistributionEntry("Coinbase", Random.nextDouble(0.05, 0.2))
+                )
+            )
+        }
+    }
+
+    override suspend fun archivePattern(id: String): Result<Unit> {
+        summaries.update { list -> list.map { if (it.id == id) it.copy(status = PatternPerformanceStatus.STABLE) else it } }
+        return Result.success(Unit)
+    }
+
+    override suspend fun deletePattern(id: String): Result<Unit> {
+        summaries.update { list -> list.filterNot { it.id == id } }
+        detailCache.remove(id)
+        return Result.success(Unit)
+    }
+
+    override suspend fun refresh(): Result<Unit> {
+        summaries.value = generateSummaries()
+        detailCache.clear()
+        return Result.success(Unit)
+    }
+
+    private fun generateSummaries(): List<PatternSummary> =
+        listOf(
+            PatternSummary(
+                id = "P-001",
+                name = "Momentum Burst",
+                exchange = "Binance",
+                symbol = "BTCUSDT",
+                timeframe = "15m",
+                trader = "Momentum Alpha",
+                successRate = 72.4,
+                profitFactor = 2.1,
+                occurrences = 184,
+                lastUpdated = Instant.now(),
+                status = PatternPerformanceStatus.TOP
+            ),
+            PatternSummary(
+                id = "P-002",
+                name = "Range Fade",
+                exchange = "Bitget",
+                symbol = "ETHUSDT",
+                timeframe = "1h",
+                trader = "Range Rider",
+                successRate = 58.2,
+                profitFactor = 1.4,
+                occurrences = 96,
+                lastUpdated = Instant.now(),
+                status = PatternPerformanceStatus.STABLE
+            ),
+            PatternSummary(
+                id = "P-003",
+                name = "Breakout Scout",
+                exchange = "Binance",
+                symbol = "SOLUSDT",
+                timeframe = "5m",
+                trader = "Arbitrage Scout",
+                successRate = 44.7,
+                profitFactor = 0.9,
+                occurrences = 132,
+                lastUpdated = Instant.now(),
+                status = PatternPerformanceStatus.WARNING
+            )
+        )
+
+    private fun generatePerformancePoints(): List<PatternPerformancePoint> {
+        val now = Instant.now()
+        return (0 until 20).map { index ->
+            val timestamp = now.minusSeconds(index * 3_600L)
+            PatternPerformancePoint(
+                timestamp = timestamp,
+                successRate = Random.nextDouble(40.0, 80.0),
+                profitFactor = Random.nextDouble(0.8, 3.0)
+            )
+        }.reversed()
+    }
+}
+
 

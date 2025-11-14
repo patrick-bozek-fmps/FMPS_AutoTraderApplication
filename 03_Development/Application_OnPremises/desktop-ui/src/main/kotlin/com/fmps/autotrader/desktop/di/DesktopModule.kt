@@ -10,20 +10,22 @@ import com.fmps.autotrader.desktop.navigation.NavigationService
 import com.fmps.autotrader.desktop.services.ConfigService
 import com.fmps.autotrader.desktop.services.CoreServiceClient
 import com.fmps.autotrader.desktop.services.MarketDataService
+import com.fmps.autotrader.desktop.services.PatternAnalyticsService
 import com.fmps.autotrader.desktop.services.StubConfigService
 import com.fmps.autotrader.desktop.services.StubCoreServiceClient
 import com.fmps.autotrader.desktop.services.StubTelemetryClient
 import com.fmps.autotrader.desktop.services.StubMarketDataService
+import com.fmps.autotrader.desktop.services.StubPatternAnalyticsService
 import com.fmps.autotrader.desktop.services.StubTraderService
 import com.fmps.autotrader.desktop.services.TelemetryClient
 import com.fmps.autotrader.desktop.services.TraderService
 import com.fmps.autotrader.desktop.shell.ShellViewModel
 import com.fmps.autotrader.desktop.monitoring.MonitoringView
 import com.fmps.autotrader.desktop.monitoring.MonitoringViewModel
+import com.fmps.autotrader.desktop.patterns.PatternAnalyticsView
+import com.fmps.autotrader.desktop.patterns.PatternAnalyticsViewModel
 import com.fmps.autotrader.desktop.traders.TraderManagementView
 import com.fmps.autotrader.desktop.traders.TraderManagementViewModel
-import com.fmps.autotrader.desktop.views.ConfigurationPlaceholderView
-import com.fmps.autotrader.desktop.views.PatternAnalyticsPlaceholderView
 import org.koin.dsl.module
 
 val desktopModule = module {
@@ -34,6 +36,7 @@ val desktopModule = module {
     single<TraderService> { StubTraderService() }
     single<MarketDataService> { StubMarketDataService() }
     single<ConfigService> { StubConfigService() }
+    single<PatternAnalyticsService> { StubPatternAnalyticsService() }
 
     factory { ShellViewModel(get(), get(), get()) }
     factory { DashboardViewModel(get(), get(), get()) }
@@ -42,8 +45,9 @@ val desktopModule = module {
     factory { TraderManagementView() }
     factory { MonitoringViewModel(get(), get()) }
     factory { MonitoringView() }
+    factory { PatternAnalyticsViewModel(get(), get()) }
+    factory { PatternAnalyticsView() }
     factory { ConfigurationViewModel(get(), get()) }
     factory { ConfigurationView() }
-    factory { PatternAnalyticsPlaceholderView() }
 }
 
