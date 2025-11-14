@@ -99,7 +99,7 @@ Deliver the Desktop UI main dashboard view with real-time summaries for AI trade
 - Automated: `./gradlew clean test --no-daemon` (Nov 14 2025 – full suite rerun, PASS)
 - Automated: `./gradlew clean build --no-daemon` (Nov 14 2025 – full project build ✅, confirms dashboard artifacts)
 - Manual telemetry simulation (stub service emits info/warn/critical samples observed in UI).
-- GitHub Actions run recorded in issue once complete.
+- GitHub Actions: run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) (`workflow_dispatch`, `force-full-tests=true`) executed full unit suite on Nov 14 2025 – PASS.
 
 ---
 
