@@ -209,11 +209,14 @@ class StubMarketDataService : MarketDataService {
     private val candleFlows = Timeframe.values().associateWith { MutableStateFlow(generateCandles(it)) }
     private val positionsFlow = MutableStateFlow(generatePositions())
     private val tradesFlow = MutableStateFlow(generateTrades())
+    private val connectionFlow = MutableStateFlow(ConnectionStatus.CONNECTED)
 
     init {
+        var tick = 0
         scope.launch {
             while (true) {
                 delay(2_000)
+                tick++
                 candleFlows.forEach { (timeframe, flow) ->
                     flow.update { candles ->
                         val next = candles.last().let { previous ->
@@ -252,6 +255,15 @@ class StubMarketDataService : MarketDataService {
                     )
                     listOf(newTrade) + trades.take(49)
                 }
+                connectionFlow.update { current ->
+                    when {
+                        tick % 20 == 0 -> ConnectionStatus.RECONNECTING
+                        tick % 20 == 2 && current == ConnectionStatus.RECONNECTING -> ConnectionStatus.CONNECTED
+                        tick % 45 == 0 -> ConnectionStatus.DISCONNECTED
+                        current == ConnectionStatus.DISCONNECTED -> ConnectionStatus.CONNECTED
+                        else -> current
+                    }
+                }
             }
         }
     }
@@ -261,6 +273,8 @@ class StubMarketDataService : MarketDataService {
     override fun positions(): Flow<List<OpenPosition>> = positionsFlow.asStateFlow()
 
     override fun tradeHistory(): Flow<List<TradeRecord>> = tradesFlow.asStateFlow()
+
+    override fun connectionStatus(): Flow<ConnectionStatus> = connectionFlow.asStateFlow()
 
     private fun generateCandles(timeframe: Timeframe): List<Candlestick> {
         val now = ZonedDateTime.now(ZoneOffset.UTC).withSecond(0).withNano(0)

@@ -2,6 +2,7 @@ package com.fmps.autotrader.desktop.monitoring
 
 import com.fmps.autotrader.desktop.components.ToolbarButton
 import com.fmps.autotrader.desktop.mvvm.BaseView
+import com.fmps.autotrader.desktop.services.ConnectionStatus
 import com.fmps.autotrader.desktop.services.OpenPosition
 import com.fmps.autotrader.desktop.services.Timeframe
 import com.fmps.autotrader.desktop.services.TradeRecord
@@ -16,6 +17,7 @@ import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
+import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import javafx.util.StringConverter
 import tornadofx.action
@@ -34,7 +36,10 @@ class MonitoringView :
     private val timeframePicker = ComboBox<Timeframe>()
     private val positionsTable = TableView<OpenPosition>()
     private val tradeTable = TableView<TradeRecord>()
-    private val statusLabel = Label()
+    private val connectionChip = Label()
+    private val lastUpdatedLabel = Label()
+    private val latencyLabel = Label()
+    private lateinit var refreshButton: ToolbarButton
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault())
 
     override val root = borderpane {
@@ -45,8 +50,19 @@ class MonitoringView :
 
     private fun buildHeader(): VBox = vbox(8.0) {
         label("Trading Monitoring") { styleClass += "section-title" }
-        statusLabel.styleClass += "trader-meta"
-        children += statusLabel
+        val statusRow = hbox(12.0) {
+            alignment = Pos.CENTER_LEFT
+            connectionChip.styleClass.addAll("connection-chip", "connection-chip-good")
+            children += connectionChip
+            lastUpdatedLabel.styleClass += "meta-muted"
+            latencyLabel.styleClass += "meta-muted"
+            children += lastUpdatedLabel
+            children += latencyLabel
+            val spacer = Region()
+            HBox.setHgrow(spacer, Priority.ALWAYS)
+            children += spacer
+        }
+        children += statusRow
     }
 
     private fun buildContent() = HBox(16.0).apply {
@@ -82,9 +98,10 @@ class MonitoringView :
         }
         children += Label("Timeframe")
         children += timeframePicker
-        children += ToolbarButton("Refresh", icon = "⟳").apply {
-            action { timeframePicker.selectionModel.selectedItem?.let(viewModel::changeTimeframe) }
+        refreshButton = ToolbarButton("Manual Refresh", icon = "⟳").apply {
+            action { viewModel.refresh() }
         }
+        children += refreshButton
     }
 
     private fun setupChart() {
@@ -144,7 +161,9 @@ class MonitoringView :
 
     override fun onStateChanged(state: MonitoringState) {
         timeframePicker.selectionModel.select(state.timeframe)
-        statusLabel.text = "Status: ${state.connectionStatus.name.lowercase().replaceFirstChar { it.uppercase() }}"
+        refreshButton.isDisable = state.isRefreshing
+        updateConnectionChip(state.connectionStatus)
+        updateMeta(state)
         positionsTable.items.setAll(state.positions)
         tradeTable.items.setAll(state.trades)
         updateChart(state)
@@ -163,6 +182,24 @@ class MonitoringView :
     override fun onEvent(event: MonitoringEvent) {
         when (event) {
             is MonitoringEvent.ShowMessage -> information(event.message)
+        }
+    }
+
+    private fun updateMeta(state: MonitoringState) {
+        lastUpdatedLabel.text = "Updated: ${
+            state.lastUpdated?.let { timeFormatter.format(it) } ?: "--"
+        }"
+        latencyLabel.text = "Latency: ${state.latencyMs} ms"
+    }
+
+    private fun updateConnectionChip(status: ConnectionStatus) {
+        val classNames = listOf("connection-chip-good", "connection-chip-warn", "connection-chip-error")
+        connectionChip.styleClass.removeAll(classNames)
+        connectionChip.text = "Status: ${status.name.lowercase().replaceFirstChar { it.uppercase() }}"
+        when (status) {
+            ConnectionStatus.CONNECTED -> connectionChip.styleClass += "connection-chip-good"
+            ConnectionStatus.RECONNECTING -> connectionChip.styleClass += "connection-chip-warn"
+            ConnectionStatus.DISCONNECTED -> connectionChip.styleClass += "connection-chip-error"
         }
     }
 }

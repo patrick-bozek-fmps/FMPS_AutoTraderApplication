@@ -7,6 +7,7 @@ interface MarketDataService {
     fun candlesticks(timeframe: Timeframe): Flow<List<Candlestick>>
     fun positions(): Flow<List<OpenPosition>>
     fun tradeHistory(): Flow<List<TradeRecord>>
+    fun connectionStatus(): Flow<ConnectionStatus>
 }
 
 enum class Timeframe(val label: String) {
@@ -48,4 +49,10 @@ data class TradeRecord(
 )
 
 enum class TradeSide { BUY, SELL }
+
+enum class ConnectionStatus {
+    CONNECTED,
+    RECONNECTING,
+    DISCONNECTED
+}
 

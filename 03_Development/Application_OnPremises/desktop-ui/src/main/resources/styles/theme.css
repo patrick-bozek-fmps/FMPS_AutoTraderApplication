@@ -169,6 +169,31 @@
     -fx-font-size: 13px;
 }
 
+.meta-muted {
+    -fx-text-fill: #9ea5c2;
+    -fx-font-size: 12px;
+}
+
+.connection-chip {
+    -fx-padding: 4px 10px;
+    -fx-background-radius: 999px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.connection-chip-good {
+    -fx-background-color: linear-gradient(to bottom right, #16a34a, #0f9d58);
+}
+
+.connection-chip-warn {
+    -fx-background-color: linear-gradient(to bottom right, #f97316, #ea580c);
+}
+
+.connection-chip-error {
+    -fx-background-color: linear-gradient(to bottom right, #dc2626, #b91c1c);
+}
+
 .validation-label {
     -fx-text-fill: #f87171;
     -fx-font-size: 12px;

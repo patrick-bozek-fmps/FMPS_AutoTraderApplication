@@ -2,6 +2,7 @@ package com.fmps.autotrader.desktop.monitoring
 
 import com.fmps.autotrader.desktop.mvvm.DispatcherProvider
 import com.fmps.autotrader.desktop.services.Candlestick
+import com.fmps.autotrader.desktop.services.ConnectionStatus
 import com.fmps.autotrader.desktop.services.MarketDataService
 import com.fmps.autotrader.desktop.services.OpenPosition
 import com.fmps.autotrader.desktop.services.Timeframe
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MonitoringViewModelTest {
@@ -59,16 +61,47 @@ class MonitoringViewModelTest {
         assertEquals(Timeframe.ONE_MIN, viewModel.state.value.timeframe)
     }
 
+    @Test
+    fun `connection status updates state`() = scope.runTest {
+        advanceUntilIdle()
+        fakeService.emitConnection(ConnectionStatus.RECONNECTING)
+        advanceUntilIdle()
+        assertEquals(ConnectionStatus.RECONNECTING, viewModel.state.value.connectionStatus)
+    }
+
+    @Test
+    fun `manual refresh clears refreshing flag`() = scope.runTest {
+        advanceUntilIdle()
+        viewModel.refresh()
+        fakeService.emitCandles(
+            Timeframe.FIVE_MIN,
+            listOf(fakeService.sampleCandle().copy(close = 2.0))
+        )
+        advanceUntilIdle()
+        assertFalse(viewModel.state.value.isRefreshing)
+        assertNotNull(viewModel.state.value.lastUpdated)
+    }
+
     private class FakeMarketDataService : MarketDataService {
-        private val candles = MutableStateFlow(listOf(sampleCandle()))
+        private val candles = Timeframe.values().associateWith { MutableStateFlow(listOf(sampleCandle())) }
         private val positions = MutableStateFlow(samplePositions())
         private val trades = MutableStateFlow(sampleTrades())
+        private val connection = MutableStateFlow(ConnectionStatus.CONNECTED)
 
-        override fun candlesticks(timeframe: Timeframe): Flow<List<Candlestick>> = candles
+        override fun candlesticks(timeframe: Timeframe): Flow<List<Candlestick>> = candles.getValue(timeframe)
         override fun positions(): Flow<List<OpenPosition>> = positions
         override fun tradeHistory(): Flow<List<TradeRecord>> = trades
+        override fun connectionStatus(): Flow<ConnectionStatus> = connection
 
-        private fun sampleCandle() = Candlestick(
+        fun emitConnection(status: ConnectionStatus) {
+            connection.value = status
+        }
+
+        fun emitCandles(timeframe: Timeframe, data: List<Candlestick>) {
+            candles.getValue(timeframe).value = data
+        }
+
+        fun sampleCandle() = Candlestick(
             timestamp = Instant.now(),
             open = 1.0,
             high = 2.0,
