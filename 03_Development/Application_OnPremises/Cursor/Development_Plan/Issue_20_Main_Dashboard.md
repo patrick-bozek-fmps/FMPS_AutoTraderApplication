@@ -63,13 +63,13 @@ Deliver the Desktop UI main dashboard view with real-time summaries for AI trade
 - [x] Manual scenario validation: run stub telemetry events (observed in UI) + `:desktop-ui:test`.
 
 ### **Task 7: Documentation & Workflow** [Status: ⏳ PENDING]
-- [ ] Update `Development_Plan_v2.md` and Issue log with dashboard scope.
-- [ ] Document dashboard usage in `Development_Handbook/AI_TRADER_UI_GUIDE.md` (new section).
+- [x] Update `Development_Plan_v2.md` and Issue log with dashboard scope. *(Dev Plan v5.6 entry added Nov 14 2025)*
+- [x] Document dashboard usage in `Development_Handbook/AI_TRADER_UI_GUIDE.md` (new section). *(Guide v0.3 adds usage & validation checklist)*
 - [ ] Follow `DEVELOPMENT_WORKFLOW.md` (Steps 1–7) for planning, testing, CI verification.
 
 ### **Task 8: Build & Commit** [Status: ⏳ PENDING]
-- [ ] Run `./gradlew clean build --no-daemon`.
-- [ ] Ensure `:desktop-ui:test` passes (including TestFX tests).
+- [x] Run `./gradlew clean build --no-daemon`. *(Nov 14 2025 – PASS after workflow restart validation)*
+- [x] Ensure `:desktop-ui:test` passes (including TestFX tests). *(Covered by `clean test` and `clean build` runs on Nov 14 2025)*
 - [ ] Commit and push (`feat(ui): implement desktop main dashboard (Issue #20)`).
 - [ ] Monitor CI with `check-ci-status.ps1 -Watch -WaitSeconds 20`.
 
@@ -96,7 +96,8 @@ Deliver the Desktop UI main dashboard view with real-time summaries for AI trade
 ## 🔍 **Testing & Verification**
 
 - Automated: `./gradlew :desktop-ui:test` (Nov 13 2025 – dashboard module tests green)
-- Automated: `./gradlew clean build --no-daemon` (Nov 13 2025 – full project build ✅)
+- Automated: `./gradlew clean test --no-daemon` (Nov 14 2025 – full suite rerun, PASS)
+- Automated: `./gradlew clean build --no-daemon` (Nov 14 2025 – full project build ✅, confirms dashboard artifacts)
 - Manual telemetry simulation (stub service emits info/warn/critical samples observed in UI).
 - GitHub Actions run recorded in issue once complete.
 

@@ -75,12 +75,14 @@
 | **5.3** | **Nov 13, 2025** | **Issue #18 Ops validation tracker + final commit alignment (`d8aad42`)** | **AI Assistant** |
 | **5.4** | **Nov 13, 2025** | **Epic 5 kicked off – Issue #19 foundation build/tests passing, plan/status updated** | **AI Assistant** |
 | **5.5** | **Nov 13, 2025** | **Issue #19 foundation completed, CI optimization documented, run 19338273758 recorded** | **AI Assistant** |
+| **5.6** | **Nov 14, 2025** | **Issue #20 resumed after workflow refresh – reran `clean test`/`clean build` ahead of documentation + CI steps** | **AI Assistant** |
 
 **Changes from v5.4:**
 - ✅ Issue #19 Desktop UI foundation delivered (commit `c722de26379d8d990971822ffd17c1f1aa0c828a`); MVVM infrastructure, navigation service, shared components, and Koin module finalized.
 - 🧪 GitHub Actions run [19338273758](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19338273758) (`workflow_dispatch`, `force-full-tests=true`) confirmed the full suite remains green after CI adjustments.
 - ⚙️ CI workflow now scopes unit tests by module with manual override; Issue 19, epic status, and development plan artifacts updated with final evidence.
 - 🏗️ Issue #20 Dashboard implementation underway: new `desktop.dashboard` package, telemetry-backed notifications, status tiles, and TestFX/Unit tests added; awaiting final full build + documentation commit for completion.
+- 🔁 Nov 14 2025: Post-workflow-restart sanity pass completed (`./gradlew clean test --no-daemon` + `./gradlew clean build --no-daemon`) to re-baseline Issue #20 before documentation/CI updates.
 
 **Changes from v5.3:**
 - 🏗️ Issue #19 Desktop UI foundation in progress: MVVM base classes, navigation service, shared components/theme implemented; module build green (`./gradlew :desktop-ui:clean build`).

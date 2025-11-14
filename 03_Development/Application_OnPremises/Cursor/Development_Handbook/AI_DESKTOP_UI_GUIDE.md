@@ -1,7 +1,7 @@
 # FMPS AutoTrader Desktop UI – Developer Guide
 
-**Version**: 0.2  
-**Last Updated**: November 13, 2025  
+**Version**: 0.3  
+**Last Updated**: November 14, 2025  
 **Maintainer**: AI Assistant
 
 ---
@@ -141,6 +141,25 @@ val desktopModule = module {
 - `DashboardViewModelTest` validates state aggregation, telemetry-driven notifications, and event emission.
 - `DashboardViewTest` smoke-instantiates the view (with Koin + JavaFX toolkit) and verifies trader list binding.
 
+### 8.5 Usage & Manual Validation Flow
+1. **Launch the dashboard**  
+   ```powershell
+   cd 03_Development\Application_OnPremises
+   ./gradlew :desktop-ui:run
+   ```
+   - The shell auto-navigates to the `dashboard` route on boot.
+2. **Simulate trader updates** – `StubCoreServiceClient` mutates running trader P&L every ~4 s; verify quick stats and list rows update without interaction.
+3. **Simulate telemetry** – `StubTelemetryClient` emits CPU/memory samples and random `trader.alert` notifications every ~1 s once `DashboardViewModel` calls `telemetryClient.start()`. Confirm:
+   - System status tiles flip to “Connected” once samples arrive.
+   - Notifications list prepends latest alert; severity colouring matches payload.
+4. **Exercise quick actions** – Click `Start`, `Stop`, `View` buttons inside each trader row and observe toast messaging via `DashboardEvent.ShowMessage`.
+5. **Headless/TestFX runs** – Before pushing, execute:
+   ```powershell
+   ./gradlew :desktop-ui:test --no-daemon
+   ```
+   This uses the headless configuration (Monocle) described in `DEVELOPMENT_WORKFLOW.md` to ensure TestFX smoke tests don’t hang CI.
+6. **Full workflow gate** – For Issue #20, run `./gradlew clean test --no-daemon` and `./gradlew clean build --no-daemon` prior to committing, then monitor CI via `Cursor\Artifacts\check-ci-status.ps1`.
+
 ## 9. Service Stubs & Data Binding
 
 - `CoreServiceClient.traderSummaries()` exposes a `Flow<List<TraderSummary>>`. The stub emits synthetic updates every 4 seconds.
@@ -179,6 +198,7 @@ All issues should reuse the base MVVM scaffolding and follow the `Development_Wo
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 0.3 | 2025-11-14 | Added dashboard usage/manual validation flow + workflow reminders |
 | 0.2 | 2025-11-13 | Added dashboard implementation details (Issue #20), DI updates, test coverage |
 | 0.1 | 2025-11-13 | Initial publication after Issue #19 foundation completion |
 
