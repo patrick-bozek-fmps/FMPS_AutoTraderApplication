@@ -87,7 +87,7 @@ Provide real-time trading visualizations (price charts, indicators), active posi
 ## 🔍 **Testing & Verification**
 
 - Automated: `./gradlew :desktop-ui:test --no-daemon`, `./gradlew clean test --no-daemon`
-- CI: [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) (`workflow_dispatch`, `force-full-tests=true`), doc/status runs [19366988041](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366988041), [19368371326](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19368371326) + forced rerun after enhancements [TBD – update post-run]
+- CI: [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) (`workflow_dispatch`, `force-full-tests=true`), doc/status runs [19366988041](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366988041), [19368371326](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19368371326), enhancement rerun [19369938864](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19369938864)
 - Manual: Observed stub-driven chart/position/trade updates in Monitoring view
 
 ---
