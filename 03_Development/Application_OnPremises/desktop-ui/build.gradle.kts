@@ -116,7 +116,11 @@ tasks.test {
     maxParallelForks = 1
     forkEvery = 1
     testLogging {
-        events("passed", "skipped", "failed")
+        events("passed", "skipped", "failed", "started")
+        showStandardStreams = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
+    // Note: Test timeout is handled by JUnit 5 @Timeout annotation if needed
+    // Gradle test task timeout is not directly available in this version
 }
 
