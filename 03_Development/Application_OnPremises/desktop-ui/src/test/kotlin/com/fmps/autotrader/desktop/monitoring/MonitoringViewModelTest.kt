@@ -13,6 +13,7 @@ import java.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -47,7 +48,8 @@ class MonitoringViewModelTest {
 
     @AfterEach
     fun cleanup() {
-        viewModel.onCleared()
+        // Additional cleanup if needed - onCleared() is called in each test
+        scope.cancel()
     }
 
     @Test
@@ -57,6 +59,8 @@ class MonitoringViewModelTest {
         assertFalse(state.isLoading)
         assertEquals(2, state.positions.size)
         assertEquals(1, state.trades.size)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -65,6 +69,8 @@ class MonitoringViewModelTest {
         viewModel.changeTimeframe(Timeframe.ONE_MIN)
         advanceUntilIdle()
         assertEquals(Timeframe.ONE_MIN, viewModel.state.value.timeframe)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -73,6 +79,8 @@ class MonitoringViewModelTest {
         fakeService.emitConnection(ConnectionStatus.RECONNECTING)
         advanceUntilIdle()
         assertEquals(ConnectionStatus.RECONNECTING, viewModel.state.value.connectionStatus)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -86,6 +94,8 @@ class MonitoringViewModelTest {
         advanceUntilIdle()
         assertFalse(viewModel.state.value.isRefreshing)
         assertNotNull(viewModel.state.value.lastUpdated)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     private class FakeMarketDataService : MarketDataService {

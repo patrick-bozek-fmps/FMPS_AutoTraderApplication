@@ -14,6 +14,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -48,7 +49,8 @@ class ConfigurationViewModelTest {
 
     @AfterEach
     fun cleanup() {
-        viewModel.onCleared()
+        // Additional cleanup if needed - onCleared() is called in each test
+        testScope.cancel()
     }
 
     @Test
@@ -56,6 +58,8 @@ class ConfigurationViewModelTest {
         advanceUntilIdle()
         assertFalse(viewModel.state.value.isLoading)
         assertEquals("BINANCE_KEY", viewModel.state.value.exchangeForm.apiKey)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -65,6 +69,8 @@ class ConfigurationViewModelTest {
         viewModel.saveExchangeSettings()
         advanceUntilIdle()
         assertTrue(viewModel.state.value.validationErrors.containsKey("apiKey"))
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -74,6 +80,8 @@ class ConfigurationViewModelTest {
         advanceUntilIdle()
         assertTrue(viewModel.state.value.importSuccess)
         assertEquals(ThemePreference.DARK, viewModel.state.value.generalForm.theme)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -82,6 +90,8 @@ class ConfigurationViewModelTest {
         viewModel.testConnection()
         advanceUntilIdle()
         assertEquals("OK", viewModel.state.value.connectionTest?.message)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     private class FakeConfigService : ConfigService {

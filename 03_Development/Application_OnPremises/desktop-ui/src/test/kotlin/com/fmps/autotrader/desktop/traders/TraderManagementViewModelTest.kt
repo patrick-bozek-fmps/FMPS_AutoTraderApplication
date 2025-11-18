@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -62,7 +63,8 @@ class TraderManagementViewModelTest {
 
     @AfterEach
     fun cleanup() {
-        viewModel.onCleared()
+        // Additional cleanup if needed - onCleared() is called in each test
+        testScope.cancel()
     }
 
     @Test
@@ -72,6 +74,8 @@ class TraderManagementViewModelTest {
         assertFalse(state.isLoading)
         assertEquals(1, state.traders.size)
         assertEquals("Starter", state.traders.first().name)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -96,6 +100,8 @@ class TraderManagementViewModelTest {
         advanceUntilIdle()
 
         assertTrue(fakeService.traders.value.any { it.name == "New Trader" })
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -107,6 +113,8 @@ class TraderManagementViewModelTest {
         advanceUntilIdle()
 
         assertEquals(TraderStatus.RUNNING, fakeService.traders.value.first().status)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -130,6 +138,8 @@ class TraderManagementViewModelTest {
         val errors = viewModel.state.value.form.errors
         assertTrue(errors.containsKey("apiSecret"))
         assertEquals("API Secret is required when API Key is provided", errors["apiSecret"])
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -155,6 +165,8 @@ class TraderManagementViewModelTest {
         val errors = viewModel.state.value.form.errors
         assertTrue(errors.containsKey("apiPassphrase"))
         assertEquals("Passphrase is required for Bitget exchange", errors["apiPassphrase"])
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -179,6 +191,8 @@ class TraderManagementViewModelTest {
         
         val errors = viewModel.state.value.form.errors
         assertFalse(errors.containsKey("apiPassphrase"))
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -200,6 +214,8 @@ class TraderManagementViewModelTest {
         val updatedTrader = viewModel.state.value.traders.first { it.id == initialTrader.id }
         assertEquals(TraderStatus.RUNNING, updatedTrader.status)
         assertEquals(50.0, updatedTrader.profitLoss)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -237,6 +253,8 @@ class TraderManagementViewModelTest {
         val unchangedTrader2 = viewModel.state.value.traders.first { it.id == trader2.id }
         assertEquals(TraderStatus.RUNNING, updatedTrader1.status)
         assertEquals(TraderStatus.STOPPED, unchangedTrader2.status)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -261,6 +279,8 @@ class TraderManagementViewModelTest {
         // Should succeed after retries
         assertTrue(failingService.createCallCount >= 3) // At least 3 attempts (initial + 2 retries)
         assertTrue(failingService.traders.value.any { it.name == "Test Trader" })
+        testViewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -285,6 +305,8 @@ class TraderManagementViewModelTest {
         // Should attempt 3 times (initial + 2 retries) then fail
         assertEquals(3, failingService.createCallCount)
         assertFalse(failingService.traders.value.any { it.name == "Test Trader" })
+        testViewModel.onCleared()
+        advanceUntilIdle()
     }
 
     // Note: Error formatting tests require MockEngine setup which has API compatibility issues.

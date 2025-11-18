@@ -10,6 +10,7 @@ import java.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -44,7 +45,8 @@ class PatternAnalyticsViewModelTest {
 
     @AfterEach
     fun cleanup() {
-        viewModel.onCleared()
+        // Additional cleanup if needed - onCleared() is called in each test
+        scope.cancel()
     }
 
     @Test
@@ -53,6 +55,8 @@ class PatternAnalyticsViewModelTest {
         viewModel.updateSearch("Momentum")
         advanceUntilIdle()
         assertEquals(1, viewModel.state.value.filteredPatterns.size)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -62,6 +66,8 @@ class PatternAnalyticsViewModelTest {
         viewModel.selectPattern(id)
         advanceUntilIdle()
         assertNotNull(viewModel.state.value.selectedDetail)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     @Test
@@ -73,6 +79,8 @@ class PatternAnalyticsViewModelTest {
         viewModel.deleteSelected()
         advanceUntilIdle()
         assertNull(viewModel.state.value.selectedPatternId)
+        viewModel.onCleared()
+        advanceUntilIdle()
     }
 
     private class FakePatternAnalyticsService : PatternAnalyticsService {
