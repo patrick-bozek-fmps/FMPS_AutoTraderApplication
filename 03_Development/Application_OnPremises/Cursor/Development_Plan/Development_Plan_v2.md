@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 6.2  
+**Version**: 6.3  
 **Date**: November 18, 2025  
 **Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ✅ COMPLETE (6/6 issues – 100%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -86,6 +86,11 @@
 - 🧪 Local gates (`:desktop-ui:test`, `clean test`) and GA run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) confirmed module + full-suite health.
 - 📚 Documentation refreshed: Issue 21 marked complete, Epic 5 status v1.4, AI Desktop UI Guide v0.4 trader management chapter.
 - 🎯 Focus now shifts to Issue #22 (Trading Monitoring View) implementation.
+
+**Changes from v6.2:**
+- ⚠️ Issue #20 re-review completed (Nov 18, 2025): Verified remediation commit `037034f` implemented `RealTelemetryClient` (153 lines) and `RealTraderService` (250 lines), wired dashboard actions to REST API, added telemetry monitoring/reconnection logic and empty-state messaging. **Critical gap identified**: `DesktopModule.kt` line 42 still injects `StubTelemetryClient()` instead of `RealTelemetryClient()`, preventing real telemetry from being used. Code exists but not activated—DI configuration must be updated. `RealTraderService` correctly wired and functional.
+- 📚 Documentation: Updated `Issue_20_REVIEW.md` with re-review findings (critical wiring gap) and updated status.
+- 🔜 Next up: Epic 6 – Testing & Polish planning (regression checklist, release assets).
 
 **Changes from v6.1:**
 - ✅ Issue #20 review findings addressed (commit `037034f`): Created `RealTelemetryClient` connecting to `/ws/telemetry` WebSocket, wired dashboard Start/Stop actions to `TraderService` REST API, added telemetry reconnection handling and empty-state messaging.
