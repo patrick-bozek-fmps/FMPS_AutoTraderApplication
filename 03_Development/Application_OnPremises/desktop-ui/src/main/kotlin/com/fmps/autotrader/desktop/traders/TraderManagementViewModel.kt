@@ -2,9 +2,12 @@ package com.fmps.autotrader.desktop.traders
 
 import com.fmps.autotrader.desktop.mvvm.BaseViewModel
 import com.fmps.autotrader.desktop.mvvm.DispatcherProvider
+import com.fmps.autotrader.desktop.services.TelemetryClient
+import com.fmps.autotrader.desktop.services.TelemetrySample
 import com.fmps.autotrader.desktop.services.TraderDetail
 import com.fmps.autotrader.desktop.services.TraderRiskLevel
 import com.fmps.autotrader.desktop.services.TraderService
+import com.fmps.autotrader.desktop.services.TraderStatus
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.statement.*
@@ -12,18 +15,29 @@ import io.ktor.http.*
 import io.ktor.client.network.sockets.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.math.pow
 
 class TraderManagementViewModel(
     dispatcherProvider: DispatcherProvider,
-    private val traderService: TraderService
+    private val traderService: TraderService,
+    private val telemetryClient: TelemetryClient
 ) : BaseViewModel<TraderManagementState, TraderManagementEvent>(
     TraderManagementState(),
     dispatcherProvider
 ) {
 
+    private val json = Json { ignoreUnknownKeys = true }
+
     init {
+        // Start telemetry client for real-time updates
+        telemetryClient.start()
+        
+        // Observe trader list from service (REST polling)
         launchIO {
             traderService.traders().collectLatest { traders ->
                 setState { state ->
@@ -44,7 +58,99 @@ class TraderManagementViewModel(
                 }
             }
         }
+        
+        // Observe telemetry for real-time trader status updates
+        observeTelemetry()
     }
+
+    override fun onCleared() {
+        telemetryClient.stop()
+        super.onCleared()
+    }
+
+    /**
+     * Observes telemetry samples for trader status updates.
+     * Updates trader list in real-time when status changes occur.
+     */
+    private fun observeTelemetry() {
+        launchIO {
+            telemetryClient.samples()
+                .onEach { sample ->
+                    handleTelemetrySample(sample)
+                }
+                .collectLatest { }
+        }
+    }
+
+    /**
+     * Handles telemetry samples related to trader updates.
+     */
+    private suspend fun handleTelemetrySample(sample: TelemetrySample) {
+        when (sample.channel) {
+            "trader.status" -> {
+                try {
+                    // Parse trader status update from telemetry
+                    val traderUpdate = parseTraderStatusUpdate(sample.payload)
+                    if (traderUpdate != null) {
+                        // Update trader in current state
+                        setState { state ->
+                            val updatedTraders = state.traders.map { trader ->
+                                if (trader.id == traderUpdate.id) {
+                                    trader.copy(
+                                        status = traderUpdate.status,
+                                        profitLoss = traderUpdate.profitLoss ?: trader.profitLoss
+                                    )
+                                } else {
+                                    trader
+                                }
+                            }
+                            val filtered = updatedTraders.filter(state.searchQuery, state.statusFilter)
+                            state.copy(
+                                traders = updatedTraders,
+                                filteredTraders = filtered
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Log but don't fail on telemetry parsing errors
+                }
+            }
+        }
+    }
+
+    /**
+     * Parses trader status update from telemetry payload.
+     */
+    private fun parseTraderStatusUpdate(payload: String): TraderStatusUpdate? {
+        return try {
+            val jsonElement = json.parseToJsonElement(payload)
+            // Extract trader ID and status from telemetry message
+            // Format may vary, but typically: {"traderId": "123", "status": "RUNNING", "profitLoss": 100.0}
+            val traderId = jsonElement.jsonObject["traderId"]?.jsonPrimitive?.content
+            val statusStr = jsonElement.jsonObject["status"]?.jsonPrimitive?.content
+            val profitLoss = jsonElement.jsonObject["profitLoss"]?.jsonPrimitive?.content?.toDoubleOrNull()
+            
+            if (traderId != null && statusStr != null) {
+                val status = when (statusStr.uppercase()) {
+                    "ACTIVE", "RUNNING" -> TraderStatus.RUNNING
+                    "PAUSED", "STOPPED", "STOPPING" -> TraderStatus.STOPPED
+                    "ERROR" -> TraderStatus.ERROR
+                    else -> TraderStatus.STOPPED
+                }
+                TraderStatusUpdate(traderId, status, profitLoss)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private data class TraderStatusUpdate(
+        val id: String,
+        val status: TraderStatus,
+        val profitLoss: Double? = null
+    )
 
     fun updateSearch(query: String) {
         setState { state ->

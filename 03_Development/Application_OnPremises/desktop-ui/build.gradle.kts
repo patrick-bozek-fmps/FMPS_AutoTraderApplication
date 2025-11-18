@@ -61,10 +61,11 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("io.kotest:kotest-assertions-core:5.8.0")
 val testFxVersion = "4.0.17"
-testImplementation("org.testfx:testfx-core:$testFxVersion")
-testImplementation("org.testfx:testfx-junit5:$testFxVersion")
+    testImplementation("org.testfx:testfx-core:$testFxVersion")
+    testImplementation("org.testfx:testfx-junit5:$testFxVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("io.insert-koin:koin-test:$koinVersion")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 }
 
 tasks.register<JavaExec>("runDesktopWindows") {

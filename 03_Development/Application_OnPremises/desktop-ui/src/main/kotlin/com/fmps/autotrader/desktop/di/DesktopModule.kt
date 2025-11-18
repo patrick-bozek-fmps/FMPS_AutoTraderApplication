@@ -50,7 +50,7 @@ val desktopModule = module {
     factory { ShellViewModel(get(), get(), get()) }
     factory { DashboardViewModel(get(), get(), get(), get()) }
     factory { DashboardView() }
-    factory { TraderManagementViewModel(get(), get()) }
+    factory { TraderManagementViewModel(get(), get(), get()) }
     factory { TraderManagementView() }
     factory { MonitoringViewModel(get(), get()) }
     factory { MonitoringView() }
