@@ -18,7 +18,7 @@
   - GitHub Actions run [19370918030](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19370918030) (`workflow_dispatch`, `force-full-tests=true`) – full suite success.
 
 ## 2. 📋 Executive Summary
-The configuration workspace ships with tabbed UX for exchange credentials, general settings, trader defaults, and import/export flows. Validation, masking, and manual connection-test feedback are in place, and documentation references (Dev Plan v6.0, Epic 5 status v1.6, CONFIG_GUIDE.md v1.1, AI UI guide v0.6) reflect the feature. **Post-review remediation (commit `[pending]`) successfully addressed all critical findings**: `RealConfigService` is now wired via DI and connects to REST API (`/api/v1/config/test-connection`) for real exchange connection testing; HOCON format import/export is fully implemented; file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`) provides configuration persistence when REST endpoints are not available; retry logic with exponential backoff handles transient failures. The implementation is production-ready with backend integration and resilient fallback strategy.
+The configuration workspace ships with tabbed UX for exchange credentials, general settings, trader defaults, and import/export flows. Validation, masking, and manual connection-test feedback are in place, and documentation references (Dev Plan v6.0, Epic 5 status v1.6, CONFIG_GUIDE.md v1.1, AI UI guide v0.6) reflect the feature. **Post-review remediation (commit `ded548c`) successfully addressed all critical findings**: `RealConfigService` is now wired via DI and connects to REST API (`/api/v1/config/test-connection`) for real exchange connection testing; HOCON format import/export is fully implemented; file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`) provides configuration persistence when REST endpoints are not available; retry logic with exponential backoff handles transient failures. The implementation is production-ready with backend integration and resilient fallback strategy.
 
 ## 3. ✅ Strengths & Achievements
 - Clear UX structure (tabs, connection badge, disabled states) aligned with previous UI components.
@@ -52,24 +52,24 @@ The configuration workspace ships with tabbed UX for exchange credentials, gener
 | Requirement | Implementation | Status |
 |-------------|----------------|--------|
 | Exchange configuration with validation | Form + validation logic delivered | ✅ (UI level) |
-| Connection testing | `RealConfigService` uses `/api/v1/config/test-connection` endpoint with real exchange connectors | ✅ **Resolved** (commit `[pending]`) |
+| Connection testing | `RealConfigService` uses `/api/v1/config/test-connection` endpoint with real exchange connectors | ✅ **Resolved** (commit `ded548c`) |
 | Secure handling of credentials | Masking in UI; file-based storage (plain text HOCON). Encryption deferred to Epic 6. | ⚠️ (Deferred to Epic 6) |
-| Import/export configuration | `RealConfigService` implements HOCON format import/export compatible with Typesafe Config | ✅ **Resolved** (commit `[pending]`) |
-| Configuration persistence | REST API with file-based fallback (`~/.fmps-autotrader/desktop-config.conf`) | ✅ **Resolved** (commit `[pending]`) |
+| Import/export configuration | `RealConfigService` implements HOCON format import/export compatible with Typesafe Config | ✅ **Resolved** (commit `ded548c`) |
+| Configuration persistence | REST API with file-based fallback (`~/.fmps-autotrader/desktop-config.conf`) | ✅ **Resolved** (commit `ded548c`) |
 | Documentation & workflow | Dev Plan, Epic status, guides updated | ✅ |
 
 ## 9. 🎯 Success Criteria Verification
 - UI tabs render and validation works → ✅
-- Connection test reports outcome → ✅ **Delivered** (commit `[pending]`): Real exchange connector testing via `/api/v1/config/test-connection`
-- Import/export handles invalid input gracefully → ✅ **Delivered** (commit `[pending]`): HOCON format parsing with error handling
-- Persistence to real config store → ✅ **Delivered** (commit `[pending]`): REST API with file-based fallback (`~/.fmps-autotrader/desktop-config.conf`)
+- Connection test reports outcome → ✅ **Delivered** (commit `ded548c`): Real exchange connector testing via `/api/v1/config/test-connection`
+- Import/export handles invalid input gracefully → ✅ **Delivered** (commit `ded548c`): HOCON format parsing with error handling
+- Persistence to real config store → ✅ **Delivered** (commit `ded548c`): REST API with file-based fallback (`~/.fmps-autotrader/desktop-config.conf`)
 - Build/test/CI pass → ✅
 
 ## 10. 🛠️ Action Items
-1. ~~**Config Integration Team**~~ – ✅ **COMPLETED** in commit `[pending]`: Created `RealConfigService` with REST API integration (`/api/v1/config/test-connection`, `/api/v1/config/{key}`) and file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`). HOCON format import/export fully implemented. Wired in DI module (`DesktopModule.kt` line 48).
+1. ~~**Config Integration Team**~~ – ✅ **COMPLETED** in commit `ded548c`: Created `RealConfigService` with REST API integration (`/api/v1/config/test-connection`, `/api/v1/config/{key}`) and file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`). HOCON format import/export fully implemented. Wired in DI module (`DesktopModule.kt` line 48).
 2. **Security/DevOps** – ⚠️ **DEFERRED** to Epic 6: Implement secret storage (encrypted file, DPAPI, or vault). Document key rotation and ensure UI stores tokens securely. Currently uses plain text HOCON file storage. Documented in code with TODO markers.
-3. ~~**Exchange Connectivity**~~ – ✅ **COMPLETED** in commit `[pending]`: `RealConfigService.testExchangeConnection()` uses `/api/v1/config/test-connection` endpoint which calls actual exchange connectors (`BinanceConnector`, `BitgetConnector`) via `ConnectorFactory`. Tests real connectivity to Binance/Bitget testnets.
-4. ~~**Error Handling**~~ – ✅ **COMPLETED** in commit `[pending]`: Implemented retry logic with exponential backoff (`executeWithRetry()`, `isRetryableError()`). Backend validation errors surfaced via `ErrorResponse` parsing. Audit trail logging tracked with TODO markers for Epic 6 implementation.
+3. ~~**Exchange Connectivity**~~ – ✅ **COMPLETED** in commit `ded548c`: `RealConfigService.testExchangeConnection()` uses `/api/v1/config/test-connection` endpoint which calls actual exchange connectors (`BinanceConnector`, `BitgetConnector`) via `ConnectorFactory`. Tests real connectivity to Binance/Bitget testnets.
+4. ~~**Error Handling**~~ – ✅ **COMPLETED** in commit `ded548c`: Implemented retry logic with exponential backoff (`executeWithRetry()`, `isRetryableError()`). Backend validation errors surfaced via `ErrorResponse` parsing. Audit trail logging tracked with TODO markers for Epic 6 implementation.
 
 ## 11. 📊 Metrics Summary
 - Unit tests: `ConfigurationViewModelTest`.
@@ -81,7 +81,7 @@ The configuration workspace ships with tabbed UX for exchange credentials, gener
 - Documenting security TODOs is good, but assign clear owners/dates so they don’t get lost between Epics 5 and 6.
 
 ## 13. ✅ Final Recommendation
-**PASS** – All critical review findings have been addressed in commit `[pending]`. The implementation is production-ready with REST API integration, real exchange connection testing, HOCON format import/export, and file-based persistence fallback. Retry logic with exponential backoff ensures resilient operation. Secrets encryption remains deferred to Epic 6 but is documented with clear TODO markers. Connection testing uses actual exchange connectors, providing real pass/fail signals to operators.
+**PASS** – All critical review findings have been addressed in commit `ded548c`. The implementation is production-ready with REST API integration, real exchange connection testing, HOCON format import/export, and file-based persistence fallback. Retry logic with exponential backoff ensures resilient operation. Secrets encryption remains deferred to Epic 6 but is documented with clear TODO markers. Connection testing uses actual exchange connectors, providing real pass/fail signals to operators.
 
 ## 14. ☑️ Review Checklist
 - [x] Code inspected (`ConfigurationView`, `ConfigService`, tests)
@@ -96,7 +96,7 @@ The configuration workspace ships with tabbed UX for exchange credentials, gener
 ### Backend Integration (High Priority) ✅
 - **Fixed**: Created `RealConfigService` (500+ lines) connecting to REST API (`/api/v1/config/test-connection`, `/api/v1/config/{key}`) for configuration management
 - **File Persistence**: Implemented file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`) when REST endpoints are not available or return NOT_IMPLEMENTED
-- **Wired**: Updated `DesktopModule.kt` line 48 to inject `RealConfigService(get())` instead of `StubConfigService()` (commit `[pending]`)
+- **Wired**: Updated `DesktopModule.kt` line 48 to inject `RealConfigService(get())` instead of `StubConfigService()` (commit `ded548c`)
 - **Result**: Configuration view now uses real backend integration with resilient fallback strategy
 
 ### Connection Testing (Medium Priority) ✅
@@ -164,7 +164,7 @@ The configuration workspace ships with tabbed UX for exchange credentials, gener
 - ✅ Resource management: Config directory created automatically if missing
 
 **Commit Verification**:
-- Commit `[pending]` (Nov 18, 2025) addresses all high and medium priority findings from initial review
+- Commit `ded548c` (Nov 18, 2025) addresses all high and medium priority findings from initial review
 - Files changed: 1 file, 500+ lines
 - All changes align with review action items
 - CI run pending verification
