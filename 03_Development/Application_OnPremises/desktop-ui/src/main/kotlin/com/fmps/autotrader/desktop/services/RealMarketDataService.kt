@@ -9,7 +9,10 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.decodeFromJsonElement
 import mu.KotlinLogging
+import java.math.BigDecimal
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -97,29 +100,17 @@ class RealMarketDataService(
 
     /**
      * Handles incoming telemetry samples and updates appropriate flows.
+     * 
+     * Telemetry channels:
+     * - "positions" -> PositionTelemetryEvent (open/updated/closed positions)
+     * - "market-data" -> MarketDataEvent (price updates, not candlesticks)
+     * - "trader-status" -> TraderStatusEvent (trader state changes)
+     * - "risk-alerts" -> RiskAlertEvent (risk violations)
      */
     private suspend fun handleTelemetrySample(sample: TelemetrySample) {
         try {
             when (sample.channel) {
-                "market.candlestick" -> {
-                    val candle = parseCandlestick(sample.payload)
-                    if (candle != null) {
-                        candlesFlow.update { candles ->
-                            val updated = candles.toMutableList()
-                            // Replace or add candlestick
-                            val index = updated.indexOfFirst { it.timestamp == candle.timestamp }
-                            if (index >= 0) {
-                                updated[index] = candle
-                            } else {
-                                updated.add(candle)
-                                updated.sortBy { it.timestamp }
-                            }
-                            // Keep only recent candles (last 100)
-                            updated.takeLast(100)
-                        }
-                    }
-                }
-                "position.update" -> {
+                "positions" -> {
                     val position = parsePosition(sample.payload)
                     if (position != null) {
                         positionsFlow.update { positions ->
@@ -132,25 +123,32 @@ class RealMarketDataService(
                             }
                             updated
                         }
+                        
+                        // Track closed positions for trade history
+                        // When a position is closed (status == "CLOSED"), we could add it to trade history
+                        // For now, trade history is fetched from REST API (/api/v1/trades)
                     }
                 }
-                "trade.executed" -> {
-                    val trade = parseTrade(sample.payload)
-                    if (trade != null) {
-                        tradesFlow.update { trades ->
-                            val updated = trades.toMutableList()
-                            // Add new trade at the beginning
-                            updated.add(0, trade)
-                            // Keep only recent trades (last 100)
-                            updated.take(100)
-                        }
-                    }
+                "market-data" -> {
+                    // MarketDataEvent contains price updates, not candlestick data
+                    // For now, we don't parse candlesticks from market-data events
+                    // Candlesticks should come from REST API or a dedicated candlestick channel
+                    // This is a known limitation - see Issue_22_REVIEW.md
+                    logger.debug { "Received market-data event (price update), not processing as candlestick" }
+                }
+                "trader-status" -> {
+                    // Trader status updates don't directly map to market data
+                    // But we could use them to update position trader names if needed
+                    logger.debug { "Received trader-status event" }
                 }
                 "system.error" -> {
                     // Connection error - switch to REST fallback
                     if (sample.payload.contains("CONNECTION")) {
                         startRestPolling()
                     }
+                }
+                else -> {
+                    logger.debug { "Unhandled telemetry channel: ${sample.channel}" }
                 }
             }
         } catch (e: Exception) {
@@ -217,11 +215,19 @@ class RealMarketDataService(
 
     /**
      * Fetches candlesticks from REST API.
+     * 
+     * Note: This endpoint may not exist yet in core-service.
+     * Candlesticks should ideally come from exchange connectors or a dedicated market data service.
+     * For now, this is a placeholder that gracefully handles the missing endpoint.
+     * 
+     * Future implementation options:
+     * 1. Add /api/v1/market-data/candlesticks endpoint to core-service
+     * 2. Use exchange connector WebSocket streams directly
+     * 3. Aggregate from MarketDataEvent telemetry (requires OHLCV data, not just price)
      */
     private suspend fun fetchCandlesticksFromRest(timeframe: Timeframe) {
         try {
-            // Note: This endpoint may not exist yet in core-service
-            // For now, we'll use a placeholder that could be implemented
+            // Attempt to fetch from potential endpoint
             // GET /api/v1/market-data/candlesticks?timeframe=5m&limit=100
             val response = httpClient.get("$baseUrl/api/v1/market-data/candlesticks") {
                 parameter("timeframe", timeframe.label)
@@ -230,12 +236,14 @@ class RealMarketDataService(
             }
             
             if (response.status.isSuccess()) {
-                // Parse response (structure depends on actual API)
-                // For now, keep existing candles if API not available
+                // Parse response when endpoint is implemented
+                // For now, endpoint doesn't exist, so we keep existing candles
+                logger.debug { "Candlestick REST endpoint responded but parsing not yet implemented" }
             }
         } catch (e: Exception) {
-            // API endpoint may not exist yet - this is expected
-            logger.debug(e) { "Market data REST endpoint not available (expected if not implemented)" }
+            // API endpoint doesn't exist yet - this is expected and documented in Issue_22_REVIEW.md
+            // Gracefully handle missing endpoint without logging errors
+            logger.trace(e) { "Candlestick REST endpoint not available (documented limitation)" }
         }
     }
 
@@ -280,39 +288,134 @@ class RealMarketDataService(
         }
     }
 
-    // Parsing functions for telemetry messages
-    private fun parseCandlestick(payload: String): Candlestick? {
-        return try {
-            // Parse candlestick from JSON (structure depends on actual telemetry format)
-            // Placeholder implementation - will be enhanced when telemetry format is finalized
-            Json.parseToJsonElement(payload)
-            null
-        } catch (e: Exception) {
-            logger.debug(e) { "Failed to parse candlestick from telemetry" }
-            null
-        }
-    }
-
+    /**
+     * Parses a PositionTelemetryEvent from telemetry payload.
+     * 
+     * Expected format: TelemetryServerMessage with:
+     * - type: "event"
+     * - channel: "positions"
+     * - data: PositionTelemetryEvent (serialized)
+     */
     private fun parsePosition(payload: String): OpenPosition? {
         return try {
-            // Parse position from JSON - will be enhanced when telemetry format is finalized
-            Json.parseToJsonElement(payload)
-            null
+            // Parse TelemetryServerMessage
+            val serverMessage = Json.decodeFromString<TelemetryServerMessage>(payload)
+            
+            // Extract TelemetryEvent from data field
+            if (serverMessage.type != "event" || serverMessage.data == null) {
+                return null
+            }
+            
+            // Parse PositionTelemetryEvent from data
+            val positionEvent = Json.decodeFromJsonElement<PositionTelemetryEventDTO>(
+                serverMessage.data
+            )
+            
+            // Convert to OpenPosition (only if position is active/open)
+            // Closed positions trigger trade history refresh
+            if (!positionEvent.isActive || positionEvent.status == "CLOSED") {
+                // When position closes, trigger trade history refresh to include the closed trade
+                scope.launch {
+                    fetchTradeHistoryFromRest()
+                }
+                return null
+            }
+            
+            OpenPosition(
+                id = positionEvent.id,
+                traderName = "Trader ${positionEvent.traderId}", // Would need trader name lookup
+                symbol = positionEvent.symbol,
+                size = positionEvent.quantity.toDouble(),
+                entryPrice = positionEvent.entryPrice.toDouble(),
+                markPrice = positionEvent.currentPrice.toDouble(),
+                pnl = positionEvent.unrealizedPnL.toDouble(),
+                status = TraderStatus.RUNNING // Would need actual trader status
+            )
         } catch (e: Exception) {
-            logger.debug(e) { "Failed to parse position from telemetry" }
+            logger.debug(e) { "Failed to parse position from telemetry: ${e.message}" }
             null
         }
     }
 
+    /**
+     * Parses a trade from position update when position is closed.
+     * Note: Trade execution events don't exist in telemetry yet.
+     * For now, trades are fetched from REST API.
+     * 
+     * @param payload Telemetry message payload (unused for now)
+     * @return null - trades are fetched from REST API
+     */
+    @Suppress("UNUSED_PARAMETER")
     private fun parseTrade(payload: String): TradeRecord? {
-        return try {
-            // Parse trade from JSON - will be enhanced when telemetry format is finalized
-            Json.parseToJsonElement(payload)
-            null
-        } catch (e: Exception) {
-            logger.debug(e) { "Failed to parse trade from telemetry" }
-            null
-        }
+        // Trades are not directly available in telemetry
+        // They should be fetched from REST API (/api/v1/trades)
+        // This function is kept for future use if trade.executed channel is added
+        return null
+    }
+
+    /**
+     * Parses candlestick from telemetry.
+     * Note: MarketDataEvent only contains price updates, not OHLCV candlestick data.
+     * Candlesticks should be fetched from REST API or exchange connector.
+     * This function is kept for future use if market.candlestick channel is added.
+     * 
+     * @param payload Telemetry message payload (unused for now)
+     * @return null - candlesticks are fetched from REST API or exchange connector
+     */
+    @Suppress("UNUSED_PARAMETER")
+    private fun parseCandlestick(payload: String): Candlestick? {
+        // Candlesticks are not available in telemetry yet
+        // They should be fetched from REST API or exchange connector
+        // This function is kept for future use if market.candlestick channel is added
+        return null
+    }
+    
+    /**
+     * DTOs for parsing telemetry messages.
+     * These match the TelemetryEvent structure from core-service.
+     */
+    @Serializable
+    private data class TelemetryServerMessage(
+        val type: String,
+        val channel: String? = null,
+        val data: JsonElement? = null,
+        val replay: Boolean? = null,
+        val meta: Map<String, String>? = null,
+        val timestamp: Long = 0
+    )
+    
+    @Serializable
+    private data class PositionTelemetryEventDTO(
+        val id: String,
+        val traderId: String,
+        val symbol: String,
+        val action: String,
+        @Serializable(with = BigDecimalSerializer::class)
+        val quantity: BigDecimal,
+        @Serializable(with = BigDecimalSerializer::class)
+        val entryPrice: BigDecimal,
+        @Serializable(with = BigDecimalSerializer::class)
+        val currentPrice: BigDecimal,
+        @Serializable(with = BigDecimalSerializer::class)
+        val unrealizedPnL: BigDecimal,
+        @Serializable(with = BigDecimalSerializer::class)
+        val realizedPnL: BigDecimal? = null,
+        val status: String, // "OPEN", "UPDATED", "CLOSED"
+        val reason: String? = null,
+        val trailingStopActivated: Boolean = false,
+        @Serializable(with = BigDecimalSerializer::class)
+        val stopLossPrice: BigDecimal? = null,
+        @Serializable(with = BigDecimalSerializer::class)
+        val takeProfitPrice: BigDecimal? = null,
+        val isActive: Boolean,
+        val timestamp: Long = 0
+    )
+    
+    @Serializable
+    private class BigDecimalSerializer : kotlinx.serialization.KSerializer<BigDecimal> {
+        override val descriptor = kotlinx.serialization.descriptors.PrimitiveSerialDescriptor("BigDecimal", kotlinx.serialization.descriptors.PrimitiveKind.STRING)
+        override fun serialize(encoder: kotlinx.serialization.encoding.Encoder, value: BigDecimal) = encoder.encodeString(value.toString())
+        override fun deserialize(decoder: kotlinx.serialization.encoding.Decoder): BigDecimal = BigDecimal(decoder.decodeString())
     }
 
     @Serializable
@@ -367,4 +470,5 @@ class RealMarketDataService(
         }
     }
 }
+
 
