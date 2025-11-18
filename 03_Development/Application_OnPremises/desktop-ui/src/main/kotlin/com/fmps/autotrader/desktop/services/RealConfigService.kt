@@ -7,11 +7,16 @@ import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
@@ -50,13 +55,16 @@ class RealConfigService(
     private val maxRetries = 3
     private val initialRetryDelayMs = 500L
     private val configFile = File(configFilePath)
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     init {
         // Ensure config directory exists
         configFile.parentFile?.mkdirs()
         
         // Load initial configuration (try REST API first, then file, then defaults)
-        loadConfiguration()
+        scope.launch {
+            loadConfiguration()
+        }
     }
     
     /**
@@ -69,7 +77,7 @@ class RealConfigService(
         }
     ): T {
         var lastException: Throwable? = null
-        repeat(maxRetries) { attempt ->
+        for (attempt in 0 until maxRetries) {
             try {
                 return operation()
             } catch (e: Exception) {
@@ -104,13 +112,15 @@ class RealConfigService(
         try {
             // Try to save via REST API
             // Note: Endpoint may not be implemented yet, so we handle gracefully
-            val response = executeWithRetry {
-                httpClient.put("$baseUrl/api/v1/config/exchange") {
-                    contentType(ContentType.Application.Json)
-                    setBody(ExchangeSettingsDTO.from(settings))
-                    apiKey?.let { header("X-API-Key", it) }
+            val response = executeWithRetry<HttpResponse>(
+                operation = {
+                    httpClient.put("$baseUrl/api/v1/config/exchange") {
+                        contentType(ContentType.Application.Json)
+                        setBody(ExchangeSettingsDTO.from(settings))
+                        apiKey?.let { header("X-API-Key", it) }
+                    }
                 }
-            }
+            )
 
             if (response.status == HttpStatusCode.NotImplemented) {
                 logger.info { "Exchange settings endpoint not implemented yet, persisting to local file" }
@@ -145,13 +155,15 @@ class RealConfigService(
 
     override suspend fun saveGeneralSettings(settings: GeneralSettings) {
         try {
-            val response = executeWithRetry {
-                httpClient.put("$baseUrl/api/v1/config/general") {
-                    contentType(ContentType.Application.Json)
-                    setBody(GeneralSettingsDTO.from(settings))
-                    apiKey?.let { header("X-API-Key", it) }
+            val response = executeWithRetry<HttpResponse>(
+                operation = {
+                    httpClient.put("$baseUrl/api/v1/config/general") {
+                        contentType(ContentType.Application.Json)
+                        setBody(GeneralSettingsDTO.from(settings))
+                        apiKey?.let { header("X-API-Key", it) }
+                    }
                 }
-            }
+            )
 
             if (response.status == HttpStatusCode.NotImplemented) {
                 logger.info { "General settings endpoint not implemented yet, persisting to local file" }
@@ -185,13 +197,15 @@ class RealConfigService(
 
     override suspend fun saveTraderDefaults(defaults: TraderDefaults) {
         try {
-            val response = executeWithRetry {
-                httpClient.put("$baseUrl/api/v1/config/trader-defaults") {
-                    contentType(ContentType.Application.Json)
-                    setBody(TraderDefaultsDTO.from(defaults))
-                    apiKey?.let { header("X-API-Key", it) }
+            val response = executeWithRetry<HttpResponse>(
+                operation = {
+                    httpClient.put("$baseUrl/api/v1/config/trader-defaults") {
+                        contentType(ContentType.Application.Json)
+                        setBody(TraderDefaultsDTO.from(defaults))
+                        apiKey?.let { header("X-API-Key", it) }
+                    }
                 }
-            }
+            )
 
             if (response.status == HttpStatusCode.NotImplemented) {
                 logger.info { "Trader defaults endpoint not implemented yet, persisting to local file" }
@@ -227,13 +241,15 @@ class RealConfigService(
         // Connection test uses real exchange connectors via core-service endpoint
         // This is fully implemented and tests actual connectivity to Binance/Bitget testnets
         return try {
-            val response = executeWithRetry {
-                httpClient.post("$baseUrl/api/v1/config/test-connection") {
-                    contentType(ContentType.Application.Json)
-                    setBody(ExchangeConnectionTestRequestDTO.from(settings))
-                    apiKey?.let { header("X-API-Key", it) }
+            val response = executeWithRetry<HttpResponse>(
+                operation = {
+                    httpClient.post("$baseUrl/api/v1/config/test-connection") {
+                        contentType(ContentType.Application.Json)
+                        setBody(ExchangeConnectionTestRequestDTO.from(settings))
+                        apiKey?.let { header("X-API-Key", it) }
+                    }
                 }
-            }
+            )
 
             if (response.status.isSuccess()) {
                 val apiResponse = response.body<ApiResponse<ConnectionTestResponse>>()

@@ -111,11 +111,13 @@ class RealPatternAnalyticsService(
         
         // Try to fetch from REST API
         return try {
-            val response: HttpResponse = executeWithRetry {
-                httpClient.get("$baseUrl/api/v1/patterns/$id") {
-                    apiKey?.let { header("X-API-Key", it) }
+            val response = executeWithRetry<HttpResponse>(
+                operation = {
+                    httpClient.get("$baseUrl/api/v1/patterns/$id") {
+                        apiKey?.let { header("X-API-Key", it) }
+                    }
                 }
-            }
+            )
 
             if (response.status.isSuccess()) {
                 val apiResponse = response.body<ApiResponse<PatternDTO>>()
@@ -140,11 +142,13 @@ class RealPatternAnalyticsService(
     override suspend fun archivePattern(id: String): Result<Unit> {
         // Archive = deactivate pattern
         return try {
-            val response: HttpResponse = executeWithRetry {
-                httpClient.patch("$baseUrl/api/v1/patterns/$id/deactivate") {
-                    apiKey?.let { header("X-API-Key", it) }
+            val response = executeWithRetry<HttpResponse>(
+                operation = {
+                    httpClient.patch("$baseUrl/api/v1/patterns/$id/deactivate") {
+                        apiKey?.let { header("X-API-Key", it) }
+                    }
                 }
-            }
+            )
 
             if (response.status.isSuccess()) {
                 logger.info { "Pattern $id archived (deactivated) successfully" }
@@ -167,11 +171,13 @@ class RealPatternAnalyticsService(
 
     override suspend fun deletePattern(id: String): Result<Unit> {
         return try {
-            val response: HttpResponse = executeWithRetry {
-                httpClient.delete("$baseUrl/api/v1/patterns/$id") {
-                    apiKey?.let { header("X-API-Key", it) }
+            val response = executeWithRetry<HttpResponse>(
+                operation = {
+                    httpClient.delete("$baseUrl/api/v1/patterns/$id") {
+                        apiKey?.let { header("X-API-Key", it) }
+                    }
                 }
-            }
+            )
 
             if (response.status.isSuccess()) {
                 logger.info { "Pattern $id deleted successfully" }
@@ -207,11 +213,13 @@ class RealPatternAnalyticsService(
      */
     private suspend fun loadPatterns() {
         try {
-            val response: HttpResponse = executeWithRetry {
-                httpClient.get("$baseUrl/api/v1/patterns") {
-                    apiKey?.let { header("X-API-Key", it) }
+            val response = executeWithRetry<HttpResponse>(
+                operation = {
+                    httpClient.get("$baseUrl/api/v1/patterns") {
+                        apiKey?.let { header("X-API-Key", it) }
+                    }
                 }
-            }
+            )
 
             if (response.status.isSuccess()) {
                 val apiResponse = response.body<ApiResponse<List<PatternDTO>>>()
