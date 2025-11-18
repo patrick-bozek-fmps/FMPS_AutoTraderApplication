@@ -63,8 +63,7 @@ class TraderManagementViewModelTest {
 
     @AfterEach
     fun cleanup() {
-        // Additional cleanup if needed - onCleared() is called in each test
-        testScope.cancel()
+        // ViewModel cleanup is done in each test - no need to cancel test scope here
     }
 
     @Test

@@ -45,8 +45,7 @@ class PatternAnalyticsViewModelTest {
 
     @AfterEach
     fun cleanup() {
-        // Additional cleanup if needed - onCleared() is called in each test
-        scope.cancel()
+        // ViewModel cleanup is done in each test - no need to cancel test scope here
     }
 
     @Test
