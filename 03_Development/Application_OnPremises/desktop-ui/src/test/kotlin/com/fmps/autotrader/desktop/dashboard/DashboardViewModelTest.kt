@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -64,7 +65,7 @@ class DashboardViewModelTest {
     fun `state reflects trader summaries`() = testScope.runTest {
         println("[DEBUG] DashboardViewModelTest: Test 'state reflects trader summaries' - starting")
         val viewModel = createViewModel()
-        advanceUntilIdle()
+        runCurrent() // Process immediate tasks without waiting for infinite loops
 
         val summaries = listOf(
             TraderSummary("T-1", "Alpha", "Binance", TraderStatus.RUNNING, 120.0, 2),
@@ -91,7 +92,7 @@ class DashboardViewModelTest {
     @Test
     fun `telemetry updates generate notifications`() = testScope.runTest {
         val viewModel = createViewModel()
-        advanceUntilIdle()
+        runCurrent() // Process immediate tasks without waiting for infinite loops
 
         telemetryClient.emit(TelemetrySample(channel = "system.warning", payload = "CPU usage high"))
         advanceUntilIdle()
@@ -108,7 +109,7 @@ class DashboardViewModelTest {
     @Test
     fun `trader action emits toast event`() = testScope.runTest {
         val viewModel = createViewModel()
-        advanceUntilIdle()
+        runCurrent() // Process immediate tasks without waiting for infinite loops
         val trader = TraderItem("T-1", "Alpha", "Binance", TraderStatus.RUNNING, 10.0, 1)
 
         val receivedEvents = mutableListOf<DashboardEvent>()
@@ -131,7 +132,7 @@ class DashboardViewModelTest {
     @Test
     fun `start trader calls trader service`() = testScope.runTest {
         val viewModel = createViewModel()
-        advanceUntilIdle()
+        runCurrent() // Process immediate tasks without waiting for infinite loops
         val trader = TraderItem("T-1", "Alpha", "Binance", TraderStatus.STOPPED, 10.0, 1)
 
         val receivedEvents = mutableListOf<DashboardEvent>()
@@ -156,9 +157,11 @@ class DashboardViewModelTest {
     fun `stop trader calls trader service`() = testScope.runTest {
         println("[DEBUG] DashboardViewModelTest: Test 'stop trader calls trader service' - starting")
         val viewModel = createViewModel()
-        println("[DEBUG] DashboardViewModelTest: ViewModel created, advancing until idle...")
-        advanceUntilIdle()
-        println("[DEBUG] DashboardViewModelTest: Advanced until idle, continuing test...")
+        println("[DEBUG] DashboardViewModelTest: ViewModel created, processing immediate tasks...")
+        // Use runCurrent() instead of advanceUntilIdle() to process immediate tasks
+        // without waiting for infinite loops (monitorTelemetryConnection has while(true) with delay)
+        runCurrent()
+        println("[DEBUG] DashboardViewModelTest: Immediate tasks processed, continuing test...")
         val trader = TraderItem("T-1", "Alpha", "Binance", TraderStatus.RUNNING, 10.0, 1)
 
         val receivedEvents = mutableListOf<DashboardEvent>()
