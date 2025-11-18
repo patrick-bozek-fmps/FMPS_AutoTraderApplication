@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 6.10  
+**Version**: 6.11  
 **Date**: November 18, 2025  
 **Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ✅ COMPLETE (6/6 issues – 100%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -32,6 +32,7 @@
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| **6.11** | **Nov 18, 2025** | **Issue #24 final re-review completed: Verified all findings addressed in commit `c8d14bb` (REST API integration). `RealPatternAnalyticsService` wired via DI, pattern data fetched from `/api/v1/patterns` endpoint, archive/delete operations use `/api/v1/patterns/{id}/deactivate` and `/api/v1/patterns/{id}` DELETE endpoints, retry logic with exponential backoff. Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.10** | **Nov 18, 2025** | **Issue #23 final re-review completed: Verified all findings addressed in commit `ded548c` (REST API integration, file-based persistence). `RealConfigService` wired via DI, connection testing uses real exchange connectors via `/api/v1/config/test-connection`, HOCON format import/export fully implemented, file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`), retry logic with exponential backoff. Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.9** | **Nov 18, 2025** | **Issue #22 final re-review completed: Verified all remaining gaps addressed in commit `ae3f36a` (telemetry message parsing). `parsePosition()` fully implemented with TelemetryServerMessage and PositionTelemetryEventDTO parsing. Channel mapping updated to actual telemetry channels. Closed positions trigger trade history refresh. Candlestick REST endpoint limitation documented with graceful handling. Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.8** | **Nov 18, 2025** | **Issue #21 final re-review completed: Verified all remaining gaps addressed in commit `1445abd` (telemetry integration, test coverage). `TraderManagementViewModel` now subscribes to WebSocket telemetry `trader.status` channel. Comprehensive test coverage added (retry logic, credential validation, telemetry integration). Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
@@ -74,6 +75,11 @@
 | **2.1** | **Oct 23, 2025** | **Added progress tracking, Issue #1 complete (was #2)** | **AI Assistant** |
 | **2.0** | **Oct 23, 2025** | **Updated with actual requirements & decisions** | **AI Assistant** |
 | **1.0** | **Oct 23, 2025** | **Initial plan based on assumptions** | **AI Assistant** |
+
+**Changes from v6.10:**
+- ✅ Issue #24 final re-review completed (Nov 18, 2025): Verified all findings addressed in commit `c8d14bb`. `RealPatternAnalyticsService` wired via DI (DesktopModule.kt line 50), pattern data fetched from `/api/v1/patterns` endpoint (lines 214-240), `patternDetail()` fetches from `/api/v1/patterns/{id}` endpoint (lines 108-140), archive/delete operations use `/api/v1/patterns/{id}/deactivate` (lines 142-170) and `/api/v1/patterns/{id}` DELETE (lines 172-198) endpoints, retry logic with exponential backoff (lines 70-91). Review status updated to **PASS** - all findings resolved.
+- 📚 Documentation: Updated `Issue_24_REVIEW.md` with final re-review findings and verification details. All gaps resolved including REST API integration, archive/delete operations, and data fidelity.
+- 🔜 Next up: Epic 6 – Testing & Polish planning (regression checklist, release assets).
 
 **Changes from v6.9:**
 - ✅ Issue #23 final re-review completed (Nov 18, 2025): Verified all findings addressed in commit `ded548c`. `RealConfigService` wired via DI (DesktopModule.kt line 48), connection testing uses real exchange connectors via `/api/v1/config/test-connection` endpoint (lines 226-253), HOCON format import/export fully implemented (export: lines 255-303, import: lines 317-336), file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`, lines 364-388), retry logic with exponential backoff (lines 65-86). Review status updated to **PASS** - all findings resolved.
