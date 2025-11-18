@@ -39,7 +39,7 @@ val desktopModule = module {
     single<PatternAnalyticsService> { StubPatternAnalyticsService() }
 
     factory { ShellViewModel(get(), get(), get()) }
-    factory { DashboardViewModel(get(), get(), get()) }
+    factory { DashboardViewModel(get(), get(), get(), get()) }
     factory { DashboardView() }
     factory { TraderManagementViewModel(get(), get()) }
     factory { TraderManagementView() }

@@ -196,9 +196,27 @@ class DashboardView :
             "Trader data updated ${timeAgo(it)}"
         } ?: "Awaiting trader data…"
 
-        telemetryTimestampLabel.text = status.lastTelemetryEvent?.let {
-            "Telemetry event ${timeAgo(it)}"
-        } ?: "No telemetry events yet"
+        telemetryTimestampLabel.text = if (status.telemetryConnected) {
+            status.lastTelemetryEvent?.let {
+                "Telemetry event ${timeAgo(it)}"
+            } ?: "Connected, awaiting events"
+        } else {
+            status.lastTelemetryEvent?.let {
+                "Disconnected (last event ${timeAgo(it)})"
+            } ?: "Telemetry disconnected - check core-service"
+        }
+        
+        // Show empty state message if no traders and telemetry disconnected
+        if (traders.isEmpty() && !status.telemetryConnected && !status.coreServiceHealthy) {
+            notificationListView.placeholder = Label("No data available. Please check core-service connectivity.").apply {
+                addClass("placeholder-label")
+                styleClass += "placeholder-error"
+            }
+        } else if (traders.isEmpty()) {
+            notificationListView.placeholder = Label("No traders configured yet.").apply {
+                addClass("placeholder-label")
+            }
+        }
     }
 
     private fun timeAgo(timestamp: Instant): String {

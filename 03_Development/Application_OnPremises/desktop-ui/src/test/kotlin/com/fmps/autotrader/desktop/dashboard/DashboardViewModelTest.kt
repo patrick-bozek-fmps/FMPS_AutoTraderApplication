@@ -4,6 +4,7 @@ import com.fmps.autotrader.desktop.mvvm.DispatcherProvider
 import com.fmps.autotrader.desktop.services.CoreServiceClient
 import com.fmps.autotrader.desktop.services.TelemetryClient
 import com.fmps.autotrader.desktop.services.TelemetrySample
+import com.fmps.autotrader.desktop.services.TraderService
 import com.fmps.autotrader.desktop.services.TraderStatus
 import com.fmps.autotrader.desktop.services.TraderSummary
 import java.util.concurrent.atomic.AtomicBoolean
@@ -35,6 +36,7 @@ class DashboardViewModelTest {
 
     private val coreServiceClient = FakeCoreServiceClient()
     private val telemetryClient = FakeTelemetryClient()
+    private val traderService = FakeTraderService()
 
     @Test
     fun `state reflects trader summaries`() = testScope.runTest {
@@ -100,8 +102,56 @@ class DashboardViewModelTest {
         advanceUntilIdle()
     }
 
+    @Test
+    fun `start trader calls trader service`() = testScope.runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+        val trader = TraderItem("T-1", "Alpha", "Binance", TraderStatus.STOPPED, 10.0, 1)
+
+        val receivedEvents = mutableListOf<DashboardEvent>()
+        val collector = launch {
+            viewModel.events.take(1).collect { event ->
+                receivedEvents += event
+            }
+        }
+        advanceUntilIdle()
+        viewModel.onTraderAction(trader, TraderAction.START)
+        advanceUntilIdle()
+
+        assertTrue(receivedEvents.firstOrNull() is DashboardEvent.ShowMessage)
+        assertTrue(traderService.startCalled)
+
+        collector.cancelAndJoin()
+        viewModel.onCleared()
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun `stop trader calls trader service`() = testScope.runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+        val trader = TraderItem("T-1", "Alpha", "Binance", TraderStatus.RUNNING, 10.0, 1)
+
+        val receivedEvents = mutableListOf<DashboardEvent>()
+        val collector = launch {
+            viewModel.events.take(1).collect { event ->
+                receivedEvents += event
+            }
+        }
+        advanceUntilIdle()
+        viewModel.onTraderAction(trader, TraderAction.STOP)
+        advanceUntilIdle()
+
+        assertTrue(receivedEvents.firstOrNull() is DashboardEvent.ShowMessage)
+        assertTrue(traderService.stopCalled)
+
+        collector.cancelAndJoin()
+        viewModel.onCleared()
+        advanceUntilIdle()
+    }
+
     private fun createViewModel(): DashboardViewModel =
-        DashboardViewModel(dispatcherProvider, coreServiceClient, telemetryClient)
+        DashboardViewModel(dispatcherProvider, coreServiceClient, telemetryClient, traderService)
 
     private class FakeCoreServiceClient : CoreServiceClient {
         private val flow = MutableSharedFlow<List<TraderSummary>>(replay = 1)
@@ -130,6 +180,35 @@ class DashboardViewModelTest {
         suspend fun emit(sample: TelemetrySample) {
             require(started.get()) { "Telemetry client not started" }
             flow.emit(sample)
+        }
+    }
+
+    private class FakeTraderService : TraderService {
+        var startCalled = false
+        var stopCalled = false
+
+        override fun traders(): Flow<List<com.fmps.autotrader.desktop.services.TraderDetail>> {
+            return MutableSharedFlow()
+        }
+
+        override suspend fun createTrader(draft: com.fmps.autotrader.desktop.services.TraderDraft): com.fmps.autotrader.desktop.services.TraderDetail {
+            throw NotImplementedError()
+        }
+
+        override suspend fun updateTrader(id: String, draft: com.fmps.autotrader.desktop.services.TraderDraft): com.fmps.autotrader.desktop.services.TraderDetail {
+            throw NotImplementedError()
+        }
+
+        override suspend fun deleteTrader(id: String) {
+            throw NotImplementedError()
+        }
+
+        override suspend fun startTrader(id: String) {
+            startCalled = true
+        }
+
+        override suspend fun stopTrader(id: String) {
+            stopCalled = true
         }
     }
 }

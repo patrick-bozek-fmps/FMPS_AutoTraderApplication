@@ -84,10 +84,16 @@ Issue #20 delivers the first operator-facing screen layered on the UI foundation
 - [x] Documentation cross-checked (Dev Plan v5.7, Epic 5 v1.3, AI UI guide v0.3)
 - [x] Requirements traced to deliverables
 - [x] Success criteria reviewed (noting telemetry integration gap)
-- [ ] Follow-up items logged for telemetry + quick actions integration
+- [x] Follow-up items logged for telemetry + quick actions integration
+- [x] All findings addressed and resolved (2025-11-15)
 
 ## 15. 🆕 Post-Review Updates
-- None yet; action items above should be tracked in Issues #21–#22 and Epic 5 polish checklist.
+- **2025-11-15**: All findings addressed:
+  - ✅ **Telemetry Integration**: Created `RealTelemetryClient` connecting to `/ws/telemetry` WebSocket endpoint with automatic reconnection handling
+  - ✅ **Quick Actions**: Wired dashboard Start/Stop buttons to `TraderService.startTrader()` and `TraderService.stopTrader()` REST API calls
+  - ✅ **Resilience/Offline UX**: Added telemetry connection monitoring, reconnection logic, and empty-state messaging in `DashboardView`
+  - ✅ **Tests Updated**: Updated `DashboardViewModelTest` and `DashboardViewTest` to include `TraderService` dependency
+  - ✅ **Documentation**: Updated this review document to reflect completion of action items
 
 ## 16. 📎 Appendices
 - `Cursor/Development_Plan/Issue_20_Main_Dashboard.md`

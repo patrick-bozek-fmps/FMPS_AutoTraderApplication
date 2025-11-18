@@ -4,6 +4,7 @@ import com.fmps.autotrader.desktop.mvvm.DispatcherProvider
 import com.fmps.autotrader.desktop.services.CoreServiceClient
 import com.fmps.autotrader.desktop.services.TelemetryClient
 import com.fmps.autotrader.desktop.services.TelemetrySample
+import com.fmps.autotrader.desktop.services.TraderService
 import com.fmps.autotrader.desktop.services.TraderStatus
 import com.fmps.autotrader.desktop.services.TraderSummary
 import java.util.concurrent.CountDownLatch
@@ -46,6 +47,7 @@ class DashboardViewTest {
     }
     private val coreServiceClient = ViewFakeCoreServiceClient()
     private val telemetryClient = ViewFakeTelemetryClient()
+    private val traderService = ViewFakeTraderService()
 
     @BeforeAll
     fun initialiseToolkit() {
@@ -66,7 +68,8 @@ class DashboardViewTest {
                     single<DispatcherProvider> { dispatcherProvider }
                     single<CoreServiceClient> { coreServiceClient }
                     single<TelemetryClient> { telemetryClient }
-                    factory { DashboardViewModel(get(), get(), get()) }
+                    single<TraderService> { traderService }
+                    factory { DashboardViewModel(get(), get(), get(), get()) }
                     factory { DashboardView() }
                 }
             )
@@ -148,6 +151,32 @@ class DashboardViewTest {
 
         fun reset() {
             flow.resetReplayCache()
+        }
+    }
+
+    private class ViewFakeTraderService : TraderService {
+        override fun traders(): Flow<List<com.fmps.autotrader.desktop.services.TraderDetail>> {
+            return MutableSharedFlow()
+        }
+
+        override suspend fun createTrader(draft: com.fmps.autotrader.desktop.services.TraderDraft): com.fmps.autotrader.desktop.services.TraderDetail {
+            throw NotImplementedError()
+        }
+
+        override suspend fun updateTrader(id: String, draft: com.fmps.autotrader.desktop.services.TraderDraft): com.fmps.autotrader.desktop.services.TraderDetail {
+            throw NotImplementedError()
+        }
+
+        override suspend fun deleteTrader(id: String) {
+            throw NotImplementedError()
+        }
+
+        override suspend fun startTrader(id: String) {
+            // No-op for tests
+        }
+
+        override suspend fun stopTrader(id: String) {
+            // No-op for tests
         }
     }
 }
