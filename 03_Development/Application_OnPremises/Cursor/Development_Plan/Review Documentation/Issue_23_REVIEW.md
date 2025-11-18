@@ -12,7 +12,7 @@
 - **Branch / PR**: `main`
 - **Relevant Commits**:
   - `24c84b3` – `feat(ui): add configuration workspace (Issue #23)` (Configuration view/model, ConfigService abstraction, tests, docs).
-  - `[pending]` – `fix(issue23): implement RealConfigService with REST API integration and file-based persistence` (Nov 18, 2025). Implements `RealConfigService` with connection testing via `/api/v1/config/test-connection`, HOCON import/export, file-based persistence fallback, retry logic with exponential backoff.
+  - `ded548c` – `fix(issue23): implement RealConfigService with REST API integration and file-based persistence` (Nov 18, 2025). Implements `RealConfigService` with connection testing via `/api/v1/config/test-connection`, HOCON import/export, file-based persistence fallback, retry logic with exponential backoff.
 - **CI / Build IDs**:
   - Local: `./gradlew :desktop-ui:test --no-daemon`; `./gradlew clean build --no-daemon` (Nov 14 2025).
   - GitHub Actions run [19370918030](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19370918030) (`workflow_dispatch`, `force-full-tests=true`) – full suite success.
