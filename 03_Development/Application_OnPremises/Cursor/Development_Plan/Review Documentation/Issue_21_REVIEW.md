@@ -2,9 +2,10 @@
 
 **Review Date**: November 14, 2025  
 **Re-Review Date**: November 18, 2025  
+**Final Re-Review Date**: November 18, 2025  
 **Reviewer**: Software Engineer – Task Review and QA  
 **Issue Status**: ✅ **COMPLETE**  
-**Review Status**: ✅ **PASS** (Post-Review Updates Verified)
+**Review Status**: ✅ **PASS** (All Findings Resolved)
 
 ---
 
@@ -13,16 +14,18 @@
 - **Relevant Commits**:
   - `ab739be` – `feat(ui): add trader management workspace (Issue #21)` (view/viewmodel, service abstraction, tests).
   - `a2b03f4` – `fix(issue21): address review findings - backend integration, credentials, error handling` (Nov 18, 2025).
-  - `92c6a15` – `fix(issue21): address remaining gaps - telemetry integration and test coverage` (Nov 18, 2025).
+  - `1445abd` – `fix(issue21): address remaining gaps - telemetry integration and test coverage` (Nov 18, 2025).
+  - `0eceb59` – `docs: update Issue #21 review with CI evidence` (Nov 18, 2025).
   - Documentation refresh commits (Dev Plan v5.8, Epic 5 status v1.4, AI Desktop UI Guide v0.4) piggybacked on the same sha and immediate follow-up.
 - **CI / Build IDs**:
   - Local gates: `./gradlew :desktop-ui:test --no-daemon`, `./gradlew clean test --no-daemon` (Nov 14 2025) per issue log.
   - GitHub Actions run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) (`workflow_dispatch`, `force-full-tests=true`) on `ab739be`.
   - Documentation follow-up runs [19366988041](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366988041) and [19368249776](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19368249776) – success.
   - Final remediation run [19463309786](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19463309786) on `1445abd` – success.
+  - CI run [19463309786](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19463309786) verified telemetry integration and test coverage additions.
 
 ## 2. 📋 Executive Summary
-The trader management workspace introduces list/detail views, CRUD form, and lifecycle buttons built on the UI foundation (Issue #19) and dashboard context (Issue #20). Initial implementation used `StubTraderService` for UI scaffolding. **Post-review remediation (commit `a2b03f4`) successfully addressed all critical findings**: `RealTraderService` is now wired via DI and connects to core-service REST API endpoints; API credential fields (apiKey, apiSecret, apiPassphrase) are integrated into the form with validation; exponential backoff retry logic and structured error messages are implemented. **Final remediation (commit `92c6a15`) addressed remaining gaps**: Telemetry integration is now complete with WebSocket subscription to `trader.status` channel for real-time updates; comprehensive test coverage added for retry logic, credential validation, and telemetry integration. Overall, the implementation is production-ready with full backend integration, real-time telemetry updates, and comprehensive test coverage.
+The trader management workspace introduces list/detail views, CRUD form, and lifecycle buttons built on the UI foundation (Issue #19) and dashboard context (Issue #20). Initial implementation used `StubTraderService` for UI scaffolding. **Post-review remediation (commit `a2b03f4`) successfully addressed all critical findings**: `RealTraderService` is now wired via DI and connects to core-service REST API endpoints; API credential fields (apiKey, apiSecret, apiPassphrase) are integrated into the form with validation; exponential backoff retry logic and structured error messages are implemented. **Final remediation (commit `1445abd`) addressed remaining gaps**: Telemetry integration is now complete with WebSocket subscription to `trader.status` channel for real-time updates; comprehensive test coverage added for retry logic, credential validation, and telemetry integration. Overall, the implementation is production-ready with full backend integration, real-time telemetry updates, and comprehensive test coverage.
 
 ## 3. ✅ Strengths & Achievements
 - Comprehensive TornadoFX workspace (list with filters, detail pane, create/edit form) implemented in a single iteration.
@@ -57,7 +60,7 @@ The trader management workspace introduces list/detail views, CRUD form, and lif
 |-------------------------|----------|-------|
 | Trader list with filters & health indicators | ✅ | `TraderManagementView` table + filter controls |
 | Trader CRUD workflow & lifecycle controls | ✅ | `RealTraderService` wired via DI, all operations connect to REST API (commit `a2b03f4`) |
-| Telemetry-linked metrics | ⚠️ | REST integration complete; WebSocket telemetry subscription not yet implemented (deferred) |
+| Telemetry-linked metrics | ✅ | WebSocket telemetry subscription implemented (commit `1445abd`). Subscribes to `trader.status` channel for real-time updates |
 | API credential management | ✅ | Form includes apiKey, apiSecret, apiPassphrase fields with validation (commit `a2b03f4`) |
 | Error handling & resilience | ✅ | Retry logic (3 attempts, exponential backoff) and structured error messages implemented |
 | Documentation updates per workflow | ✅ | Dev Plan, Epic status, guide updated |
@@ -66,7 +69,7 @@ The trader management workspace introduces list/detail views, CRUD form, and lif
 - List/filters/detail/CRUD flows work against real REST API – ✅ (commit `a2b03f4` verified).
 - Lifecycle commands show success/failure to user – ✅ (structured error messages, retry logic, toast notifications).
 - Integration with real Core service (REST) – ✅ **RESOLVED** (commit `a2b03f4`).
-- Integration with real Core service (WebSocket/Telemetry) – ⚠️ **DEFERRED** (not blocking, enhancement for future).
+- Integration with real Core service (WebSocket/Telemetry) – ✅ **RESOLVED** (commit `1445abd`). Telemetry integration complete with real-time trader status updates.
 - API credential handling – ✅ (form fields, validation, secure handling implemented).
 - Error handling & resilience – ✅ (exponential backoff retry, structured error messages).
 - CI/local builds – ✅ evidence above.
@@ -78,12 +81,13 @@ The trader management workspace introduces list/detail views, CRUD form, and lif
 2. ✅ **Secrets & Validation** – API credential fields (apiKey, apiSecret, apiPassphrase) added to form with validation rules.
 3. ✅ **Error Handling** – Structured error messages and exponential backoff retry logic (3 attempts) implemented.
 
-### ✅ Completed (Commit `92c6a15`)
-1. ✅ **Telemetry Integration** – `TraderManagementViewModel` now subscribes to WebSocket telemetry (`/ws/telemetry`) channel `trader.status` for real-time trader status and profit/loss updates. Telemetry client injected via DI, started in `init`, and stopped in `onCleared()`. Real-time updates merge with REST polling data.
-2. ✅ **Test Coverage Enhancement** – Added comprehensive unit tests:
-   - ✅ Retry logic with simulated network failures (`FailingTraderService` with configurable fail count)
-   - ✅ Credential validation rules (API Secret required if Key provided, Passphrase for Bitget)
-   - ✅ Telemetry integration (real-time status updates, selective trader updates)
+### ✅ Completed (Commit `1445abd`)
+1. ✅ **Telemetry Integration** – `TraderManagementViewModel` now subscribes to WebSocket telemetry (`/ws/telemetry`) channel `trader.status` for real-time trader status and profit/loss updates. Telemetry client injected via DI (line 28), started in `init` (line 38), and stopped in `onCleared()` (line 67). `observeTelemetry()` method (lines 75-83) subscribes to telemetry samples and `handleTelemetrySample()` (lines 88-119) processes `trader.status` channel updates. Real-time updates merge with REST polling data.
+2. ✅ **Test Coverage Enhancement** – Added comprehensive unit tests (271 lines added):
+   - ✅ Retry logic tests: `retry logic - succeeds after transient failure` (lines 260-283), `retry logic - fails after max retries` (lines 286-309) using `FailingTraderService` with configurable fail count
+   - ✅ Credential validation tests: `credential validation - API Secret required when API Key provided` (lines 120-142), `credential validation - Passphrase required for Bitget` (lines 145-169), `credential validation - Passphrase not required for Binance` (lines 172-195)
+   - ✅ Telemetry integration tests: `telemetry updates trader status in real-time` (lines 198-218), `telemetry updates only matching trader` (lines 221-257)
+   - ✅ `FakeTelemetryClient` implementation (lines 382-399) for testing telemetry integration
    - ⚠️ Error message formatting tests deferred (MockEngine API compatibility issues; logic tested indirectly via retry tests)
 
 ## 11. 📊 Metrics Summary
@@ -96,7 +100,7 @@ The trader management workspace introduces list/detail views, CRUD form, and lif
 - Stub services are valuable for layout work but should include parity tests to ensure real clients behave identically.
 
 ## 13. ✅ Final Recommendation
-**✅ PASS** – All critical review findings and remaining gaps have been addressed in commits `a2b03f4` and `92c6a15`. The implementation is production-ready with full backend integration, real-time telemetry updates, comprehensive test coverage, credential management, and error handling. All identified gaps from the re-review have been resolved. The trader management workspace is complete and ready for production deployment.
+**PASS** – All critical review findings and remaining gaps have been addressed in commits `a2b03f4` and `1445abd`. The implementation is production-ready with full backend integration, real-time telemetry updates, comprehensive test coverage, credential management, and error handling. All identified gaps from the re-review have been resolved. The trader management workspace is complete and ready for production deployment.
 
 ## 14. ☑️ Review Checklist
 - [x] Code inspected (`TraderManagementView`, `TraderService`, viewmodel)
@@ -135,27 +139,28 @@ The trader management workspace introduces list/detail views, CRUD form, and lif
 - **Updated**: All trader operations (save, delete, start, stop) now use retry logic and structured error messages
 
 ### Telemetry Integration (Remaining Gap - Now Resolved) ✅
-- **Fixed** (commit `92c6a15`): Added telemetry integration to `TraderManagementViewModel`
-- **Added**: `TelemetryClient` dependency injection (line 26)
-- **Added**: `observeTelemetry()` method that subscribes to `trader.status` channel from `/ws/telemetry`
-- **Added**: `handleTelemetrySample()` and `parseTraderStatusUpdate()` methods to process telemetry messages
-- **Added**: Real-time trader status and profit/loss updates when telemetry events arrive
-- **Updated**: `init` block starts telemetry client and `onCleared()` stops it
+- **Fixed** (commit `1445abd`): Added telemetry integration to `TraderManagementViewModel`
+- **Added**: `TelemetryClient` dependency injection (line 28 in ViewModel, line 53 in DesktopModule.kt)
+- **Added**: `observeTelemetry()` method (lines 75-83) that subscribes to `trader.status` channel from `/ws/telemetry`
+- **Added**: `handleTelemetrySample()` (lines 88-119) and `parseTraderStatusUpdate()` (lines 124-147) methods to process telemetry messages
+- **Added**: Real-time trader status and profit/loss updates when telemetry events arrive (lines 96-112)
+- **Updated**: `init` block starts telemetry client (line 38) and `onCleared()` stops it (line 67)
 - **Result**: Trader list now updates in real-time via WebSocket telemetry, complementing REST polling
 
 ### Test Coverage Enhancement (Remaining Gap - Now Resolved) ✅
-- **Fixed** (commit `92c6a15`): Added comprehensive unit tests
-- **Added**: `FakeTelemetryClient` for testing telemetry integration
+- **Fixed** (commit `1445abd`): Added comprehensive unit tests (271 lines added to test file)
+- **Added**: `FakeTelemetryClient` (lines 382-399) for testing telemetry integration with `emitSample()` method
+- **Added**: `FailingTraderService` (lines 404-451) for simulating network failures in retry tests
 - **Added**: Retry logic tests:
-  - `retry logic - succeeds after transient failure`: Tests that retry succeeds after 2 failures
-  - `retry logic - fails after max retries`: Tests that operation fails after 3 attempts
+  - `retry logic - succeeds after transient failure` (lines 260-283): Tests that retry succeeds after 2 failures
+  - `retry logic - fails after max retries` (lines 286-309): Tests that operation fails after 3 attempts
 - **Added**: Credential validation tests:
-  - `credential validation - API Secret required when API Key provided`
-  - `credential validation - Passphrase required for Bitget`
-  - `credential validation - Passphrase not required for Binance`
+  - `credential validation - API Secret required when API Key provided` (lines 120-142)
+  - `credential validation - Passphrase required for Bitget` (lines 145-169)
+  - `credential validation - Passphrase not required for Binance` (lines 172-195)
 - **Added**: Telemetry integration tests:
-  - `telemetry updates trader status in real-time`: Verifies status updates from telemetry
-  - `telemetry updates only matching trader`: Verifies selective updates
+  - `telemetry updates trader status in real-time` (lines 198-218): Verifies status updates from telemetry
+  - `telemetry updates only matching trader` (lines 221-257): Verifies selective updates
 - **Note**: Error formatting tests deferred due to MockEngine API compatibility issues. Error formatting logic is tested indirectly through retry tests.
 
 ### Test Updates
@@ -180,11 +185,17 @@ The trader management workspace introduces list/detail views, CRUD form, and lif
   - All trader operations (save, delete, start, stop) use retry logic - lines 96, 102, 127, 156, 163
 
 **Remaining Gaps**:
-- ✅ **Telemetry Integration**: **RESOLVED** (commit `92c6a15`). `TraderManagementViewModel` now subscribes to WebSocket telemetry channels (`/ws/telemetry`) for real-time trader status updates. Added `observeTelemetry()` method that listens to `trader.status` channel and updates trader list in real-time when status changes occur. Telemetry client is started in `init` and stopped in `onCleared()`.
-- ✅ **Test Coverage**: **RESOLVED** (commit `92c6a15`). Added comprehensive unit tests:
-  - ✅ Retry logic tests: `retry logic - succeeds after transient failure`, `retry logic - fails after max retries` (using `FailingTraderService` that simulates network failures)
-  - ✅ Credential validation tests: `credential validation - API Secret required when API Key provided`, `credential validation - Passphrase required for Bitget`, `credential validation - Passphrase not required for Binance`
-  - ✅ Telemetry integration tests: `telemetry updates trader status in real-time`, `telemetry updates only matching trader`
+- ✅ **Telemetry Integration**: **RESOLVED** (commit `1445abd`). `TraderManagementViewModel` now subscribes to WebSocket telemetry channels (`/ws/telemetry`) for real-time trader status updates. Verified implementation:
+  - `TelemetryClient` injected via DI (DesktopModule.kt line 53: `TraderManagementViewModel(get(), get(), get())`)
+  - `observeTelemetry()` method (lines 75-83) subscribes to telemetry samples
+  - `handleTelemetrySample()` (lines 88-119) processes `trader.status` channel updates
+  - `parseTraderStatusUpdate()` (lines 124-147) parses JSON payload and extracts traderId, status, profitLoss
+  - Real-time updates merge with REST polling data (lines 96-112 update trader state)
+  - Telemetry client started in `init` (line 38) and stopped in `onCleared()` (line 67)
+- ✅ **Test Coverage**: **RESOLVED** (commit `1445abd`). Added comprehensive unit tests (271 lines):
+  - ✅ Retry logic tests: `retry logic - succeeds after transient failure` (lines 260-283), `retry logic - fails after max retries` (lines 286-309) using `FailingTraderService` (lines 404-451) that simulates network failures
+  - ✅ Credential validation tests: `credential validation - API Secret required when API Key provided` (lines 120-142), `credential validation - Passphrase required for Bitget` (lines 145-169), `credential validation - Passphrase not required for Binance` (lines 172-195)
+  - ✅ Telemetry integration tests: `telemetry updates trader status in real-time` (lines 198-218), `telemetry updates only matching trader` (lines 221-257) using `FakeTelemetryClient` (lines 382-399)
   - ⚠️ Error formatting tests: Deferred due to MockEngine API compatibility issues. Error formatting logic is tested indirectly through retry tests. Consider integration tests with real HTTP client for comprehensive coverage.
 
 **Code Quality Observations**:
@@ -196,6 +207,9 @@ The trader management workspace introduces list/detail views, CRUD form, and lif
 **Commit Verification**:
 - Commit `a2b03f4` (Nov 18, 2025) addresses all three high/medium priority findings from initial review
 - Files changed: 8 files, 256 insertions(+), 45 deletions(-)
+- Commit `1445abd` (Nov 18, 2025) addresses remaining gaps (telemetry integration and test coverage)
+- Files changed: 5 files, 424 insertions(+), 20 deletions(-)
+- Commit `0eceb59` (Nov 18, 2025) updates review document with CI evidence
 - All changes align with review action items
 
 ## 16. 📎 Appendices

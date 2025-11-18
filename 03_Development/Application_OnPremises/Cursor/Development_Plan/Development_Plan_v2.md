@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 6.7  
+**Version**: 6.8  
 **Date**: November 18, 2025  
 **Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ✅ COMPLETE (6/6 issues – 100%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -77,11 +77,17 @@
 | **5.5** | **Nov 13, 2025** | **Issue #19 foundation completed, CI optimization documented, run 19338273758 recorded** | **AI Assistant** |
 | **5.6** | **Nov 14, 2025** | **Issue #20 resumed after workflow refresh – reran `clean test`/`clean build` ahead of documentation + CI steps** | **AI Assistant** |
 | **5.7** | **Nov 14, 2025** | **Issue #20 dashboard delivered (commit `535e114`); forced CI run 19366650753 logged; docs/status artifacts updated** | **AI Assistant** |
+| **6.8** | **Nov 18, 2025** | **Issue #21 final re-review completed: Verified all remaining gaps addressed in commit `1445abd` (telemetry integration, test coverage). `TraderManagementViewModel` now subscribes to WebSocket telemetry `trader.status` channel. Comprehensive test coverage added (retry logic, credential validation, telemetry integration). Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.7** | **Nov 18, 2025** | **Issue #22 re-review completed: Verified all review findings addressed in commit `92c6a15` (telemetry integration, REST fallback). `RealMarketDataService` wired via DI, WebSocket telemetry active, automatic REST polling implemented. Review status updated to PASS.** | **SW Process Engineer** |
 | **6.6** | **Nov 18, 2025** | **Issue #21 re-review completed: Verified all review findings addressed in commit `a2b03f4` (backend integration, credentials, error handling). Review status updated to PASS. Telemetry integration deferred as future enhancement.** | **SW Process Engineer** |
 | **6.1** | **Nov 14, 2025** | **Issue #24 pattern analytics workspace delivered (commit `54d6165`); Dev Plan v6.1, UI guide v0.7 updated** | **AI Assistant** |
 | **6.0** | **Nov 14, 2025** | **Issue #23 configuration workspace delivered (commit `24c84b3`); Config Guide v1.1 + UI guide v0.6 updated** | **AI Assistant** |
 | **5.9** | **Nov 14, 2025** | **Issue #22 monitoring workspace enhanced (commit `844946a`); connection badge/manual refresh added; docs v1.5/0.5 updated** | **AI Assistant** |
+
+**Changes from v6.7:**
+- ✅ Issue #21 final re-review completed (Nov 18, 2025): Verified all remaining gaps addressed in commit `1445abd`. `TraderManagementViewModel` now subscribes to WebSocket telemetry (`/ws/telemetry`) channel `trader.status` for real-time trader status and profit/loss updates. Comprehensive test coverage added (271 lines): retry logic tests, credential validation tests, telemetry integration tests. Review status updated to **PASS** - all findings resolved.
+- 📚 Documentation: Updated `Issue_21_REVIEW.md` with final re-review findings and verification details. All gaps resolved including telemetry integration and test coverage.
+- 🔜 Next up: Epic 6 – Testing & Polish planning (regression checklist, release assets).
 
 **Changes from v6.6:**
 - ✅ Issue #22 re-review completed (Nov 18, 2025): Verified all review findings addressed in commit `92c6a15`. `RealMarketDataService` wired via DI, WebSocket telemetry integration active (`/ws/telemetry` channels: `market.candlestick`, `position.update`, `trade.executed`), automatic REST polling fallback implemented (polls every 5 seconds when WebSocket disconnected). Review status updated to **PASS**. Telemetry message parsing placeholders documented for future enhancement.
