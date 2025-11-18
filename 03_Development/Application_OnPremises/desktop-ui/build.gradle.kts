@@ -118,5 +118,9 @@ tasks.test {
     testLogging {
         events("passed", "skipped", "failed")
     }
+    // Add timeout to prevent hanging tests
+    timeout.set(java.time.Duration.ofMinutes(5))
+    // Fail fast on first test failure to avoid long waits
+    failFast = false
 }
 

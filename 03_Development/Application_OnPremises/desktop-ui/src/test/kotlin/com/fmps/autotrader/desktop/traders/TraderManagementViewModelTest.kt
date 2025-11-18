@@ -33,6 +33,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -57,6 +58,11 @@ class TraderManagementViewModelTest {
         fakeService = FakeTraderService()
         fakeTelemetryClient = FakeTelemetryClient()
         viewModel = TraderManagementViewModel(dispatcherProvider, fakeService, fakeTelemetryClient)
+    }
+
+    @AfterEach
+    fun cleanup() {
+        viewModel.onCleared()
     }
 
     @Test
