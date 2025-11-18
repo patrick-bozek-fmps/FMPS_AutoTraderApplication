@@ -26,57 +26,12 @@
 
 **In Progress**: 🏗️ Epic 6 – Testing & Polish (verification planning)
 
-### 📋 **Epic 1 Breakdown** (6/6 sections complete) ✅ **COMPLETE**
-
-| Section | Issue | Status | Description |
-|---------|-------|--------|-------------|
-| 5.1 Project Setup | ✅ **#1** | Complete | Gradle multi-module, CI/CD, structure |
-| 5.2 Core Data Models | ✅ **#5** | Complete | Data classes, enums, validation, serialization |
-| 5.3 Database Setup | ✅ **#2** | Complete | Exposed ORM, migrations, repositories |
-| 5.4 Configuration Mgmt | ✅ **#6** | Complete | HOCON configs, env vars, encryption, validation |
-| 5.5 Logging Setup | ✅ **#4** | Complete | SLF4J, Logback, MDC, metrics, 4 environment configs |
-| 5.6 REST API Server | ✅ **#3** | Complete | Ktor, 34 endpoints, WebSocket |
-
 ---
 
 ## 📌 **Document Control**
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
-| 1.0 | Oct 23, 2025 | Initial plan based on assumptions | AI Assistant |
-| 2.0 | Oct 23, 2025 | Updated with actual requirements & decisions | AI Assistant |
-| 2.1 | Oct 23, 2025 | Added progress tracking, Issue #1 complete (was #2) | AI Assistant |
-| 2.2 | Oct 24, 2025 | Issue #2 complete: Database layer implemented (was #3) | AI Assistant |
-| 2.3 | Oct 24, 2025 | Issue #3 complete: REST API Server with Ktor (was #4) | AI Assistant |
-| 2.4 | Oct 24, 2025 | Issue numbering realigned with GitHub structure | AI Assistant |
-| 2.5 | Oct 28, 2025 | Issue #4 complete: Logging Infrastructure + Progress clarification (was #5) | AI Assistant |
-| **2.6** | **Oct 28, 2025** | **Issue renumbering: Epic 1 now starts with Issue #1 (all issues renumbered -1)** | **AI Assistant** |
-| **2.7** | **Oct 28, 2025** | **Fixed issue number references in Epic 1 section + terminology Phase→Epic/Task** | **AI Assistant** |
-| **2.8** | **Oct 28, 2025** | **Corrected Issue #4 status: NOT STARTED (only placeholder files exist)** | **AI Assistant** |
-| **2.9** | **Oct 28, 2025** | **Issue #6 COMPLETE: Configuration Management - Epic 1 now 5/6 (83%)** | **AI Assistant** |
-| **3.0** | **Oct 28, 2025** | **Epic 1 COMPLETE (6/6 - 100%) - Ready for Epic 2** | **AI Assistant** |
-| **3.1** | **Oct 28, 2025** | **Issue #7 COMPLETE: Exchange Connector Framework - Epic 2 started (1/4 - 25%)** | **AI Assistant** |
-| **3.2** | **Oct 28, 2025** | **Documentation fixes: Issue #4 & #6 status corrections in Epic 1 breakdown** | **AI Assistant** |
-| **3.3** | **Oct 30, 2025** | **Issue #8 COMPLETE: Binance Connector - Epic 2 now 2/4 (50%)** | **AI Assistant** |
-| **3.4** | **Oct 30, 2025** | **Issue #9 COMPLETE: Bitget Connector - Epic 2 now 3/4 (75%)** | **AI Assistant** |
-| **4.0** | **Oct 30, 2025** | **Issue #10 COMPLETE: Technical Indicators - EPIC 2 100% DONE! 🎉** | **AI Assistant** |
-| **4.1** | **Oct 30, 2025** | **Issue #10 Re-Verified: Enhanced to 100% test coverage (115 tests)** | **AI Assistant** |
-| **4.2** | **Oct 30, 2025** | **CI Pipeline Optimized: Split unit/integration tests, fixed flaky timing tests** | **AI Assistant** |
-| **4.3** | **Nov 7, 2025** | **Issue #14: Added risk monitoring + integration tests, drafted Risk Manager guide** | **AI Assistant** |
-| **4.4** | **Nov 7, 2025** | **Issue #14 COMPLETE: emergency-stop gating, stop-loss monitoring, documentation + CI sign-off** | **AI Assistant** |
-| **4.5** | **Nov 11, 2025** | **Epic 4 planning pack published (Issue #16 REST API, #17 WebSocket, #18 Windows Service)** | **AI Assistant** |
-| **4.6** | **Nov 11, 2025** | **Issue #16 COMPLETE: REST API auth/pagination/metrics shipped + docs updated** | **AI Assistant** |
-| **4.7** | **Nov 11, 2025** | **Issue #17 COMPLETE: Telemetry channels, Prometheus metrics, admin tooling added** | **AI Assistant** |
-| **4.8** | **Nov 11, 2025** | **Issue #17 finalized with telemetry serialization fix, WebSocket admin docs, Dev Plan refresh** | **AI Assistant** |
-| **4.9** | **Nov 11, 2025** | **Issue #17 telemetry build re-run + documentation updates pre-commit hash capture** | **AI Assistant** |
-| **5.0** | **Nov 11, 2025** | **Issue #18 COMPLETE: Windows service packaging scripts, templates, and guide** | **AI Assistant** |
-| **5.1** | **Nov 11, 2025** | **Issue #16 post-review hardening (remove default API key, enforce fail-fast)** | **AI Assistant** |
-| **5.2** | **Nov 11, 2025** | **Issue #17 documentation traceability fix (final commit now `30a0538`)** | **AI Assistant** |
-| **5.3** | **Nov 13, 2025** | **Issue #18 Ops validation tracker + final commit alignment (`d8aad42`)** | **AI Assistant** |
-| **5.4** | **Nov 13, 2025** | **Epic 5 kicked off – Issue #19 foundation build/tests passing, plan/status updated** | **AI Assistant** |
-| **5.5** | **Nov 13, 2025** | **Issue #19 foundation completed, CI optimization documented, run 19338273758 recorded** | **AI Assistant** |
-| **5.6** | **Nov 14, 2025** | **Issue #20 resumed after workflow refresh – reran `clean test`/`clean build` ahead of documentation + CI steps** | **AI Assistant** |
-| **5.7** | **Nov 14, 2025** | **Issue #20 dashboard delivered (commit `535e114`); forced CI run 19366650753 logged; docs/status artifacts updated** | **AI Assistant** |
 | **6.10** | **Nov 18, 2025** | **Issue #23 final re-review completed: Verified all findings addressed in commit `ded548c` (REST API integration, file-based persistence). `RealConfigService` wired via DI, connection testing uses real exchange connectors via `/api/v1/config/test-connection`, HOCON format import/export fully implemented, file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`), retry logic with exponential backoff. Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.9** | **Nov 18, 2025** | **Issue #22 final re-review completed: Verified all remaining gaps addressed in commit `ae3f36a` (telemetry message parsing). `parsePosition()` fully implemented with TelemetryServerMessage and PositionTelemetryEventDTO parsing. Channel mapping updated to actual telemetry channels. Closed positions trigger trade history refresh. Candlestick REST endpoint limitation documented with graceful handling. Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.8** | **Nov 18, 2025** | **Issue #21 final re-review completed: Verified all remaining gaps addressed in commit `1445abd` (telemetry integration, test coverage). `TraderManagementViewModel` now subscribes to WebSocket telemetry `trader.status` channel. Comprehensive test coverage added (retry logic, credential validation, telemetry integration). Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
@@ -85,6 +40,40 @@
 | **6.1** | **Nov 14, 2025** | **Issue #24 pattern analytics workspace delivered (commit `54d6165`); Dev Plan v6.1, UI guide v0.7 updated** | **AI Assistant** |
 | **6.0** | **Nov 14, 2025** | **Issue #23 configuration workspace delivered (commit `24c84b3`); Config Guide v1.1 + UI guide v0.6 updated** | **AI Assistant** |
 | **5.9** | **Nov 14, 2025** | **Issue #22 monitoring workspace enhanced (commit `844946a`); connection badge/manual refresh added; docs v1.5/0.5 updated** | **AI Assistant** |
+| **5.7** | **Nov 14, 2025** | **Issue #20 dashboard delivered (commit `535e114`); forced CI run 19366650753 logged; docs/status artifacts updated** | **AI Assistant** |
+| **5.6** | **Nov 14, 2025** | **Issue #20 resumed after workflow refresh – reran `clean test`/`clean build` ahead of documentation + CI steps** | **AI Assistant** |
+| **5.5** | **Nov 13, 2025** | **Issue #19 foundation completed, CI optimization documented, run 19338273758 recorded** | **AI Assistant** |
+| **5.4** | **Nov 13, 2025** | **Epic 5 kicked off – Issue #19 foundation build/tests passing, plan/status updated** | **AI Assistant** |
+| **5.3** | **Nov 13, 2025** | **Issue #18 Ops validation tracker + final commit alignment (`d8aad42`)** | **AI Assistant** |
+| **5.2** | **Nov 11, 2025** | **Issue #17 documentation traceability fix (final commit now `30a0538`)** | **AI Assistant** |
+| **5.1** | **Nov 11, 2025** | **Issue #16 post-review hardening (remove default API key, enforce fail-fast)** | **AI Assistant** |
+| **5.0** | **Nov 11, 2025** | **Issue #18 COMPLETE: Windows service packaging scripts, templates, and guide** | **AI Assistant** |
+| **4.9** | **Nov 11, 2025** | **Issue #17 telemetry build re-run + documentation updates pre-commit hash capture** | **AI Assistant** |
+| **4.8** | **Nov 11, 2025** | **Issue #17 finalized with telemetry serialization fix, WebSocket admin docs, Dev Plan refresh** | **AI Assistant** |
+| **4.7** | **Nov 11, 2025** | **Issue #17 COMPLETE: Telemetry channels, Prometheus metrics, admin tooling added** | **AI Assistant** |
+| **4.6** | **Nov 11, 2025** | **Issue #16 COMPLETE: REST API auth/pagination/metrics shipped + docs updated** | **AI Assistant** |
+| **4.5** | **Nov 11, 2025** | **Epic 4 planning pack published (Issue #16 REST API, #17 WebSocket, #18 Windows Service)** | **AI Assistant** |
+| **4.4** | **Nov 7, 2025** | **Issue #14 COMPLETE: emergency-stop gating, stop-loss monitoring, documentation + CI sign-off** | **AI Assistant** |
+| **4.3** | **Nov 7, 2025** | **Issue #14: Added risk monitoring + integration tests, drafted Risk Manager guide** | **AI Assistant** |
+| **4.2** | **Oct 30, 2025** | **CI Pipeline Optimized: Split unit/integration tests, fixed flaky timing tests** | **AI Assistant** |
+| **4.1** | **Oct 30, 2025** | **Issue #10 Re-Verified: Enhanced to 100% test coverage (115 tests)** | **AI Assistant** |
+| **4.0** | **Oct 30, 2025** | **Issue #10 COMPLETE: Technical Indicators - EPIC 2 100% DONE! 🎉** | **AI Assistant** |
+| **3.4** | **Oct 30, 2025** | **Issue #9 COMPLETE: Bitget Connector - Epic 2 now 3/4 (75%)** | **AI Assistant** |
+| **3.3** | **Oct 30, 2025** | **Issue #8 COMPLETE: Binance Connector - Epic 2 now 2/4 (50%)** | **AI Assistant** |
+| **3.2** | **Oct 28, 2025** | **Documentation fixes: Issue #4 & #6 status corrections in Epic 1 breakdown** | **AI Assistant** |
+| **3.1** | **Oct 28, 2025** | **Issue #7 COMPLETE: Exchange Connector Framework - Epic 2 started (1/4 - 25%)** | **AI Assistant** |
+| **3.0** | **Oct 28, 2025** | **Epic 1 COMPLETE (6/6 - 100%) - Ready for Epic 2** | **AI Assistant** |
+| **2.9** | **Oct 28, 2025** | **Issue #6 COMPLETE: Configuration Management - Epic 1 now 5/6 (83%)** | **AI Assistant** |
+| **2.8** | **Oct 28, 2025** | **Corrected Issue #4 status: NOT STARTED (only placeholder files exist)** | **AI Assistant** |
+| **2.7** | **Oct 28, 2025** | **Fixed issue number references in Epic 1 section + terminology Phase→Epic/Task** | **AI Assistant** |
+| **2.6** | **Oct 28, 2025** | **Issue renumbering: Epic 1 now starts with Issue #1 (all issues renumbered -1)** | **AI Assistant** |
+| **2.5** | **Oct 28, 2025** | **Issue #4 complete: Logging Infrastructure + Progress clarification (was #5)** | **AI Assistant** |
+| **2.4** | **Oct 24, 2025** | **Issue numbering realigned with GitHub structure** | **AI Assistant** |
+| **2.3** | **Oct 24, 2025** | **Issue #3 complete: REST API Server with Ktor (was #4)** | **AI Assistant** |
+| **2.2** | **Oct 24, 2025** | **Issue #2 complete: Database layer implemented (was #3)** | **AI Assistant** |
+| **2.1** | **Oct 23, 2025** | **Added progress tracking, Issue #1 complete (was #2)** | **AI Assistant** |
+| **2.0** | **Oct 23, 2025** | **Updated with actual requirements & decisions** | **AI Assistant** |
+| **1.0** | **Oct 23, 2025** | **Initial plan based on assumptions** | **AI Assistant** |
 
 **Changes from v6.9:**
 - ✅ Issue #23 final re-review completed (Nov 18, 2025): Verified all findings addressed in commit `ded548c`. `RealConfigService` wired via DI (DesktopModule.kt line 48), connection testing uses real exchange connectors via `/api/v1/config/test-connection` endpoint (lines 226-253), HOCON format import/export fully implemented (export: lines 255-303, import: lines 317-336), file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`, lines 364-388), retry logic with exponential backoff (lines 65-86). Review status updated to **PASS** - all findings resolved.
