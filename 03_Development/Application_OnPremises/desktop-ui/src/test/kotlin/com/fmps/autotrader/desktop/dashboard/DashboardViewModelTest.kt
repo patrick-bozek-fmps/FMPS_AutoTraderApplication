@@ -21,25 +21,49 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInfo
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DashboardViewModelTest {
 
-    private val dispatcher = StandardTestDispatcher()
-    private val testScope = TestScope(dispatcher)
-    private val dispatcherProvider = object : DispatcherProvider {
-        override val main = dispatcher
-        override val io = dispatcher
-        override val computation = dispatcher
+    private lateinit var dispatcher: StandardTestDispatcher
+    private lateinit var testScope: TestScope
+    private lateinit var dispatcherProvider: DispatcherProvider
+    private lateinit var coreServiceClient: FakeCoreServiceClient
+    private lateinit var telemetryClient: FakeTelemetryClient
+    private lateinit var traderService: FakeTraderService
+
+    @BeforeEach
+    fun setup(testInfo: TestInfo) {
+        println("[DEBUG] DashboardViewModelTest: Starting test: ${testInfo.displayName}")
+        dispatcher = StandardTestDispatcher()
+        testScope = TestScope(dispatcher)
+        dispatcherProvider = object : DispatcherProvider {
+            override val main = dispatcher
+            override val io = dispatcher
+            override val computation = dispatcher
+        }
+        coreServiceClient = FakeCoreServiceClient()
+        telemetryClient = FakeTelemetryClient()
+        traderService = FakeTraderService()
+        println("[DEBUG] DashboardViewModelTest: Setup complete for: ${testInfo.displayName}")
     }
 
-    private val coreServiceClient = FakeCoreServiceClient()
-    private val telemetryClient = FakeTelemetryClient()
-    private val traderService = FakeTraderService()
+    @AfterEach
+    fun cleanup(testInfo: TestInfo) {
+        println("[DEBUG] DashboardViewModelTest: Cleaning up after test: ${testInfo.displayName}")
+        // Reset fake services
+        traderService.startCalled = false
+        traderService.stopCalled = false
+        println("[DEBUG] DashboardViewModelTest: Cleanup complete for: ${testInfo.displayName}")
+    }
 
     @Test
     fun `state reflects trader summaries`() = testScope.runTest {
+        println("[DEBUG] DashboardViewModelTest: Test 'state reflects trader summaries' - starting")
         val viewModel = createViewModel()
         advanceUntilIdle()
 
@@ -58,8 +82,11 @@ class DashboardViewModelTest {
         assertEquals(100.0, state.quickStats.totalProfitLoss, 0.01)
         assertFalse(state.isLoading)
 
+        println("[DEBUG] DashboardViewModelTest: Test 'state reflects trader summaries' - assertions passed, cleaning up")
         viewModel.onCleared()
         advanceUntilIdle()
+        advanceUntilIdle()
+        println("[DEBUG] DashboardViewModelTest: Test 'state reflects trader summaries' - complete")
     }
 
     @Test
@@ -128,6 +155,7 @@ class DashboardViewModelTest {
 
     @Test
     fun `stop trader calls trader service`() = testScope.runTest {
+        println("[DEBUG] DashboardViewModelTest: Test 'stop trader calls trader service' - starting")
         val viewModel = createViewModel()
         advanceUntilIdle()
         val trader = TraderItem("T-1", "Alpha", "Binance", TraderStatus.RUNNING, 10.0, 1)
@@ -145,9 +173,12 @@ class DashboardViewModelTest {
         assertTrue(receivedEvents.firstOrNull() is DashboardEvent.ShowMessage)
         assertTrue(traderService.stopCalled)
 
+        println("[DEBUG] DashboardViewModelTest: Test 'stop trader calls trader service' - assertions passed, cleaning up")
         collector.cancelAndJoin()
         viewModel.onCleared()
         advanceUntilIdle()
+        advanceUntilIdle()
+        println("[DEBUG] DashboardViewModelTest: Test 'stop trader calls trader service' - complete")
     }
 
     private fun createViewModel(): DashboardViewModel =
