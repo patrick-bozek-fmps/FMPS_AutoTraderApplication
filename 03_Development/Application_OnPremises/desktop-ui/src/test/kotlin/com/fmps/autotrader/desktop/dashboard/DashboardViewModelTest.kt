@@ -74,7 +74,10 @@ class DashboardViewModelTest {
         )
 
         coreServiceClient.emit(summaries)
-        advanceUntilIdle()
+        // Advance time to let the Flow collector process the emission
+        // Do NOT use advanceUntilIdle() because it waits for infinite loops
+        advanceTimeBy(100)
+        runCurrent()
 
         val state = viewModel.state.value
         assertEquals(2, state.traderItems.size)
@@ -85,8 +88,9 @@ class DashboardViewModelTest {
 
         println("[DEBUG] DashboardViewModelTest: Test 'state reflects trader summaries' - assertions passed, cleaning up")
         viewModel.onCleared()
-        advanceUntilIdle()
-        advanceUntilIdle()
+        runCurrent()
+        advanceTimeBy(100)
+        runCurrent()
         println("[DEBUG] DashboardViewModelTest: Test 'state reflects trader summaries' - complete")
     }
 
@@ -96,7 +100,9 @@ class DashboardViewModelTest {
         runCurrent() // Process immediate tasks without waiting for infinite loops
 
         telemetryClient.emit(TelemetrySample(channel = "system.warning", payload = "CPU usage high"))
-        advanceUntilIdle()
+        // Advance time to let the Flow collector process the emission
+        advanceTimeBy(100)
+        runCurrent()
 
         val state = viewModel.state.value
         assertTrue(state.systemStatus.telemetryConnected)
@@ -104,7 +110,9 @@ class DashboardViewModelTest {
         assertEquals(NotificationSeverity.WARNING, state.notifications.first().severity)
 
         viewModel.onCleared()
-        advanceUntilIdle()
+        runCurrent()
+        advanceTimeBy(100)
+        runCurrent()
     }
 
     @Test
@@ -119,15 +127,19 @@ class DashboardViewModelTest {
                 receivedEvents += event
             }
         }
-        advanceUntilIdle()
+        runCurrent()
         viewModel.onTraderAction(trader, TraderAction.OPEN)
-        advanceUntilIdle()
+        // OPEN action doesn't have delay, just publishEvent, so minimal advance needed
+        advanceTimeBy(50)
+        runCurrent()
 
         assertTrue(receivedEvents.firstOrNull() is DashboardEvent.ShowMessage)
 
         collector.cancelAndJoin()
         viewModel.onCleared()
-        advanceUntilIdle()
+        runCurrent()
+        advanceTimeBy(100)
+        runCurrent()
     }
 
     @Test
@@ -142,16 +154,20 @@ class DashboardViewModelTest {
                 receivedEvents += event
             }
         }
-        advanceUntilIdle()
+        runCurrent()
         viewModel.onTraderAction(trader, TraderAction.START)
-        advanceUntilIdle()
+        // START action has delay(500), advance enough for it to complete
+        advanceTimeBy(600)
+        runCurrent()
 
         assertTrue(receivedEvents.firstOrNull() is DashboardEvent.ShowMessage)
         assertTrue(traderService.startCalled)
 
         collector.cancelAndJoin()
         viewModel.onCleared()
-        advanceUntilIdle()
+        runCurrent()
+        advanceTimeBy(100)
+        runCurrent()
     }
 
     @Test
@@ -181,7 +197,11 @@ class DashboardViewModelTest {
         runCurrent() // Process collector launch without waiting for infinite loops
         println("[DEBUG] DashboardViewModelTest: About to call onTraderAction...")
         viewModel.onTraderAction(trader, TraderAction.STOP)
-        advanceUntilIdle()
+        // onTraderAction launches a coroutine with delay(500). Advance time enough for it to complete.
+        // Do NOT use advanceUntilIdle() because it waits for monitorTelemetryConnection() infinite loop.
+        advanceTimeBy(600) // 500ms delay + 100ms buffer
+        runCurrent() // Process the completed onTraderAction coroutine
+        println("[DEBUG] DashboardViewModelTest: onTraderAction completed, checking results...")
 
         assertTrue(receivedEvents.firstOrNull() is DashboardEvent.ShowMessage)
         assertTrue(traderService.stopCalled)
@@ -189,8 +209,10 @@ class DashboardViewModelTest {
         println("[DEBUG] DashboardViewModelTest: Test 'stop trader calls trader service' - assertions passed, cleaning up")
         collector.cancelAndJoin()
         viewModel.onCleared()
-        advanceUntilIdle()
-        advanceUntilIdle()
+        // onCleared() cancels all ViewModel coroutines. Process cancellation without waiting for infinite loops
+        runCurrent()
+        advanceTimeBy(100) // Allow cancellation to propagate
+        runCurrent()
         println("[DEBUG] DashboardViewModelTest: Test 'stop trader calls trader service' - complete")
     }
 
