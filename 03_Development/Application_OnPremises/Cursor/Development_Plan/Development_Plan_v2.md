@@ -1,7 +1,7 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 6.1  
-**Date**: November 14, 2025  
+**Version**: 6.2  
+**Date**: November 18, 2025  
 **Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ✅ COMPLETE (6/6 issues – 100%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
 
@@ -86,6 +86,12 @@
 - 🧪 Local gates (`:desktop-ui:test`, `clean test`) and GA run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) confirmed module + full-suite health.
 - 📚 Documentation refreshed: Issue 21 marked complete, Epic 5 status v1.4, AI Desktop UI Guide v0.4 trader management chapter.
 - 🎯 Focus now shifts to Issue #22 (Trading Monitoring View) implementation.
+
+**Changes from v6.1:**
+- ✅ Issue #20 review findings addressed (commit `037034f`): Created `RealTelemetryClient` connecting to `/ws/telemetry` WebSocket, wired dashboard Start/Stop actions to `TraderService` REST API, added telemetry reconnection handling and empty-state messaging.
+- 🧪 Tests: Updated `DashboardViewModelTest` and `DashboardViewTest` with `TraderService` dependency; CI run [19459603129](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19459603129) passed successfully.
+- 📚 Documentation: Updated `Issue_20_REVIEW.md` with completion status; all three review findings resolved.
+- 🔜 Next up: Epic 6 – Testing & Polish planning (regression checklist, release assets).
 
 **Changes from v6.0:**
 - ✅ Issue #24 Pattern Analytics View delivered (commit `54d6165`): analytics service, list/detail workspace, charts, and management actions.

@@ -1,9 +1,9 @@
 # Epic 5: Desktop UI Application - Status Report
 
-**Date**: November 14, 2025  
+**Date**: November 18, 2025  
 **Epic Status**: ✅ **COMPLETE** (6/6 issues complete – 100%)  
-**Version**: 1.7  
-**Last Updated**: November 14, 2025 (Issue #24 pattern analytics delivered)
+**Version**: 1.8  
+**Last Updated**: November 18, 2025 (Issue #20 review findings addressed)
 
 ---
 
@@ -27,6 +27,11 @@ All Epic 5 issues (#19–#24) are complete. The MVVM scaffold, navigation layer,
  - ✅ Issue #23 (Configuration View) delivered — `ConfigService` abstraction, configuration workspace tabs, import/export UX, and connection testing shipped (commit `24c84b3`).
  - 🧪 Local gates `./gradlew :desktop-ui:test`, `./gradlew clean build --no-daemon`; CI run [19370918030](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19370918030) (`workflow_dispatch`, `force-full-tests=true`) recorded for the final code commit.
  - 📚 Guide + plans updated (Dev Plan v6.0, CONFIG_GUIDE v1.1, AI_DESKTOP_UI_GUIDE v0.6) to describe admin workflows; Epic progress now 5/6 issues COMPLETE (83%).
+
+**Changes in v1.8**:
+- ✅ Issue #20 review findings addressed (commit `037034f`): Created `RealTelemetryClient` connecting to `/ws/telemetry` WebSocket, wired dashboard Start/Stop actions to `TraderService` REST API, added telemetry reconnection handling and empty-state messaging.
+- 🧪 Tests: Updated `DashboardViewModelTest` and `DashboardViewTest` with `TraderService` dependency; CI run [19459603129](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19459603129) passed successfully.
+- 📚 Documentation: Updated `Issue_20_REVIEW.md` with completion status; Dev Plan v6.2; all three review findings resolved.
 
 **Changes in v1.7**:
 - ✅ Issue #24 (Pattern Analytics View) delivered — pattern analytics service, list/detail UI, charts, and management actions (commit `54d6165`).
