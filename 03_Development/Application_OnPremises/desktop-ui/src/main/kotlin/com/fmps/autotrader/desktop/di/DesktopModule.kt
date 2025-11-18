@@ -11,6 +11,7 @@ import com.fmps.autotrader.desktop.services.ConfigService
 import com.fmps.autotrader.desktop.services.CoreServiceClient
 import com.fmps.autotrader.desktop.services.MarketDataService
 import com.fmps.autotrader.desktop.services.PatternAnalyticsService
+import com.fmps.autotrader.desktop.services.RealConfigService
 import com.fmps.autotrader.desktop.services.StubConfigService
 import com.fmps.autotrader.desktop.services.StubCoreServiceClient
 import com.fmps.autotrader.desktop.services.StubTelemetryClient
@@ -44,7 +45,7 @@ val desktopModule = module {
     single<TelemetryClient> { RealTelemetryClient(get()) } // Use RealTelemetryClient instead of stub
     single<TraderService> { RealTraderService(get()) } // Use RealTraderService instead of stub
     single<MarketDataService> { RealMarketDataService(get(), get()) } // Use RealMarketDataService with WebSocket + REST fallback
-    single<ConfigService> { StubConfigService() }
+    single<ConfigService> { RealConfigService(get()) } // Use RealConfigService instead of stub
     single<PatternAnalyticsService> { StubPatternAnalyticsService() }
 
     factory { ShellViewModel(get(), get(), get()) }
