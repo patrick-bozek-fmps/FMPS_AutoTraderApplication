@@ -11,9 +11,11 @@
 - **Branch / PR**: `main`
 - **Relevant Commits**:
   - `844946a` – `feat(ui): enhance trading monitoring workspace (Issue #22)` (MarketDataService, Monitoring view/model, tests, UX polish).
+  - `92c6a15` – `fix(issue22): address review findings - telemetry integration and REST fallback` (RealMarketDataService, WebSocket + REST fallback, DI wiring).
 - **CI / Build IDs**:
   - Local gates: `./gradlew :desktop-ui:test --no-daemon`, `./gradlew clean test --no-daemon` (Nov 14 2025, per issue log).
   - GitHub Actions run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) (`workflow_dispatch`, `force-full-tests=true`) on `844946a`.
+  - GitHub Actions run [19462365980](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19462365980) (`92c6a15`) – PASS.
   - Docs/status runs [19366988041](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366988041), [19368371326](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19368371326), and later validation run [19369938864](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19369938864) – all green.
 
 ## 2. 📋 Executive Summary
@@ -29,7 +31,7 @@ The monitoring workspace now renders candlestick charts, active positions, and t
 ## 4. ⚠️ Findings & Discrepancies
 | Severity | Area | Description / Evidence | Status |
 |----------|------|------------------------|--------|
-| **High** | Telemetry Integration | Monitoring view still receives data from `StubMarketDataService`; it does not connect to the Core service `/ws/telemetry` channels added in Issue #17 nor the REST endpoints described in Development_Plan_v2 §9.5. Real-time requirement not met. | ✅ **RESOLVED** – `RealMarketDataService` created and wired in DI module (commit `44afbf0`). Connects to telemetry WebSocket for real-time updates with REST fallback. |
+| **High** | Telemetry Integration | Monitoring view still receives data from `StubMarketDataService`; it does not connect to the Core service `/ws/telemetry` channels added in Issue #17 nor the REST endpoints described in Development_Plan_v2 §9.5. Real-time requirement not met. | ✅ **RESOLVED** – `RealMarketDataService` created and wired in DI module (commit `92c6a15`). Connects to telemetry WebSocket for real-time updates with REST fallback. |
 | Medium | Fallback Strategy | Issue plan mentions "fallbacks to REST polling," but no REST client exists; manual refresh simply replays stub data. Need actual REST fetch + error handling. | ✅ **RESOLVED** – `RealMarketDataService` implements automatic REST polling when WebSocket disconnected (`/api/v1/trades/open`, `/api/v1/trades`). Polls every 5 seconds with error handling. |
 | Medium | Performance/Resource Use | Charts rely on default JavaFX components with stub data. No instrumentation or profiling recorded to ensure 1-sec updates remain smooth when real data flows (Plan v5.9 calls for performance validation). | Open – add to polish backlog |
 
@@ -55,14 +57,14 @@ The monitoring workspace now renders candlestick charts, active positions, and t
 | Documentation + CI updates | Dev Plan v5.9, Epic 5 v1.5, GA run 19366650753 | ✅ |
 
 ## 9. 🎯 Success Criteria Verification
-- Charts/positions/trade history update continuously → ✅ using stubs.
+- Charts/positions/trade history update continuously → ✅ using real telemetry WebSocket with REST fallback (commit `92c6a15`).
 - Manual refresh/timeframe change flows behave correctly → ✅ unit + manual tests.
-- Telemetry fallback to REST → ❌ not delivered yet.
-- Build/test/CI success → ✅ evidence above.
+- Telemetry fallback to REST → ✅ **Delivered** (commit `92c6a15`): Automatic REST polling when WebSocket disconnected, manual refresh triggers REST fetch.
+- Build/test/CI success → ✅ Evidence: CI run [19462365980](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19462365980) passed.
 
 ## 10. 🛠️ Action Items
-1. ~~**UI + Backend Team**~~ – ✅ **COMPLETED** in commit `44afbf0`: Created `RealMarketDataService` with WebSocket telemetry integration (`/ws/telemetry` channels: `market.candlestick`, `position.update`, `trade.executed`) and REST fallback (`/api/v1/trades/open`, `/api/v1/trades`). Wired in DI module.
-2. ~~**Fallback Strategy**~~ – ✅ **COMPLETED** in commit `44afbf0`: Implemented automatic REST polling when telemetry disconnects (polls every 5 seconds). Connection status monitoring switches between WebSocket and REST modes. Manual refresh triggers immediate REST fetch.
+1. ~~**UI + Backend Team**~~ – ✅ **COMPLETED** in commit `92c6a15`: Created `RealMarketDataService` with WebSocket telemetry integration (`/ws/telemetry` channels: `market.candlestick`, `position.update`, `trade.executed`) and REST fallback (`/api/v1/trades/open`, `/api/v1/trades`). Wired in DI module.
+2. ~~**Fallback Strategy**~~ – ✅ **COMPLETED** in commit `92c6a15`: Implemented automatic REST polling when telemetry disconnects (polls every 5 seconds). Connection status monitoring switches between WebSocket and REST modes. Manual refresh triggers immediate REST fetch.
 3. **Performance Validation** – Profile chart rendering with real data volume; document FPS/memory impact and add thresholds to Epic 5/6 acceptance criteria.
 4. **Error UX** – Add user-visible messaging for telemetry outages and REST failures, with retry/backoff logic.
 
@@ -90,7 +92,7 @@ The monitoring workspace now renders candlestick charts, active positions, and t
 ### Telemetry Integration (High Priority) ✅
 - **Fixed**: Created `RealMarketDataService` (350+ lines) connecting to telemetry WebSocket (`/ws/telemetry`) for real-time market data updates
 - **Channels**: Subscribes to `market.candlestick`, `position.update`, and `trade.executed` channels
-- **Wired**: Updated `DesktopModule.kt` line 46 to inject `RealMarketDataService(get(), get())` instead of `StubMarketDataService()`
+- **Wired**: Updated `DesktopModule.kt` line 46 to inject `RealMarketDataService(get(), get())` instead of `StubMarketDataService()` (commit `92c6a15`)
 - **Result**: Monitoring view now receives real-time updates from core-service telemetry
 
 ### Fallback Strategy (Medium Priority) ✅
