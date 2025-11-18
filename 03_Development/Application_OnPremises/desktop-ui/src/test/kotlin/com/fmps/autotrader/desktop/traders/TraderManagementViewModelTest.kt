@@ -1,5 +1,7 @@
 package com.fmps.autotrader.desktop.traders
 
+// Test suite for TraderManagementViewModel including retry logic, validation, and telemetry integration
+
 import com.fmps.autotrader.desktop.mvvm.DispatcherProvider
 import com.fmps.autotrader.desktop.services.TelemetryClient
 import com.fmps.autotrader.desktop.services.TelemetrySample
