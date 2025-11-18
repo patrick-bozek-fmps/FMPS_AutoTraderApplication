@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 6.9  
+**Version**: 6.10  
 **Date**: November 18, 2025  
 **Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ✅ COMPLETE (6/6 issues – 100%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -77,6 +77,7 @@
 | **5.5** | **Nov 13, 2025** | **Issue #19 foundation completed, CI optimization documented, run 19338273758 recorded** | **AI Assistant** |
 | **5.6** | **Nov 14, 2025** | **Issue #20 resumed after workflow refresh – reran `clean test`/`clean build` ahead of documentation + CI steps** | **AI Assistant** |
 | **5.7** | **Nov 14, 2025** | **Issue #20 dashboard delivered (commit `535e114`); forced CI run 19366650753 logged; docs/status artifacts updated** | **AI Assistant** |
+| **6.10** | **Nov 18, 2025** | **Issue #23 final re-review completed: Verified all findings addressed in commit `ded548c` (REST API integration, file-based persistence). `RealConfigService` wired via DI, connection testing uses real exchange connectors via `/api/v1/config/test-connection`, HOCON format import/export fully implemented, file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`), retry logic with exponential backoff. Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.9** | **Nov 18, 2025** | **Issue #22 final re-review completed: Verified all remaining gaps addressed in commit `ae3f36a` (telemetry message parsing). `parsePosition()` fully implemented with TelemetryServerMessage and PositionTelemetryEventDTO parsing. Channel mapping updated to actual telemetry channels. Closed positions trigger trade history refresh. Candlestick REST endpoint limitation documented with graceful handling. Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.8** | **Nov 18, 2025** | **Issue #21 final re-review completed: Verified all remaining gaps addressed in commit `1445abd` (telemetry integration, test coverage). `TraderManagementViewModel` now subscribes to WebSocket telemetry `trader.status` channel. Comprehensive test coverage added (retry logic, credential validation, telemetry integration). Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.7** | **Nov 18, 2025** | **Issue #22 re-review completed: Verified all review findings addressed in commit `92c6a15` (telemetry integration, REST fallback). `RealMarketDataService` wired via DI, WebSocket telemetry active, automatic REST polling implemented. Review status updated to PASS.** | **SW Process Engineer** |
@@ -84,6 +85,11 @@
 | **6.1** | **Nov 14, 2025** | **Issue #24 pattern analytics workspace delivered (commit `54d6165`); Dev Plan v6.1, UI guide v0.7 updated** | **AI Assistant** |
 | **6.0** | **Nov 14, 2025** | **Issue #23 configuration workspace delivered (commit `24c84b3`); Config Guide v1.1 + UI guide v0.6 updated** | **AI Assistant** |
 | **5.9** | **Nov 14, 2025** | **Issue #22 monitoring workspace enhanced (commit `844946a`); connection badge/manual refresh added; docs v1.5/0.5 updated** | **AI Assistant** |
+
+**Changes from v6.9:**
+- ✅ Issue #23 final re-review completed (Nov 18, 2025): Verified all findings addressed in commit `ded548c`. `RealConfigService` wired via DI (DesktopModule.kt line 48), connection testing uses real exchange connectors via `/api/v1/config/test-connection` endpoint (lines 226-253), HOCON format import/export fully implemented (export: lines 255-303, import: lines 317-336), file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`, lines 364-388), retry logic with exponential backoff (lines 65-86). Review status updated to **PASS** - all findings resolved.
+- 📚 Documentation: Updated `Issue_23_REVIEW.md` with final re-review findings and verification details. All gaps resolved including REST API integration, connection testing, HOCON import/export, and file persistence.
+- 🔜 Next up: Epic 6 – Testing & Polish planning (regression checklist, release assets).
 
 **Changes from v6.8:**
 - ✅ Issue #22 final re-review completed (Nov 18, 2025): Verified all remaining gaps addressed in commit `ae3f36a`. `parsePosition()` fully implemented (lines 299-338) with `TelemetryServerMessage` and `PositionTelemetryEventDTO` parsing. Channel mapping updated to actual telemetry channels (`"positions"`, `"market-data"`, `"trader-status"`, `"system.error"`). Closed positions trigger automatic trade history refresh. Candlestick REST endpoint limitation documented with graceful error handling (`logger.trace()`). Review status updated to **PASS** - all findings resolved.
