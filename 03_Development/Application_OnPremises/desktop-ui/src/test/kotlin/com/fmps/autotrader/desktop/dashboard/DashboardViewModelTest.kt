@@ -29,7 +29,6 @@ import org.junit.jupiter.api.TestInfo
 @OptIn(ExperimentalCoroutinesApi::class)
 class DashboardViewModelTest {
 
-    private lateinit var dispatcher: StandardTestDispatcher
     private lateinit var testScope: TestScope
     private lateinit var dispatcherProvider: DispatcherProvider
     private lateinit var coreServiceClient: FakeCoreServiceClient
@@ -39,7 +38,7 @@ class DashboardViewModelTest {
     @BeforeEach
     fun setup(testInfo: TestInfo) {
         println("[DEBUG] DashboardViewModelTest: Starting test: ${testInfo.displayName}")
-        dispatcher = StandardTestDispatcher()
+        val dispatcher = StandardTestDispatcher()
         testScope = TestScope(dispatcher)
         dispatcherProvider = object : DispatcherProvider {
             override val main = dispatcher
