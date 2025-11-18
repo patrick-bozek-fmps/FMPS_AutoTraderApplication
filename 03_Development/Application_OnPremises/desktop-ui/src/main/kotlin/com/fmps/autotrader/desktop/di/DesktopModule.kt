@@ -16,9 +16,12 @@ import com.fmps.autotrader.desktop.services.StubCoreServiceClient
 import com.fmps.autotrader.desktop.services.StubTelemetryClient
 import com.fmps.autotrader.desktop.services.StubMarketDataService
 import com.fmps.autotrader.desktop.services.StubPatternAnalyticsService
+import com.fmps.autotrader.desktop.services.HttpClientFactory
+import com.fmps.autotrader.desktop.services.RealTraderService
 import com.fmps.autotrader.desktop.services.StubTraderService
 import com.fmps.autotrader.desktop.services.TelemetryClient
 import com.fmps.autotrader.desktop.services.TraderService
+import io.ktor.client.*
 import com.fmps.autotrader.desktop.shell.ShellViewModel
 import com.fmps.autotrader.desktop.monitoring.MonitoringView
 import com.fmps.autotrader.desktop.monitoring.MonitoringViewModel
@@ -31,9 +34,13 @@ import org.koin.dsl.module
 val desktopModule = module {
     single<DispatcherProvider> { DefaultDispatcherProvider() }
     single { NavigationService() }
+    
+    // HTTP Client for REST API calls
+    single<HttpClient> { HttpClientFactory.create() }
+    
     single<CoreServiceClient> { StubCoreServiceClient() }
     single<TelemetryClient> { StubTelemetryClient() }
-    single<TraderService> { StubTraderService() }
+    single<TraderService> { RealTraderService(get()) } // Use RealTraderService instead of stub
     single<MarketDataService> { StubMarketDataService() }
     single<ConfigService> { StubConfigService() }
     single<PatternAnalyticsService> { StubPatternAnalyticsService() }

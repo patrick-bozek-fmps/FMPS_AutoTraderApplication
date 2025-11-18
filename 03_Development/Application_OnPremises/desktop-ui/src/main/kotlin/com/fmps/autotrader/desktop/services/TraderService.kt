@@ -42,7 +42,10 @@ data class TraderDraft(
     val riskLevel: TraderRiskLevel,
     val baseAsset: String,
     val quoteAsset: String,
-    val budget: Double
+    val budget: Double,
+    val apiKey: String? = null,
+    val apiSecret: String? = null,
+    val apiPassphrase: String? = null
 )
 
 enum class TraderRiskLevel {

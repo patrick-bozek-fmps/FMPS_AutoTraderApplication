@@ -39,6 +39,9 @@ class TraderManagementView :
     private val baseAssetField = TextField()
     private val quoteAssetField = TextField()
     private val budgetField = TextField()
+    private val apiKeyField = TextField()
+    private val apiSecretField = TextField()
+    private val apiPassphraseField = TextField()
     private val validationLabel = Label()
     private val isUpdatingForm = SimpleBooleanProperty(false)
 
@@ -185,6 +188,27 @@ class TraderManagementView :
         }
         children += labeledField("Budget (USDT)", budgetField)
 
+        children += Separator()
+        children += Label("Exchange API Credentials (Optional)").apply { styleClass += "section-title" }
+
+        apiKeyField.promptText = "API Key"
+        apiKeyField.textProperty().addListener { _, _, new ->
+            if (!isUpdatingForm.get()) viewModel.updateForm { it.copy(apiKey = new.orEmpty()) }
+        }
+        children += labeledField("API Key", apiKeyField)
+
+        apiSecretField.promptText = "API Secret"
+        apiSecretField.textProperty().addListener { _, _, new ->
+            if (!isUpdatingForm.get()) viewModel.updateForm { it.copy(apiSecret = new.orEmpty()) }
+        }
+        children += labeledField("API Secret", apiSecretField)
+
+        apiPassphraseField.promptText = "Passphrase (Bitget only)"
+        apiPassphraseField.textProperty().addListener { _, _, new ->
+            if (!isUpdatingForm.get()) viewModel.updateForm { it.copy(apiPassphrase = new.orEmpty()) }
+        }
+        children += labeledField("Passphrase", apiPassphraseField)
+
         validationLabel.styleClass += "validation-label"
         children += validationLabel
 
@@ -234,6 +258,9 @@ class TraderManagementView :
         baseAssetField.text = state.form.baseAsset
         quoteAssetField.text = state.form.quoteAsset
         budgetField.text = if (state.form.budget == 0.0) "" else state.form.budget.toString()
+        apiKeyField.text = state.form.apiKey
+        apiSecretField.text = state.form.apiSecret
+        apiPassphraseField.text = state.form.apiPassphrase
         validationLabel.text = state.form.errors.values.joinToString("\n")
         validationLabel.isVisible = state.form.errors.isNotEmpty()
         isUpdatingForm.set(false)

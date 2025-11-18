@@ -26,6 +26,9 @@ data class TraderForm(
     val baseAsset: String = "BTC",
     val quoteAsset: String = "USDT",
     val budget: Double = 1000.0,
+    val apiKey: String = "",
+    val apiSecret: String = "",
+    val apiPassphrase: String = "",
     val errors: Map<String, String> = emptyMap()
 ) {
     val isNew: Boolean get() = id == null
@@ -37,7 +40,10 @@ data class TraderForm(
         riskLevel = riskLevel,
         baseAsset = baseAsset,
         quoteAsset = quoteAsset,
-        budget = budget
+        budget = budget,
+        apiKey = apiKey.takeIf { it.isNotBlank() },
+        apiSecret = apiSecret.takeIf { it.isNotBlank() },
+        apiPassphrase = apiPassphrase.takeIf { it.isNotBlank() }
     )
 
     companion object {
@@ -49,7 +55,10 @@ data class TraderForm(
             riskLevel = trader.riskLevel,
             baseAsset = trader.baseAsset,
             quoteAsset = trader.quoteAsset,
-            budget = trader.budget
+            budget = trader.budget,
+            apiKey = "", // Credentials not stored in TraderDetail for security
+            apiSecret = "",
+            apiPassphrase = ""
         )
     }
 }

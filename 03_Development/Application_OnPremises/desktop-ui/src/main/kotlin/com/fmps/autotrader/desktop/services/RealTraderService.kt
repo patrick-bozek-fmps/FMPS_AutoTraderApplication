@@ -2,9 +2,11 @@ package com.fmps.autotrader.desktop.services
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -63,10 +65,10 @@ class RealTraderService(
             ))
         }
         
-        if (response.status != HttpStatusCode.Created) {
+        if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
             logger.error { "Failed to create trader: ${response.status} - $errorBody" }
-            throw Exception("Failed to create trader: ${response.status}")
+            throw ClientRequestException(response, "Failed to create trader: ${response.status}")
         }
         
         val apiResponse = json.decodeFromString<ApiResponse<TraderDTO>>(response.bodyAsText())
@@ -98,7 +100,7 @@ class RealTraderService(
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
             logger.error { "Failed to update trader: ${response.status} - $errorBody" }
-            throw Exception("Failed to update trader: ${response.status}")
+            throw ClientRequestException(response, "Failed to update trader: ${response.status}")
         }
         
         val apiResponse = json.decodeFromString<ApiResponse<TraderDTO>>(response.bodyAsText())
@@ -118,7 +120,7 @@ class RealTraderService(
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
             logger.error { "Failed to delete trader: ${response.status} - $errorBody" }
-            throw Exception("Failed to delete trader: ${response.status}")
+            throw ClientRequestException(response, "Failed to delete trader: ${response.status}")
         }
         
         tradersFlow.update { it.filterNot { trader -> trader.id == id } }
@@ -134,7 +136,7 @@ class RealTraderService(
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
             logger.error { "Failed to start trader: ${response.status} - $errorBody" }
-            throw Exception("Failed to start trader: ${response.status}")
+            throw ClientRequestException(response, "Failed to start trader: ${response.status}")
         }
         
         refreshTraders()
@@ -150,7 +152,7 @@ class RealTraderService(
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
             logger.error { "Failed to stop trader: ${response.status} - $errorBody" }
-            throw Exception("Failed to stop trader: ${response.status}")
+            throw ClientRequestException(response, "Failed to stop trader: ${response.status}")
         }
         
         refreshTraders()

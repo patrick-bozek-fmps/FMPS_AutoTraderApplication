@@ -5,8 +5,15 @@ import com.fmps.autotrader.desktop.mvvm.DispatcherProvider
 import com.fmps.autotrader.desktop.services.TraderDetail
 import com.fmps.autotrader.desktop.services.TraderRiskLevel
 import com.fmps.autotrader.desktop.services.TraderService
+import io.ktor.client.call.*
+import io.ktor.client.plugins.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.client.network.sockets.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.pow
 
 class TraderManagementViewModel(
     dispatcherProvider: DispatcherProvider,
@@ -86,27 +93,24 @@ class TraderManagementViewModel(
         launchIO {
             try {
                 if (currentForm.isNew) {
-                    traderService.createTrader(currentForm.toDraft())
-                    publishEvent(
-                        TraderManagementEvent.ShowMessage(
-                            "Trader ${currentForm.name} created",
-                        TraderManagementEvent.MessageType.SUCCESS
-                        )
+                    executeWithRetry(
+                        operation = { traderService.createTrader(currentForm.toDraft()) },
+                        successMessage = "Trader ${currentForm.name} created",
+                        errorMessage = "Unable to create trader"
                     )
                 } else {
-                    traderService.updateTrader(currentForm.id!!, currentForm.toDraft())
-                    publishEvent(
-                        TraderManagementEvent.ShowMessage(
-                            "Trader ${currentForm.name} updated",
-                        TraderManagementEvent.MessageType.SUCCESS
-                        )
+                    executeWithRetry(
+                        operation = { traderService.updateTrader(currentForm.id!!, currentForm.toDraft()) },
+                        successMessage = "Trader ${currentForm.name} updated",
+                        errorMessage = "Unable to update trader"
                     )
                 }
             } catch (ex: Exception) {
+                val errorMsg = formatErrorMessage(ex, "Unable to save trader")
                 publishEvent(
                     TraderManagementEvent.ShowMessage(
-                        ex.message ?: "Unable to save trader",
-                    TraderManagementEvent.MessageType.ERROR
+                        errorMsg,
+                        TraderManagementEvent.MessageType.ERROR
                     )
                 )
             } finally {
@@ -120,19 +124,18 @@ class TraderManagementViewModel(
         setState { it.copy(isSaving = true) }
         launchIO {
             try {
-                traderService.deleteTrader(traderId)
-                publishEvent(
-                    TraderManagementEvent.ShowMessage(
-                        "Trader deleted",
-                        TraderManagementEvent.MessageType.INFO
-                    )
+                executeWithRetry(
+                    operation = { traderService.deleteTrader(traderId) },
+                    successMessage = "Trader deleted",
+                    errorMessage = "Unable to delete trader"
                 )
                 setState { it.copy(selectedTraderId = null, form = TraderForm()) }
             } catch (ex: Exception) {
+                val errorMsg = formatErrorMessage(ex, "Unable to delete trader")
                 publishEvent(
                     TraderManagementEvent.ShowMessage(
-                        ex.message ?: "Unable to delete trader",
-                    TraderManagementEvent.MessageType.ERROR
+                        errorMsg,
+                        TraderManagementEvent.MessageType.ERROR
                     )
                 )
             } finally {
@@ -149,18 +152,26 @@ class TraderManagementViewModel(
         launchIO {
             try {
                 when (action) {
-                    ActionType.START -> traderService.startTrader(id)
-                    ActionType.STOP -> traderService.stopTrader(id)
+                    ActionType.START -> {
+                        executeWithRetry(
+                            operation = { traderService.startTrader(id) },
+                            successMessage = "Trader started",
+                            errorMessage = "Unable to start trader"
+                        )
+                    }
+                    ActionType.STOP -> {
+                        executeWithRetry(
+                            operation = { traderService.stopTrader(id) },
+                            successMessage = "Trader stopped",
+                            errorMessage = "Unable to stop trader"
+                        )
+                    }
                 }
-                val message = when (action) {
-                    ActionType.START -> "Trader started"
-                    ActionType.STOP -> "Trader stopped"
-                }
-                publishEvent(TraderManagementEvent.ShowMessage(message))
             } catch (ex: Exception) {
+                val errorMsg = formatErrorMessage(ex, "Unable to perform action")
                 publishEvent(
                     TraderManagementEvent.ShowMessage(
-                        ex.message ?: "Unable to perform action",
+                        errorMsg,
                         TraderManagementEvent.MessageType.ERROR
                     )
                 )
@@ -174,7 +185,98 @@ class TraderManagementViewModel(
         if (form.budget <= 0.0) errors["budget"] = "Budget must be positive"
         if (form.baseAsset.isBlank()) errors["baseAsset"] = "Base asset required"
         if (form.quoteAsset.isBlank()) errors["quoteAsset"] = "Quote asset required"
+        
+        // Validate API credentials if provided
+        if (form.apiKey.isNotBlank() && form.apiSecret.isBlank()) {
+            errors["apiSecret"] = "API Secret is required when API Key is provided"
+        }
+        if (form.exchange.equals("Bitget", ignoreCase = true) && form.apiKey.isNotBlank() && form.apiPassphrase.isBlank()) {
+            errors["apiPassphrase"] = "Passphrase is required for Bitget exchange"
+        }
+        
         return errors
+    }
+
+    /**
+     * Executes an operation with exponential backoff retry logic.
+     * Retries up to 3 times for transient errors (network, timeouts, 5xx).
+     */
+    private suspend fun <T> executeWithRetry(
+        operation: suspend () -> T,
+        successMessage: String,
+        errorMessage: String,
+        maxRetries: Int = 3,
+        initialDelayMs: Long = 500
+    ): T {
+        var lastException: Exception? = null
+        repeat(maxRetries) { attempt ->
+            try {
+                val result = operation()
+                publishEvent(
+                    TraderManagementEvent.ShowMessage(
+                        successMessage,
+                        TraderManagementEvent.MessageType.SUCCESS
+                    )
+                )
+                return result
+            } catch (ex: Exception) {
+                lastException = ex
+                val isRetryable = isRetryableError(ex)
+                if (!isRetryable || attempt == maxRetries - 1) {
+                    // Don't retry non-retryable errors or if we've exhausted retries
+                    throw ex
+                }
+                // Exponential backoff: 500ms, 1000ms, 2000ms
+                val delayMs = initialDelayMs * (2.0.pow(attempt)).toLong()
+                delay(delayMs)
+            }
+        }
+        throw lastException ?: Exception(errorMessage)
+    }
+
+    /**
+     * Determines if an error is retryable (network issues, timeouts, server errors).
+     */
+    private fun isRetryableError(ex: Exception): Boolean {
+        return when {
+            ex is ConnectTimeoutException -> true
+            ex is SocketTimeoutException -> true
+            ex.message?.contains("timeout", ignoreCase = true) == true -> true
+            ex.message?.contains("connection", ignoreCase = true) == true -> true
+            ex.message?.contains("network", ignoreCase = true) == true -> true
+            ex is ClientRequestException -> {
+                val statusCode = ex.response.status.value
+                statusCode in 500..599 || statusCode == 408 || statusCode == 429
+            }
+            ex is ServerResponseException -> true
+            else -> false
+        }
+    }
+
+    /**
+     * Formats error messages with structured information from HTTP responses.
+     */
+    private fun formatErrorMessage(ex: Exception, defaultMessage: String): String {
+        return when (ex) {
+            is ClientRequestException -> {
+                val statusCode = ex.response.status.value
+                val statusDescription = ex.response.status.description
+                when (statusCode) {
+                    400 -> "Invalid request: ${ex.message ?: statusDescription ?: "Bad request"}"
+                    401 -> "Authentication failed: Please check your API credentials"
+                    403 -> "Access forbidden: Insufficient permissions"
+                    404 -> "Resource not found: The trader may have been deleted"
+                    409 -> "Conflict: Trader limit reached or resource conflict"
+                    429 -> "Rate limit exceeded: Please wait before retrying"
+                    else -> ex.message ?: statusDescription ?: defaultMessage
+                }
+            }
+            is ServerResponseException -> {
+                val statusCode = ex.response.status.value
+                "Server error (${statusCode}): ${ex.response.status.description ?: "Internal server error"}"
+            }
+            else -> ex.message ?: defaultMessage
+        }
     }
 
     private enum class ActionType { START, STOP }
