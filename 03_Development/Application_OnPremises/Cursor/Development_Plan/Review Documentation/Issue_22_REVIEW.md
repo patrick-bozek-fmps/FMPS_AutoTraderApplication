@@ -51,10 +51,10 @@ The monitoring workspace now renders candlestick charts, active positions, and t
 ## 8. 📌 Requirements Traceability
 | Requirement / Goal | Implementation | Status |
 |--------------------|----------------|--------|
-| Real-time charts & positions | `MonitoringView` + `MonitoringViewModel` rendering stub feeds | ✅ (UI level) |
-| Telemetry + REST fallback | Not implemented; only stub service | ⚠️ |
+| Real-time charts & positions | `MonitoringView` + `MonitoringViewModel` rendering real telemetry feeds via `RealMarketDataService` | ✅ **Resolved** (commit `92c6a15`) |
+| Telemetry + REST fallback | `RealMarketDataService` with WebSocket telemetry (`/ws/telemetry`) and automatic REST polling fallback (`/api/v1/trades/open`, `/api/v1/trades`) | ✅ **Resolved** (commit `92c6a15`) |
 | Manual refresh & timeframe picker | Implemented | ✅ |
-| Documentation + CI updates | Dev Plan v5.9, Epic 5 v1.5, GA run 19366650753 | ✅ |
+| Documentation + CI updates | Dev Plan v5.9, Epic 5 v1.5, GA run [19462365980](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19462365980) | ✅ |
 
 ## 9. 🎯 Success Criteria Verification
 - Charts/positions/trade history update continuously → ✅ using real telemetry WebSocket with REST fallback (commit `92c6a15`).
