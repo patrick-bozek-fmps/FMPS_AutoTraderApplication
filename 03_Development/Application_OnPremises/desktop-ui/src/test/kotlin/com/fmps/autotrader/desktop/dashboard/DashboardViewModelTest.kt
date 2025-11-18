@@ -156,7 +156,9 @@ class DashboardViewModelTest {
     fun `stop trader calls trader service`() = testScope.runTest {
         println("[DEBUG] DashboardViewModelTest: Test 'stop trader calls trader service' - starting")
         val viewModel = createViewModel()
+        println("[DEBUG] DashboardViewModelTest: ViewModel created, advancing until idle...")
         advanceUntilIdle()
+        println("[DEBUG] DashboardViewModelTest: Advanced until idle, continuing test...")
         val trader = TraderItem("T-1", "Alpha", "Binance", TraderStatus.RUNNING, 10.0, 1)
 
         val receivedEvents = mutableListOf<DashboardEvent>()
@@ -180,8 +182,12 @@ class DashboardViewModelTest {
         println("[DEBUG] DashboardViewModelTest: Test 'stop trader calls trader service' - complete")
     }
 
-    private fun createViewModel(): DashboardViewModel =
-        DashboardViewModel(dispatcherProvider, coreServiceClient, telemetryClient, traderService)
+    private fun createViewModel(): DashboardViewModel {
+        println("[DEBUG] DashboardViewModelTest: Creating ViewModel...")
+        val vm = DashboardViewModel(dispatcherProvider, coreServiceClient, telemetryClient, traderService)
+        println("[DEBUG] DashboardViewModelTest: ViewModel created successfully")
+        return vm
+    }
 
     private class FakeCoreServiceClient : CoreServiceClient {
         private val flow = MutableSharedFlow<List<TraderSummary>>(replay = 1)
