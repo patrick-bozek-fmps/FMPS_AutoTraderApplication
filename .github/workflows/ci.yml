@@ -11,6 +11,10 @@ on:
         description: 'Set to true to force running all unit tests'
         required: false
         default: 'false'
+      force-integration-tests:
+        description: 'Set to true to force running integration tests (requires API keys)'
+        required: false
+        default: 'false'
 
 jobs:
   unit-tests:
@@ -44,6 +48,7 @@ jobs:
         id: test-flags
         env:
           FORCE_FULL_TESTS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force-full-tests == 'true' }}
+          FORCE_INTEGRATION_TESTS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force-integration-tests == 'true' }}
         run: |
           run_core=false
           run_desktop=false
@@ -52,6 +57,11 @@ jobs:
             echo "Force flag detected - running full unit test suite."
             run_core=true
             run_desktop=true
+          fi
+          
+          if [[ "${FORCE_INTEGRATION_TESTS}" == "true" ]]; then
+            echo "Force integration tests flag detected - will run integration tests."
+            run_core=true
           fi
 
           if [[ "${{ steps.changes.outputs.core_service }}" == "true" || "${{ steps.changes.outputs.shared }}" == "true" || "${{ steps.changes.outputs.build_logic }}" == "true" ]]; then
@@ -120,7 +130,10 @@ jobs:
     name: Integration Tests (@integration)
     runs-on: ubuntu-latest
     needs: unit-tests
-    if: needs.unit-tests.outputs.run_core_tests == 'true'
+    # Run integration tests when:
+    # 1. Core service code changed (run_core_tests == true), OR
+    # 2. Force integration tests flag is set (manual trigger)
+    if: needs.unit-tests.outputs.run_core_tests == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.force-integration-tests == 'true')
     env:
       BINANCE_API_KEY: ${{ secrets.BINANCE_API_KEY }}
       BINANCE_API_SECRET: ${{ secrets.BINANCE_API_SECRET }}
