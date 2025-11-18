@@ -165,12 +165,18 @@ class DashboardViewModelTest {
         val trader = TraderItem("T-1", "Alpha", "Binance", TraderStatus.RUNNING, 10.0, 1)
 
         val receivedEvents = mutableListOf<DashboardEvent>()
+        println("[DEBUG] DashboardViewModelTest: Creating event collector...")
         val collector = launch {
+            println("[DEBUG] DashboardViewModelTest: Collector started, waiting for event...")
             viewModel.events.take(1).collect { event ->
+                println("[DEBUG] DashboardViewModelTest: Event received: ${event::class.simpleName}")
                 receivedEvents += event
             }
+            println("[DEBUG] DashboardViewModelTest: Collector completed")
         }
-        advanceUntilIdle()
+        println("[DEBUG] DashboardViewModelTest: Collector created, running current tasks...")
+        runCurrent() // Process collector launch without waiting for infinite loops
+        println("[DEBUG] DashboardViewModelTest: About to call onTraderAction...")
         viewModel.onTraderAction(trader, TraderAction.STOP)
         advanceUntilIdle()
 
