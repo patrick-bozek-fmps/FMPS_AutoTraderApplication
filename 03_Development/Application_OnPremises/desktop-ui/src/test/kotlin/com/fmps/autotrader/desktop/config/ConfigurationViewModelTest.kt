@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -43,6 +44,11 @@ class ConfigurationViewModelTest {
         }
         fakeService = FakeConfigService()
         viewModel = ConfigurationViewModel(dispatcherProvider, fakeService)
+    }
+
+    @AfterEach
+    fun cleanup() {
+        viewModel.onCleared()
     }
 
     @Test

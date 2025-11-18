@@ -14,6 +14,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -39,6 +40,11 @@ class PatternAnalyticsViewModelTest {
         }
         service = FakePatternAnalyticsService()
         viewModel = PatternAnalyticsViewModel(dispatcherProvider, service)
+    }
+
+    @AfterEach
+    fun cleanup() {
+        viewModel.onCleared()
     }
 
     @Test
