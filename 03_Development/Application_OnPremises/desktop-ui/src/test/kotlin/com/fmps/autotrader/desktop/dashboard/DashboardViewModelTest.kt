@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -158,9 +159,11 @@ class DashboardViewModelTest {
         println("[DEBUG] DashboardViewModelTest: Test 'stop trader calls trader service' - starting")
         val viewModel = createViewModel()
         println("[DEBUG] DashboardViewModelTest: ViewModel created, processing immediate tasks...")
-        // Use runCurrent() instead of advanceUntilIdle() to process immediate tasks
-        // without waiting for infinite loops (monitorTelemetryConnection has while(true) with delay)
+        // Process immediate tasks and advance time slightly to let ViewModel's init coroutines process
+        // but don't advance too far (monitorTelemetryConnection has delay(10s))
         runCurrent()
+        advanceTimeBy(100) // Advance 100ms to let Flow collectors process initial values
+        runCurrent() // Process any tasks that became ready
         println("[DEBUG] DashboardViewModelTest: Immediate tasks processed, continuing test...")
         val trader = TraderItem("T-1", "Alpha", "Binance", TraderStatus.RUNNING, 10.0, 1)
 
