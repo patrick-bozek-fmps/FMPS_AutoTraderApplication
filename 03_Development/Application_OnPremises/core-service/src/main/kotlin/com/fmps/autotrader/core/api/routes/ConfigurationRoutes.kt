@@ -1,7 +1,7 @@
 package com.fmps.autotrader.core.api.routes
 
 import com.fmps.autotrader.core.connectors.ConnectorFactory
-import com.fmps.autotrader.core.connectors.ConnectionException
+import com.fmps.autotrader.core.connectors.exceptions.ConnectionException
 import com.fmps.autotrader.shared.dto.*
 import com.fmps.autotrader.shared.enums.Exchange
 import com.fmps.autotrader.shared.model.ExchangeConfig
@@ -239,11 +239,11 @@ fun Route.configureConfigurationRoutes() {
                     } catch (e: ConnectionException) {
                         success = false
                         message = "Connection failed: ${e.message}"
-                        logger.warn(e) { "Connection test failed for ${exchange.name}" }
+                        logger.warn("Connection test failed for ${exchange.name}", e)
                     } catch (e: Exception) {
                         success = false
                         message = "Connection test error: ${e.message}"
-                        logger.error(e) { "Unexpected error during connection test for ${exchange.name}" }
+                        logger.error("Unexpected error during connection test for ${exchange.name}", e)
                     }
                 }
                 
@@ -260,7 +260,7 @@ fun Route.configureConfigurationRoutes() {
                 )
                 
             } catch (e: Exception) {
-                logger.error(e) { "Error processing connection test request" }
+                logger.error("Error processing connection test request", e)
                 call.respond(
                     HttpStatusCode.InternalServerError,
                     ErrorResponse(
