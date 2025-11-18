@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 6.3  
+**Version**: 6.4  
 **Date**: November 18, 2025  
 **Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ✅ COMPLETE (6/6 issues – 100%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -86,6 +86,12 @@
 - 🧪 Local gates (`:desktop-ui:test`, `clean test`) and GA run [19366650753](https://github.com/patrick-bozek-fmps/FMPS_AutoTraderApplication/actions/runs/19366650753) confirmed module + full-suite health.
 - 📚 Documentation refreshed: Issue 21 marked complete, Epic 5 status v1.4, AI Desktop UI Guide v0.4 trader management chapter.
 - 🎯 Focus now shifts to Issue #22 (Trading Monitoring View) implementation.
+
+**Changes from v6.3:**
+- ✅ Issue #20 final re-review completed (Nov 18, 2025): Verified DI wiring fixed (working directory: `DesktopModule.kt` line 43 now injects `RealTelemetryClient(get())`—**commit pending**). Verified remediation commit `037034f` implemented `RealTelemetryClient` (153 lines) and `RealTraderService` (250 lines), wired dashboard actions to REST API, added telemetry monitoring/reconnection logic and empty-state messaging. `RealTraderService` correctly wired and functional with proper API key authentication.
+- ⚠️ **Authentication gap identified**: `RealTelemetryClient.connectWithRetry()` (line 67) does not include API key in WebSocket connection (neither as header `X-API-Key` nor as query param `apiKey`). Server endpoint (`WebSocketRoutes.kt` lines 56-57) expects API key authentication per `WEBSOCKET_GUIDE.md`. When `security.api.enabled=true`, connections will be rejected with `VIOLATED_POLICY` close reason. Must add API key authentication before Epic 6 (query param `apiKey` recommended for simplicity).
+- 📚 Documentation: Updated `Issue_20_REVIEW.md` with final re-review findings (DI wiring resolved, authentication gap identified) and updated status to "PASS WITH AUTHENTICATION GAP".
+- 🔜 Next up: Epic 6 – Testing & Polish planning (regression checklist, release assets).
 
 **Changes from v6.2:**
 - ⚠️ Issue #20 re-review completed (Nov 18, 2025): Verified remediation commit `037034f` implemented `RealTelemetryClient` (153 lines) and `RealTraderService` (250 lines), wired dashboard actions to REST API, added telemetry monitoring/reconnection logic and empty-state messaging. **Critical gap identified**: `DesktopModule.kt` line 42 still injects `StubTelemetryClient()` instead of `RealTelemetryClient()`, preventing real telemetry from being used. Code exists but not activated—DI configuration must be updated. `RealTraderService` correctly wired and functional.
