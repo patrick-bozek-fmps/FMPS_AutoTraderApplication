@@ -1,4 +1,4 @@
-# DEF-6-001: Server Startup Configuration Mismatch
+# DEF_001: Server Startup Configuration Mismatch
 
 **Status**: ✅ **FIXED**  
 **Severity**: 🔴 **CRITICAL**  

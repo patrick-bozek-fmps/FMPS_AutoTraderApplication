@@ -1,4 +1,4 @@
-# Defect #[ID]: [Brief Description of the Defect]
+# DEF_[#ID]: [Brief Description of the Defect]
 
 **Status**: [Choose one: 🆕 **NEW**, 👤 **ASSIGNED**, 🏗️ **IN PROGRESS**, ✅ **FIXED**, ✔️ **VERIFIED**, 🔒 **CLOSED**, ❌ **REJECTED**, ⚠️ **REOPENED**, ⏸️ **DEFERRED**]  
 **Severity**: [Choose one: 🔴 **CRITICAL**, 🟠 **HIGH**, 🟡 **MEDIUM**, 🟢 **LOW**, 🔵 **TRIVIAL**]  
@@ -350,8 +350,9 @@ This defect follows the standard development workflow from `DEVELOPMENT_WORKFLOW
 
 ### **For SW Test Engineers**
 1. **When Finding a Defect**:
-   - Copy this template to `Development_Plan/Defects/DEF-[EPIC]-[SEQUENCE]_Brief_Description.md`
-   - **Important**: Use format `DEF-[EPIC]-[SEQUENCE]_Brief_Description.md` (NO "Defect_" prefix)
+   - Copy this template to `Development_Plan/Defects/DEF_[#ID]_Brief_Description.md`
+   - **Important**: Use format `DEF_[#ID]_Brief_Description.md` where #ID is a sequential number (zero-padded to 3 digits, e.g., 001, 002, 023)
+   - **NO "Defect_" prefix** - The ID already indicates it's a defect
    - Fill in all sections up to "Resolution Details"
    - Set status to 🆕 **NEW**
    - Assign appropriate severity and priority
@@ -408,28 +409,32 @@ This defect follows the standard development workflow from `DEVELOPMENT_WORKFLOW
 ## 📋 **Defect ID and File Naming Format**
 
 ### **Defect ID Format**
-**Format**: `DEF-[EPIC]-[SEQUENCE]`
+**Format**: `DEF_[#ID]` (sequential number, zero-padded to 3 digits)
 
 **Examples**:
-- `DEF-4-001` - First defect found in Epic 4
-- `DEF-5-023` - 23rd defect found in Epic 5
-- `DEF-GEN-001` - First general defect (not tied to specific epic)
+- `DEF_001` - First defect
+- `DEF_023` - 23rd defect
+- `DEF_156` - 156th defect
+
+**Note**: The Epic information is tracked in the defect document itself (see "Epic" field in header), not in the ID or filename.
 
 ### **File Naming Convention**
-**Format**: `DEF-[EPIC]-[SEQUENCE]_Brief_Description.md`
+**Format**: `DEF_[#ID]_Brief_Description.md`
 
 **Rules**:
 - **NO "Defect_" prefix** - The ID already indicates it's a defect
 - Use underscores instead of spaces in the description
 - Keep description brief (3-5 words maximum)
 - Use title case for description words
+- ID is zero-padded to 3 digits (001, 002, ..., 999)
 
 **Examples**:
-- ✅ `DEF-6-001_Server_Startup_Configuration_Mismatch.md`
-- ✅ `DEF-4-015_Database_Connection_Timeout.md`
-- ✅ `DEF-GEN-002_Memory_Leak_In_Telemetry.md`
-- ❌ `Defect_DEF-6-001_Server_Startup_Configuration_Mismatch.md` (redundant "Defect_" prefix)
-- ❌ `DEF-6-001 Server Startup Configuration Mismatch.md` (spaces not allowed)
+- ✅ `DEF_001_Server_Startup_Configuration_Mismatch.md`
+- ✅ `DEF_015_Database_Connection_Timeout.md`
+- ✅ `DEF_002_Memory_Leak_In_Telemetry.md`
+- ❌ `Defect_DEF_001_Server_Startup_Configuration_Mismatch.md` (redundant "Defect_" prefix)
+- ❌ `DEF_1_Server_Startup_Configuration_Mismatch.md` (ID not zero-padded)
+- ❌ `DEF_001 Server Startup Configuration Mismatch.md` (spaces not allowed)
 
 **Storage Location**: `03_Development/Application_OnPremises/Cursor/Development_Plan/Defects/`
 
