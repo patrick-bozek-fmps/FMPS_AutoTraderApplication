@@ -72,6 +72,24 @@ curl http://localhost:8080/api/health
 Invoke-WebRequest -Uri http://localhost:8080/api/status
 ```
 
+**Expected Response:**
+```json
+{
+  "status": "OPERATIONAL",
+  "timestamp": "2025-11-19T12:30:15.415306200Z",
+  "activeTraders": 0,
+  "databaseStats": {
+    "status": "connected",
+    "type": "SQLite",
+    "activeConnections": "0",
+    "idleConnections": "2",
+    "totalConnections": "2"
+  }
+}
+```
+
+**Note**: Status value is `"OPERATIONAL"` when system is healthy, or `"DEGRADED"` when there are issues. See `core-service/API_DOCUMENTATION.md` for full API reference.
+
 ## 📋 Prerequisites
 
 - **Java 17+** (OpenJDK or Oracle JDK)

@@ -97,7 +97,10 @@ Get detailed system status including database and component health.
   "activeTraders": 0,
   "databaseStats": {
     "status": "connected",
-    "type": "SQLite"
+    "type": "SQLite",
+    "activeConnections": "0",
+    "idleConnections": "2",
+    "totalConnections": "2"
   }
 }
 ```
@@ -121,9 +124,13 @@ Get detailed system status including database and component health.
 **Fields:**
 - `activeTraders` - Number of currently active AI traders
 - `databaseStats` - Database connection information
-  - `status` - Connection status ("connected" when healthy)
+  - `status` - Connection status ("connected" when healthy, "not_initialized" when database not initialized)
   - `type` - Database type ("SQLite")
+  - `activeConnections` - Number of active database connections (string)
+  - `idleConnections` - Number of idle database connections (string)
+  - `totalConnections` - Total number of database connections (string)
   - `error` - Error message (only present when status is "DEGRADED")
+  - `warning` - Warning message (only present when connection statistics cannot be retrieved)
 
 ### GET /api/version
 Get API version information.
