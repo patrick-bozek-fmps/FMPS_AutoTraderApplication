@@ -16,7 +16,7 @@ The epic encompasses six major workstreams: (1) End-to-end integration testing a
 **Status**: Planning complete; ready to begin Issue #25 (Integration Testing).
 
 **Key Components**:
-- Integration Testing - ⏳ Planned (Issue #25)
+- Integration Testing - 🏗️ In Progress (Issue #25 - ~80% complete)
 - Performance Testing - ⏳ Planned (Issue #26)
 - Bug Fixing & Polish - ⏳ Planned (Issue #27)
 - Documentation - ⏳ Planned (Issue #28)
@@ -29,7 +29,7 @@ The epic encompasses six major workstreams: (1) End-to-end integration testing a
 
 | Issue | Title | Status | Priority | Duration (Est.) | Dependencies |
 |-------|-------|--------|----------|-----------------|--------------|
-| #25 | Integration Testing | 📋 Planned | P0 | ~5 days | Epics 1-5 ✅ |
+| #25 | Integration Testing | 🏗️ In Progress | P0 | ~5 days | Epics 1-5 ✅ |
 | #26 | Performance Testing | 📋 Planned | P0 | ~4 days | Issue #25 ✅ |
 | #27 | Bug Fixing & Polish | 📋 Planned | P1 | ~3 days | Issue #25 ✅ |
 | #28 | Documentation | 📋 Planned | P1 | ~4 days | Issue #27 ✅ |
@@ -67,20 +67,24 @@ The epic encompasses six major workstreams: (1) End-to-end integration testing a
 
 ## 📋 **Planned Issues** (6/6)
 
-### **Issue #25: Integration Testing** 📋 PLANNED
-- **Status**: 📋 **PLANNED**
+### **Issue #25: Integration Testing** 🏗️ IN PROGRESS
+- **Status**: 🏗️ **IN PROGRESS** (~80% complete)
 - **Priority**: P0 (Critical)
 - **Estimated Duration**: ~5 days
 - **Dependencies**: Epics 1-5 ✅ (All complete)
+- **Started**: 2025-11-19
 
-**Planned Deliverables**:
-- [ ] End-to-end workflow tests (Create → Start → Execute → Monitor → Stop)
-- [ ] Core Service ↔ UI communication tests
-- [ ] Core Service ↔ Exchange communication tests
-- [ ] Multi-trader scenarios (3 concurrent traders)
-- [ ] Error scenarios and recovery tests
-- [ ] State persistence and recovery tests
-- [ ] Load testing (continuous operation)
+**Completed Deliverables**:
+- [x] Test utilities and infrastructure (`TestUtilities.kt`)
+- [x] End-to-end workflow tests (`E2ETraderWorkflowTest.kt`)
+- [x] Core Service ↔ UI communication tests (`UICoreServiceIntegrationTest.kt`)
+- [x] WebSocket integration tests (`WebSocketIntegrationTest.kt`)
+- [x] Multi-trader scenarios (`MultiTraderConcurrencyTest.kt`)
+- [x] Exchange connector integration tests (`ExchangeConnectorIntegrationTest.kt`)
+- [x] Error recovery tests (`ErrorRecoveryTest.kt`)
+- [x] State persistence tests (`StatePersistenceTest.kt`)
+- [ ] Load testing (deferred to Issue #26)
+- [ ] Documentation updates (in progress)
 
 ---
 
