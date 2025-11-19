@@ -1,14 +1,14 @@
 # DEF_002: Desktop UI Startup Failure
 
-**Status**: 🆕 **NEW**  
+**Status**: ✅ **FIXED**  
 **Severity**: 🟠 **HIGH**  
 **Priority**: **P1 (High)**  
 **Reported By**: AI Assistant - SW Developer  
 **Reported Date**: 2025-11-19 12:45  
 **Assigned To**: Unassigned  
 **Assigned Date**: Not Assigned  
-**Fixed By**: N/A  
-**Fixed Date**: N/A  
+**Fixed By**: AI Assistant - SW Developer  
+**Fixed Date**: 2025-11-19  
 **Verified By**: N/A  
 **Verified Date**: N/A  
 **Closed Date**: Not Closed  
@@ -190,37 +190,50 @@ override fun stop() {
 ## 🛠️ **Resolution Details**
 
 ### **Root Cause Analysis**
-**Status**: ⏳ **PENDING**
+**Status**: ✅ **COMPLETE**
 
-**Initial Investigation**:
-- Error occurs during TornadoFX application shutdown sequence
-- `tornadofx.FXKt.find$default` cannot find the FX application instance
-- This suggests the JavaFX application platform may not be properly initialized when `stop()` is called
-- Possible causes:
-  1. TornadoFX/JavaFX lifecycle mismatch
-  2. Koin dependency injection initialization issue
-  3. Navigation service cleanup called before JavaFX platform is ready
-  4. Missing or incorrect JavaFX module configuration
+**Root Cause Identified (2025-11-19 13:00)**:
+The actual root cause was a **duplicate children error** in `ShellView.kt` at line 108. The code was trying to add a separator to a VBox using `children += separator(...)`, but TornadoFX's `separator()` DSL function already automatically adds itself to the parent's children. This caused:
+1. `IllegalArgumentException: Children: duplicate children added` during `ShellView` initialization
+2. Application failed during `start()` method
+3. This triggered `stop()` to be called before FX application was fully registered
+4. `stop()` then failed with "No FX application found" error
 
-**Next Steps**:
-1. Investigate TornadoFX application lifecycle
-2. Review DesktopApp initialization sequence
-3. Check if Koin module initialization conflicts with TornadoFX
-4. Verify JavaFX platform initialization timing
-5. Test with minimal DesktopApp implementation to isolate issue
+**Investigation Process**:
+1. Initial error showed "No FX application found" in `stop()` method
+2. Added defensive error handling to `stop()` to prevent crash
+3. This revealed the real error: duplicate children in `ShellView.buildContent()`
+4. Fixed the duplicate separator issue on line 108
+5. Application now starts successfully
+
+**Root Cause**:
+- **File**: `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/shell/ShellView.kt`
+- **Line**: 108
+- **Issue**: Using `children += separator(...)` when `separator()` already adds itself automatically
+- **Fix**: Changed to `separator(Orientation.HORIZONTAL)` to match pattern used on line 106
 
 ### **Solution Description**
-**Status**: ⏳ **PENDING** (awaiting root cause confirmation)
+**Status**: ✅ **IMPLEMENTED**
 
-Solution will be determined after root cause analysis.
+**Solution**:
+1. **Fix duplicate separator in ShellView.kt** (line 108):
+   - Changed `children += separator(Orientation.HORIZONTAL)` to `separator(Orientation.HORIZONTAL)`
+   - This matches the pattern used on line 106 and prevents duplicate children error
+
+2. **Add defensive error handling in DesktopApp.stop()**:
+   - Added try-catch blocks around cleanup operations
+   - Check if properties are initialized before accessing them
+   - Gracefully handle "No FX application found" errors during initialization failures
+   - This prevents secondary errors from masking the real root cause
 
 ### **Code Changes**
 - **Files Modified**: 
-  - TBD - awaiting root cause analysis
+  - `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/shell/ShellView.kt` - Line 108: Fixed duplicate separator issue
+  - `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/DesktopApp.kt` - Lines 44-74: Added defensive error handling in stop() method
 - **Files Added**: 
-  - TBD
+  - None
 - **Files Deleted**: 
-  - TBD
+  - None
 
 ### **Test Changes**
 - **Tests Added**: 
@@ -293,11 +306,15 @@ Solution will be determined after root cause analysis.
 | Date | Author | Role | Comment |
 |------|--------|------|---------|
 | 2025-11-19 12:45 | AI Assistant | SW Developer | Defect found during Issue #25 work - Desktop UI startup failed during HOW_TO_RUN.md step 2 verification |
+| 2025-11-19 13:00 | AI Assistant | SW Developer | Root cause identified: duplicate separator in ShellView.kt causing IllegalArgumentException. Secondary error in stop() method was masking the real issue. |
+| 2025-11-19 13:05 | AI Assistant | SW Developer | Fixes applied: (1) Fixed duplicate separator on line 108, (2) Added defensive error handling in DesktopApp.stop(). Application now starts successfully. |
 
 ### **Status History**
 | Date | Status | Changed By | Notes |
 |------|--------|------------|-------|
 | 2025-11-19 12:45 | NEW | AI Assistant | Defect reported - Desktop UI startup failure identified |
+| 2025-11-19 13:00 | IN PROGRESS | AI Assistant | Root cause identified: duplicate separator in ShellView.kt line 108 |
+| 2025-11-19 13:05 | FIXED | AI Assistant | Fixes applied: duplicate separator fixed, defensive error handling added |
 
 ---
 

@@ -105,7 +105,7 @@ class ShellView : BaseView<ShellState, ShellEvent, ShellViewModel>(ShellViewMode
 
         separator(Orientation.HORIZONTAL)
         children += traderListContainer
-        children += separator(Orientation.HORIZONTAL)
+        separator(Orientation.HORIZONTAL)
         children += contentHolder
     }
 

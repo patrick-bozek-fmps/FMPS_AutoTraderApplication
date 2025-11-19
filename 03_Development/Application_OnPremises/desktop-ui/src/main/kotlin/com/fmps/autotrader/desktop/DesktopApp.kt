@@ -42,9 +42,35 @@ class DesktopApp : App(ShellView::class) {
     }
 
     override fun stop() {
-        navigationService.clear()
-        super.stop()
-        stopKoin()
+        try {
+            // Clear navigation service if it was initialized
+            if (::navigationService.isInitialized) {
+                navigationService.clear()
+            }
+        } catch (e: Exception) {
+            // Ignore errors during cleanup
+        }
+        
+        try {
+            // Only call super.stop() if the FX application is actually running
+            // This prevents "No FX application found" errors during initialization failures
+            super.stop()
+        } catch (e: IllegalStateException) {
+            // If FX application wasn't initialized, ignore the error
+            // This can happen if the application failed during init() or start()
+            if (e.message?.contains("No FX application found") != true) {
+                throw e
+            }
+        }
+        
+        try {
+            // Stop Koin if it was initialized
+            if (::koinApp.isInitialized) {
+                stopKoin()
+            }
+        } catch (e: Exception) {
+            // Ignore errors during cleanup
+        }
     }
 
     private fun registerNavigation() {
