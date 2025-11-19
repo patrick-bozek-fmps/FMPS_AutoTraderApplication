@@ -1,6 +1,6 @@
 # FMPS AutoTrader Application - Development Plan v2
 
-**Version**: 6.11  
+**Version**: 6.12  
 **Date**: November 18, 2025  
 **Status**: ✅ Epics 1-4 COMPLETE! (18/18 issues) + Epic 5 ✅ COMPLETE (6/6 issues – 100%)  
 **Based on**: Actual requirements analysis and stakeholder decisions
@@ -32,6 +32,7 @@
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| **6.12** | **Nov 18, 2025** | **Epic 5 final review completed: Verified all critical backend integrations complete. All real services (`RealTraderService`, `RealMarketDataService`, `RealConfigService`, `RealPatternAnalyticsService`, `RealTelemetryClient`) wired via DI. All issues (#19–#24) re-reviewed and marked PASS. Review status updated to PASS - all critical findings resolved. Deferred items (secrets encryption, audit trails, confirmation dialogs, pagination) documented with TODO markers and tracked under Epic 6.** | **SW Process Engineer** |
 | **6.11** | **Nov 18, 2025** | **Issue #24 final re-review completed: Verified all findings addressed in commit `c8d14bb` (REST API integration). `RealPatternAnalyticsService` wired via DI, pattern data fetched from `/api/v1/patterns` endpoint, archive/delete operations use `/api/v1/patterns/{id}/deactivate` and `/api/v1/patterns/{id}` DELETE endpoints, retry logic with exponential backoff. Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.10** | **Nov 18, 2025** | **Issue #23 final re-review completed: Verified all findings addressed in commit `ded548c` (REST API integration, file-based persistence). `RealConfigService` wired via DI, connection testing uses real exchange connectors via `/api/v1/config/test-connection`, HOCON format import/export fully implemented, file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`), retry logic with exponential backoff. Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
 | **6.9** | **Nov 18, 2025** | **Issue #22 final re-review completed: Verified all remaining gaps addressed in commit `ae3f36a` (telemetry message parsing). `parsePosition()` fully implemented with TelemetryServerMessage and PositionTelemetryEventDTO parsing. Channel mapping updated to actual telemetry channels. Closed positions trigger trade history refresh. Candlestick REST endpoint limitation documented with graceful handling. Review status updated to PASS - all findings resolved.** | **SW Process Engineer** |
@@ -75,6 +76,11 @@
 | **2.1** | **Oct 23, 2025** | **Added progress tracking, Issue #1 complete (was #2)** | **AI Assistant** |
 | **2.0** | **Oct 23, 2025** | **Updated with actual requirements & decisions** | **AI Assistant** |
 | **1.0** | **Oct 23, 2025** | **Initial plan based on assumptions** | **AI Assistant** |
+
+**Changes from v6.11:**
+- ✅ Epic 5 final review completed (Nov 18, 2025): Verified all critical backend integrations complete. All real services verified in `DesktopModule.kt` (lines 46-50): `RealTelemetryClient`, `RealTraderService`, `RealMarketDataService`, `RealConfigService`, `RealPatternAnalyticsService`. All issues (#19–#24) re-reviewed and marked **PASS** with all critical findings resolved. Review status updated to **PASS** - all critical findings resolved.
+- 📚 Documentation: Updated `Epic_5_REVIEW.md` with final review findings. All backend integrations verified complete. Deferred items (secrets encryption, audit trails, confirmation dialogs, pagination, CI coverage) documented with TODO markers and tracked under Epic 6.
+- 🔜 Next up: Epic 6 – Testing & Polish planning (regression checklist, release assets, security hardening).
 
 **Changes from v6.10:**
 - ✅ Issue #24 final re-review completed (Nov 18, 2025): Verified all findings addressed in commit `c8d14bb`. `RealPatternAnalyticsService` wired via DI (DesktopModule.kt line 50), pattern data fetched from `/api/v1/patterns` endpoint (lines 214-240), `patternDetail()` fetches from `/api/v1/patterns/{id}` endpoint (lines 108-140), archive/delete operations use `/api/v1/patterns/{id}/deactivate` (lines 142-170) and `/api/v1/patterns/{id}` DELETE (lines 172-198) endpoints, retry logic with exponential backoff (lines 70-91). Review status updated to **PASS** - all findings resolved.
