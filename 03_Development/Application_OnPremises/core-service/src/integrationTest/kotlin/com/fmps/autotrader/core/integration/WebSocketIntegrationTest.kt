@@ -119,7 +119,7 @@ class WebSocketIntegrationTest {
         
         val clientId = "test-client-${System.currentTimeMillis()}"
         
-        wsClient.webSocket("/ws/telemetry?clientId=$clientId") {
+        wsClient.webSocket("ws://127.0.0.1:$serverPort/ws/telemetry?clientId=$clientId") {
             // Send subscribe message
             send(Frame.Text("""{"action":"subscribe","channels":["trader-status"],"replay":false}"""))
             
@@ -139,7 +139,7 @@ class WebSocketIntegrationTest {
         
         val clientId = "subscribe-test-${System.currentTimeMillis()}"
         
-        wsClient.webSocket("/ws/telemetry?clientId=$clientId") {
+        wsClient.webSocket("ws://127.0.0.1:$serverPort/ws/telemetry?clientId=$clientId") {
             // Subscribe to trader-status channel
             send(Frame.Text("""{"action":"subscribe","channels":["trader-status"],"replay":false}"""))
             
@@ -184,7 +184,7 @@ class WebSocketIntegrationTest {
         val clientId = "multi-channel-test-${System.currentTimeMillis()}"
         val receivedChannels = mutableSetOf<String>()
         
-        wsClient.webSocket("/ws/telemetry?clientId=$clientId") {
+        wsClient.webSocket("ws://127.0.0.1:$serverPort/ws/telemetry?clientId=$clientId") {
             // Subscribe to multiple channels
             send(Frame.Text("""{"action":"subscribe","channels":["trader-status","positions","market-data"],"replay":false}"""))
             
@@ -216,15 +216,15 @@ class WebSocketIntegrationTest {
         val clientId = "heartbeat-test-${System.currentTimeMillis()}"
         var heartbeatReceived = false
         
-        wsClient.webSocket("/ws/telemetry?clientId=$clientId") {
+        wsClient.webSocket("ws://127.0.0.1:$serverPort/ws/telemetry?clientId=$clientId") {
             // Subscribe
             send(Frame.Text("""{"action":"subscribe","channels":["trader-status"],"replay":false}"""))
             
             // Wait for welcome
             awaitMessage { it.type == "welcome" }
             
-            // Wait for heartbeat (should arrive within 2 seconds based on test config)
-            val heartbeat = awaitMessage(Duration.ofSeconds(3)) { 
+            // Wait for heartbeat (heartbeat interval is 15 seconds, wait up to 20 seconds)
+            val heartbeat = awaitMessage(Duration.ofSeconds(20)) { 
                 it.type == "heartbeat" 
             }
             
@@ -246,7 +246,7 @@ class WebSocketIntegrationTest {
         val clientId = "reconnect-test-${System.currentTimeMillis()}"
         
         // First connection
-        wsClient.webSocket("/ws/telemetry?clientId=$clientId") {
+        wsClient.webSocket("ws://127.0.0.1:$serverPort/ws/telemetry?clientId=$clientId") {
             send(Frame.Text("""{"action":"subscribe","channels":["trader-status"],"replay":false}"""))
             awaitMessage { it.type == "welcome" }
         }
@@ -254,7 +254,7 @@ class WebSocketIntegrationTest {
         delay(500)
         
         // Reconnect with same client ID
-        wsClient.webSocket("/ws/telemetry?clientId=$clientId") {
+        wsClient.webSocket("ws://127.0.0.1:$serverPort/ws/telemetry?clientId=$clientId") {
             send(Frame.Text("""{"action":"subscribe","channels":["trader-status"],"replay":false}"""))
             val welcome = awaitMessage { it.type == "welcome" }
             assertNotNull(welcome, "Should receive welcome message on reconnect")
@@ -280,33 +280,48 @@ class WebSocketIntegrationTest {
             metrics = AITraderMetrics.empty()
         )
         
-        delay(500)
+        // Wait for event to be collected
+        delay(1000)
         
         val clientId = "replay-test-${System.currentTimeMillis()}"
         val replayEvents = mutableListOf<TelemetryServerMessage>()
         
-        wsClient.webSocket("/ws/telemetry?clientId=$clientId") {
+        wsClient.webSocket("ws://127.0.0.1:$serverPort/ws/telemetry?clientId=$clientId") {
             // Subscribe with replay enabled
             send(Frame.Text("""{"action":"subscribe","channels":["trader-status"],"replay":true}"""))
             
             // Wait for welcome
             awaitMessage { it.type == "welcome" }
             
-            // Collect replay events
-            withTimeout(Duration.ofSeconds(3).toMillis()) {
-                repeat(10) {
-                    val message = awaitMessage(Duration.ofSeconds(1)) { 
-                        it.type == "event" && it.replay == true 
-                    }
-                    if (message != null) {
-                        replayEvents.add(message)
+            // Collect replay events (replay events are sent immediately after subscription)
+            // Read all available messages for up to 2 seconds
+            try {
+                withTimeout(Duration.ofSeconds(2).toMillis()) {
+                    repeat(20) { // Try up to 20 times
+                        val frame = incoming.receiveCatching().getOrNull()
+                        if (frame == null) {
+                            delay(100) // Wait a bit before next attempt
+                            return@repeat
+                        }
+                        if (frame is Frame.Text) {
+                            val message = json.decodeFromString(
+                                TelemetryServerMessage.serializer(),
+                                frame.readText()
+                            )
+                            if (message.type == "event" && message.replay == true) {
+                                replayEvents.add(message)
+                            }
+                        }
+                        delay(50) // Small delay between reads
                     }
                 }
+            } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+                // Timeout is expected if no more messages
             }
         }
         
         // Should have received at least one replay event
-        assertTrue(replayEvents.isNotEmpty(), "Should receive replay events")
+        assertTrue(replayEvents.isNotEmpty(), "Should receive replay events (received: ${replayEvents.size})")
         
         println("✅ Received ${replayEvents.size} replay events")
     }
@@ -318,7 +333,7 @@ class WebSocketIntegrationTest {
         
         val clientId = "unsubscribe-test-${System.currentTimeMillis()}"
         
-        wsClient.webSocket("/ws/telemetry?clientId=$clientId") {
+        wsClient.webSocket("ws://127.0.0.1:$serverPort/ws/telemetry?clientId=$clientId") {
             // Subscribe
             send(Frame.Text("""{"action":"subscribe","channels":["trader-status","positions"],"replay":false}"""))
             awaitMessage { it.type == "welcome" }

@@ -1,21 +1,22 @@
 # DEF_006: WebSocket Integration Test Failures
 
-**Status**: 🆕 **NEW**  
+**Status**: ✅ **FIXED**  
 **Severity**: 🟡 **MEDIUM**  
 **Priority**: **P2 (Medium)**  
 **Reported By**: AI Assistant - SW Developer  
 **Reported Date**: 2025-11-19 17:30  
 **Assigned To**: Unassigned  
 **Assigned Date**: Not Assigned  
-**Fixed By**: N/A  
-**Fixed Date**: N/A  
-**Verified By**: N/A  
-**Verified Date**: N/A  
+**Fixed By**: AI Assistant - SW Developer  
+**Fixed Date**: 2025-11-19  
+**Verified By**: AI Assistant - SW Developer  
+**Verified Date**: 2025-11-19  
 **Closed Date**: Not Closed  
 **Epic**: Epic 6 (Testing & Polish)  
 **Issue**: Issue #25 (Integration Testing)  
 **Module/Component**: core-service, integration-tests  
 **Version Found**: dee046b  
+**Version Fixed**: [Current commit SHA after fix]  
 **Version Fixed**: N/A
 
 > **NOTE**: All 7 WebSocket integration tests fail with the same root cause (connection refused). This blocks WebSocket telemetry testing in Issue #25.
@@ -158,21 +159,55 @@ Test 1: Establish WebSocket connection
 ## 🛠️ **Resolution Details**
 
 ### **Root Cause Analysis**
-[To be filled when investigating]
 
-**Hypothesis**: 
-- Server startup timing issue: `waitForServer()` may be checking HTTP health endpoint, but WebSocket endpoint may not be ready yet
-- WebSocket route may not be registered when server starts
-- Port binding may be delayed or asynchronous
+**Root Cause**: WebSocket client was using relative paths (`/ws/telemetry`) instead of full URLs with host and port. Ktor's HttpClient `webSocket()` method requires a full URL including protocol, host, and port.
+
+**Additional Issues Found**:
+1. **Heartbeat Test Timeout**: Test was waiting only 3 seconds, but heartbeat interval is 15 seconds. First heartbeat arrives after 15 seconds.
+2. **Replay Test Logic**: Replay event collection logic was not properly reading all available messages from the WebSocket buffer.
 
 ### **Solution Description**
-[To be filled when fix is implemented]
+
+1. **Fixed WebSocket URL**: Changed all `wsClient.webSocket("/ws/telemetry?clientId=$clientId")` calls to use full URLs: `wsClient.webSocket("ws://127.0.0.1:$serverPort/ws/telemetry?clientId=$clientId")`.
+
+2. **Fixed Heartbeat Test**: Increased timeout from 3 seconds to 20 seconds to account for the 15-second heartbeat interval.
+
+3. **Fixed Replay Test**: Improved message reading logic to properly collect all replay events sent synchronously during subscription.
 
 ### **Code Changes**
-[To be filled when fix is implemented]
+
+**File**: `core-service/src/integrationTest/kotlin/com/fmps/autotrader/core/integration/WebSocketIntegrationTest.kt`
+
+1. **Line 122, 142, 187, 219, 249, 257, 288, 321**: Changed WebSocket URLs from relative paths to full URLs:
+   ```kotlin
+   // Before:
+   wsClient.webSocket("/ws/telemetry?clientId=$clientId")
+   
+   // After:
+   wsClient.webSocket("ws://127.0.0.1:$serverPort/ws/telemetry?clientId=$clientId")
+   ```
+
+2. **Line 227**: Increased heartbeat test timeout from 3 to 20 seconds:
+   ```kotlin
+   // Before:
+   val heartbeat = awaitMessage(Duration.ofSeconds(3)) { it.type == "heartbeat" }
+   
+   // After:
+   val heartbeat = awaitMessage(Duration.ofSeconds(20)) { it.type == "heartbeat" }
+   ```
+
+3. **Lines 296-320**: Fixed replay test message collection logic to properly read all available messages.
 
 ### **Test Changes**
-[To be filled when fix is implemented]
+
+All 7 WebSocket integration tests now pass:
+- ✅ `should establish WebSocket connection()`
+- ✅ `should subscribe to trader-status channel and receive events()`
+- ✅ `should subscribe to multiple channels()`
+- ✅ `should receive heartbeat messages()`
+- ✅ `should handle reconnection gracefully()`
+- ✅ `should receive replay events when requested()`
+- ✅ `should handle unsubscribe action()`
 
 ### **Documentation Updates**
 [To be filled if needed]
@@ -182,19 +217,25 @@ Test 1: Establish WebSocket connection
 ## ✅ **Verification**
 
 ### **Verification Steps**
-[To be filled when fix is ready]
 
-1. Run integration tests: `.\gradlew :core-service:integrationTest`
-2. Verify all 7 WebSocketIntegrationTest tests pass
-3. Verify server starts and accepts WebSocket connections
-4. Verify no connection refused errors
+1. ✅ Run integration tests: `.\gradlew :core-service:integrationTest --tests "*WebSocketIntegrationTest*"`
+2. ✅ Verify all 7 WebSocketIntegrationTest tests pass
+3. ✅ Verify server starts and accepts WebSocket connections
+4. ✅ Verify no connection refused errors
 
 ### **Verification Results**
-- **Status**: ⏳ **PENDING**
-- **Verified By**: N/A
-- **Verification Date**: N/A
-- **Verification Environment**: N/A
-- **Test Results**: N/A
+- **Status**: ✅ **PASSED**
+- **Verified By**: AI Assistant - SW Developer
+- **Verification Date**: 2025-11-19
+- **Verification Environment**: Windows 10/11, OpenJDK 17, Gradle 8.5
+- **Test Results**: All 7 tests passing
+  - `should establish WebSocket connection()`: ✅ PASSED
+  - `should subscribe to trader-status channel and receive events()`: ✅ PASSED
+  - `should subscribe to multiple channels()`: ✅ PASSED
+  - `should receive heartbeat messages()`: ✅ PASSED
+  - `should handle reconnection gracefully()`: ✅ PASSED
+  - `should receive replay events when requested()`: ✅ PASSED
+  - `should handle unsubscribe action()`: ✅ PASSED
 
 ### **Regression Testing**
 - **Related Tests Pass**: N/A
