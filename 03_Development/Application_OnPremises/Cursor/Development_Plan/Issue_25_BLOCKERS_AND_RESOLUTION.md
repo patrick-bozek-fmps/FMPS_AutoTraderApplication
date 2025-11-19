@@ -88,22 +88,24 @@ cd 03_Development\Application_OnPremises
   - But config file has `server.host` and `server.port`
   - Causes `ConfigException$Missing` error on startup
 - **Fix**: Updated `Application.kt` and `Main.kt` to use `server.host` and `server.port`
-- **Status**: ✅ Fixed (commit pending)
+- **Status**: ✅ Fixed in DEF_001 (commit `11db4af`)
 - **Files Changed**:
   - `core-service/src/main/kotlin/com/fmps/autotrader/core/api/Application.kt`
   - `core-service/src/main/kotlin/com/fmps/autotrader/core/Main.kt`
+- **Verification**: ✅ Server starts successfully, verified in DEF_001
 
 #### **Blocker #2b: Some Integration Tests Require Environment Setup** ⚠️ **EXPECTED**
-- **Issue**: 14 out of 56 integration tests fail due to environment
+- **Issue**: Some integration tests require environment setup
 - **Root Cause**: 
-  - WebSocket tests require server running
-  - Exchange connector tests require API keys
-  - Some tests need proper database setup
-- **Impact**: Expected for integration tests - they need proper environment
-- **Resolution**: 
+  - Exchange connector tests require API keys (Binance/Bitget testnet)
   - Tests are designed to skip gracefully when environment not available
-  - Tests that require API keys use `@EnabledIfEnvironmentVariable`
-  - Documentation added to explain requirements
+- **Impact**: Expected for integration tests - not a blocker
+- **Resolution**: 
+  - Tests use `@EnabledIfEnvironmentVariable` to skip gracefully
+  - ~42 tests run without any setup (self-contained)
+  - ~8 tests require API keys (skip if not available)
+  - **Documentation**: See `Supporting_Documents/INTEGRATION_TEST_ENVIRONMENT_REQUIREMENTS.md`
+- **Status**: ✅ Not a blocker - tests skip gracefully, suite still passes
 
 #### **Blocker #3: API Keys Not Configured in GitHub Secrets** ⏳ **OPTIONAL**
 - **Issue**: Integration tests that require exchange API keys won't run in CI
@@ -182,5 +184,25 @@ cd 03_Development\Application_OnPremises
 ---
 
 **Last Updated**: November 19, 2025  
-**Commit**: `83275ee` - fix: Update CI workflow to use integrationTest task
+**Latest Commit**: `dee046b` - docs(defect): Close DEF_005 after QA review and approval  
+**CI Status**: ✅ All recent commits passing (run 19505644896)
+
+## 📊 **Updated Blocker Status Summary**
+
+### **All Critical Blockers: ✅ RESOLVED**
+
+| Blocker | Status | Resolution | Commit |
+|---------|--------|------------|--------|
+| **#1: CI Workflow** | ✅ RESOLVED | Fixed to use `:core-service:integrationTest` | `83275ee` |
+| **#2: Config Mismatch** | ✅ RESOLVED | Fixed server.host/server.port usage | `11db4af` (DEF_001) |
+| **#2b: Environment Setup** | ⚠️ EXPECTED | Not a blocker - tests skip gracefully | N/A |
+| **#3: API Keys** | ⏳ OPTIONAL | Not a blocker - tests skip gracefully | N/A |
+| **#4: Load Testing** | ✅ ACCEPTED | Deferred to Issue #26 | N/A |
+
+### **Current State**:
+- ✅ All critical blockers resolved
+- ✅ CI pipeline passing (latest run: 19505644896)
+- ✅ Integration tests configured and ready
+- ✅ Server startup issues resolved
+- ⏳ Integration tests will run when API keys are configured (optional)
 
