@@ -66,8 +66,14 @@ cd 03_Development/Application_OnPremises
 
 #### Run integration tests:
 ```bash
+# Run all integration tests
+./gradlew :core-service:integrationTest
+
+# Or use the shorthand (if configured)
 ./gradlew integrationTest
 ```
+
+**Note**: Integration tests are in a separate `integrationTest` source set and use the `@integration` tag for organization. They require exchange API keys (optional - tests skip gracefully if not configured).
 
 #### Run all tests:
 ```bash
@@ -248,13 +254,38 @@ fun testTradingDecisions(condition: String, rsi: Double, expectedSignal: String)
 
 Every commit triggers:
 1. ✅ Build all modules
-2. ✅ Run all unit tests
-3. ✅ Run integration tests
+2. ✅ Run all unit tests (excluding `@integration` tag)
+   - Uses: `./gradlew test --no-daemon -Djunit.jupiter.excludeTags=integration`
+   - Fast execution (~1-2 minutes)
+3. ✅ Run integration tests (if core-service code changed AND API keys configured)
+   - Uses: `./gradlew :core-service:integrationTest --no-daemon`
+   - Tests are in separate `integrationTest` source set
+   - Only runs if exchange API keys are configured in GitHub secrets
+   - If API keys not configured, integration tests are skipped (workflow still passes)
+   - **Targeted Testing**: Integration tests only run when core-service code changes to save CI time
 4. ✅ Generate coverage report
 5. ✅ Enforce 80% minimum coverage
 6. ✅ Code style check (ktlint)
 7. ✅ Static analysis (detekt)
 8. ✅ Security scan (OWASP Dependency Check)
+
+### Integration Test Execution in CI
+
+**When Integration Tests Run**:
+- Core service code changes (automatic)
+- Force integration tests flag set (manual trigger)
+- API keys configured in GitHub secrets (required)
+
+**When Integration Tests Are Skipped**:
+- Only UI or shared module changes (targeted testing saves time)
+- API keys not configured (expected - tests skip gracefully)
+- Workflow still passes ✅ (integration tests are optional)
+
+**Why Tags Are Used**:
+- **Organization**: Tags (`@integration`) organize tests by type
+- **Selective Execution**: Allows running specific test subsets
+- **Time Savings**: When changes don't impact complete software, only relevant tests run
+- **CI Efficiency**: Integration tests only run when core-service code changes
 
 ### PR Checks
 
@@ -649,7 +680,7 @@ fun testConcurrentTraders() = runTest {
 | Task | Command |
 |------|---------|
 | Run all unit tests | `./gradlew test` |
-| Run integration tests | `./gradlew integrationTest` |
+| Run integration tests | `./gradlew :core-service:integrationTest` |
 | Run all tests | `./gradlew testAll` |
 | Generate coverage | `./gradlew jacocoTestReport` |
 | Check coverage threshold | `./gradlew jacocoTestCoverageVerification` |

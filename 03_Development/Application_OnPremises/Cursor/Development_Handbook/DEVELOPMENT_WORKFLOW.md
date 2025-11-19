@@ -379,10 +379,15 @@ WIP
    - Fast execution (~1-2 minutes)
    - No external dependencies required
    - Should always pass ✅
-3. **Integration Tests**: Runs only `@integration` tagged tests
+   - Uses: `./gradlew test --no-daemon -Djunit.jupiter.excludeTags=integration`
+3. **Integration Tests**: Runs via dedicated `integrationTest` task
+   - Uses: `./gradlew :core-service:integrationTest --no-daemon`
+   - Tests are in separate `integrationTest` source set
+   - Tests are tagged with `@integration` for organization
    - Only runs if API keys are configured in GitHub secrets
    - Requires exchange API credentials (Binance, Bitget)
    - Optional - workflow still passes if secrets not configured
+   - If API keys not configured, integration tests are skipped with informative message
 4. **Code Quality** (when configured):
    - ktlint (code style)
    - detekt (static analysis)
@@ -396,8 +401,12 @@ WIP
 - **Runtime**: ~2-3 minutes (unit tests), +1-2 minutes (integration if secrets present)
 - **Job Structure**:
   - `unit-tests`: Always runs, must pass
-  - `integration-tests`: Runs only if secrets configured, depends on `unit-tests`
-- **Test Separation**: Uses JUnit tags (`@integration`) to separate test types
+  - `integration-tests`: Runs when core-service code changes OR force flag set, depends on `unit-tests`
+- **Test Separation**: 
+  - **Unit tests**: Use `test` task with `excludeTags=integration`
+  - **Integration tests**: Use dedicated `integrationTest` task (separate source set)
+  - **Tags**: JUnit tags (`@integration`) are used for organization and selective execution
+  - **Targeted Testing**: Tags allow running specific test subsets to save time when changes don't impact the complete software
 
 ### **Viewing CI Results**
 1. Go to GitHub repository
