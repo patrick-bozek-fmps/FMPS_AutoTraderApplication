@@ -380,7 +380,7 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         try {
             val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
             val requestPath = "/api/spot/v1/trade/orders"
-            val bitgetSymbol = convertSymbolToBitget(order.symbol)
+            val bitgetSymbol = convertSymbolToBitgetAuthenticated(order.symbol)
             
             val requestBody = buildJsonObject {
                 put("symbol", bitgetSymbol)
@@ -484,7 +484,7 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         try {
             val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
             val requestPath = "/api/spot/v1/trade/orderInfo"
-            val bitgetSymbol = convertSymbolToBitget(symbol)
+            val bitgetSymbol = convertSymbolToBitgetAuthenticated(symbol)
             
             val params = mapOf("symbol" to bitgetSymbol, "orderId" to orderId)
             val (queryString, headers) = authenticator.signRequest("GET", requestPath, params)
@@ -591,22 +591,38 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
     // Helper methods
     
     /**
-     * Converts symbol from standard format (BTCUSDT) to Bitget format (BTC_USDT)
+     * Converts symbol from standard format (BTCUSDT) to Bitget format
+     * 
+     * Note: Bitget public market endpoints use standard format (BTCUSDT),
+     * while authenticated trading endpoints may use underscore format (BTC_USDT).
+     * For now, we use standard format for all endpoints as public endpoints
+     * are more commonly used and the error suggests underscore format doesn't work.
      */
     private fun convertSymbolToBitget(symbol: String): String {
-        // Bitget uses underscore format: BTC_USDT
-        // Common quote currencies
+        // Bitget public market endpoints use standard format: BTCUSDT (uppercase)
+        // Ensure uppercase for consistency
+        return symbol.uppercase()
+    }
+    
+    /**
+     * Converts symbol to Bitget authenticated endpoint format (BTC_USDT)
+     * Used for trading endpoints that require underscore format
+     */
+    private fun convertSymbolToBitgetAuthenticated(symbol: String): String {
+        // Bitget authenticated endpoints use underscore format: BTC_USDT (uppercase)
         val quoteCurrencies = listOf("USDT", "USDC", "BTC", "ETH")
         
+        val upperSymbol = symbol.uppercase()
+        
         for (quote in quoteCurrencies) {
-            if (symbol.endsWith(quote)) {
-                val base = symbol.removeSuffix(quote)
+            if (upperSymbol.endsWith(quote)) {
+                val base = upperSymbol.removeSuffix(quote)
                 return "${base}_$quote"
             }
         }
         
-        // If no match, assume format is correct
-        return symbol
+        // If no match, assume format is correct but ensure uppercase
+        return upperSymbol
     }
     
     private fun mapTimeFrameToBitgetInterval(timeFrame: TimeFrame): String {

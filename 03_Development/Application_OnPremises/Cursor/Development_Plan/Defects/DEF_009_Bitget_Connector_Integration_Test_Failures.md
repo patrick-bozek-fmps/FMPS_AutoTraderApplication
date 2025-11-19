@@ -1,14 +1,14 @@
 # DEF_009: Bitget Connector Integration Test Failures
 
-**Status**: 🆕 **NEW**  
+**Status**: 🏗️ **IN PROGRESS**  
 **Severity**: 🟠 **HIGH**  
 **Priority**: **P1 (High)**  
 **Reported By**: AI Assistant - SW Developer  
 **Reported Date**: 2025-11-19 17:30  
 **Assigned To**: Unassigned  
 **Assigned Date**: Not Assigned  
-**Fixed By**: N/A  
-**Fixed Date**: N/A  
+**Fixed By**: AI Assistant - SW Developer (Partial)  
+**Fixed Date**: 2025-11-19  
 **Verified By**: N/A  
 **Verified Date**: N/A  
 **Closed Date**: Not Closed  
@@ -184,30 +184,81 @@ org.opentest4j.AssertionFailedError: Should still have 3 traders ==> expected: <
 ## 🛠️ **Resolution Details**
 
 ### **Root Cause Analysis**
-[To be filled when investigating]
 
-**Hypothesis**:
-- **API Authentication**: Bitget API keys may be incorrect, expired, or have wrong permissions
-- **Network Connectivity**: Bitget testnet endpoint may be unreachable or having issues
-- **Connector Bug**: Bitget connector implementation may have bugs in authentication or request handling
-- **Rate Limiting**: Bitget API may be rate limiting requests
-- **Endpoint Configuration**: Bitget testnet endpoint URL may be incorrect
+**Root Cause**: Bitget connector was using underscore format (`BTC_USDT`) for public market endpoints, but Bitget's public market API endpoints require standard format (`BTCUSDT`). Additionally, the symbol `BTCUSDT` may not exist on Bitget testnet, or the API keys may be configured for a different environment.
 
-**Investigation Steps**:
-1. Verify Bitget API keys are correct and have proper permissions
-2. Test Bitget API connectivity manually (curl/Postman)
-3. Check Bitget connector authentication logic
-4. Verify Bitget testnet endpoint URL is correct
-5. Check for rate limiting or API errors in connector logs
+**Issues Identified**:
+1. **Symbol Format Mismatch**: Public market endpoints (candles, ticker, order book) were using `BTC_USDT` format, but Bitget public API requires `BTCUSDT` format.
+2. **Symbol Availability**: After fixing the format, API returns "Parameter BTCUSDT does not exist" (code 40034), suggesting:
+   - Bitget testnet may not have BTCUSDT symbol
+   - API keys may be for production environment
+   - Symbol format may still be incorrect for testnet
+3. **Parameter Verification**: Candlesticks endpoint returns "Parameter verification failed" (code 400172), suggesting parameter names or values may be incorrect.
+4. **Environment Mismatch**: Balance endpoint returns "exchange environment is incorrect" (code 40099), suggesting testnet environment configuration issue.
+
+**Investigation Results**:
+- ✅ Symbol format fixed: Changed from `BTC_USDT` to `BTCUSDT` for public endpoints
+- ✅ Symbol conversion function updated to use standard format for public endpoints
+- ⚠️ Symbol `BTCUSDT` still not recognized by Bitget API
+- ⚠️ Environment configuration may be incorrect
 
 ### **Solution Description**
-[To be filled when fix is implemented]
+
+**Partially Implemented**:
+1. ✅ **Fixed Symbol Format for Public Endpoints**: Changed `convertSymbolToBitget()` to return standard format (`BTCUSDT`) instead of underscore format (`BTC_USDT`) for public market endpoints.
+2. ✅ **Created Separate Function for Authenticated Endpoints**: Added `convertSymbolToBitgetAuthenticated()` for trading endpoints that may require underscore format.
+3. ✅ **Updated Trading Endpoints**: Modified `placeOrder()` and `getOrder()` to use authenticated format.
+
+**Remaining Issues**:
+- ⚠️ Symbol `BTCUSDT` not recognized by Bitget API - requires verification of:
+  - Available symbols on Bitget testnet
+  - Correct symbol format for testnet
+  - API key environment (testnet vs production)
+- ⚠️ Candlesticks parameter verification - requires checking Bitget API documentation for correct parameter names
+- ⚠️ Environment configuration - "exchange environment is incorrect" error suggests testnet configuration issue
 
 ### **Code Changes**
-[To be filled when fix is implemented]
+
+**File**: `core-service/src/main/kotlin/com/fmps/autotrader/core/connectors/bitget/BitgetConnector.kt`
+
+1. **Lines 601-605**: Changed `convertSymbolToBitget()` to return standard format (BTCUSDT) for public endpoints:
+   ```kotlin
+   private fun convertSymbolToBitget(symbol: String): String {
+       // Bitget public market endpoints use standard format: BTCUSDT (uppercase)
+       return symbol.uppercase()
+   }
+   ```
+
+2. **Lines 611-626**: Added `convertSymbolToBitgetAuthenticated()` for trading endpoints:
+   ```kotlin
+   private fun convertSymbolToBitgetAuthenticated(symbol: String): String {
+       // Bitget authenticated endpoints use underscore format: BTC_USDT (uppercase)
+       // ... conversion logic ...
+   }
+   ```
+
+3. **Line 383**: Updated `placeOrder()` to use authenticated format:
+   ```kotlin
+   val bitgetSymbol = convertSymbolToBitgetAuthenticated(order.symbol)
+   ```
+
+4. **Line 487**: Updated `getOrder()` to use authenticated format:
+   ```kotlin
+   val bitgetSymbol = convertSymbolToBitgetAuthenticated(symbol)
+   ```
 
 ### **Test Changes**
-[To be filled when fix is implemented]
+
+**Status**: Tests still failing due to:
+- Symbol `BTCUSDT` not recognized (may not exist on Bitget testnet)
+- Parameter verification issues for candlesticks endpoint
+- Environment configuration issues
+
+**Next Steps Required**:
+1. Verify available symbols on Bitget testnet
+2. Check if API keys are for correct environment (testnet vs production)
+3. Verify Bitget API parameter names for candles endpoint
+4. Test with different symbols that exist on Bitget testnet
 
 ### **Documentation Updates**
 [To be filled if needed]
