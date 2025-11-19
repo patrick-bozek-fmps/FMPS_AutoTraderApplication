@@ -16,8 +16,7 @@
 **Issue**: Issue #25 (Integration Testing)  
 **Module/Component**: core-service, integration-tests  
 **Version Found**: dee046b  
-**Version Fixed**: [Current commit SHA after fix]  
-**Version Fixed**: N/A
+**Version Fixed**: f34be51
 
 > **NOTE**: All 7 WebSocket integration tests fail with the same root cause (connection refused). This blocks WebSocket telemetry testing in Issue #25.
 
