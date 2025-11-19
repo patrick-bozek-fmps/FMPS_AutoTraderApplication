@@ -130,7 +130,8 @@ class StatePersistenceTest {
         val recoveredTrader = newManager.getTrader(traderId)
         assertNotNull(recoveredTrader, "Trader should be recovered")
         assertEquals("Recovery Test Trader", recoveredTrader!!.config.name)
-        assertEquals(BigDecimal.valueOf(2000.0), recoveredTrader.config.maxStakeAmount)
+        assertEquals(0, BigDecimal("2000.0").compareTo(recoveredTrader.config.maxStakeAmount), 
+            "Max stake amount should be 2000.0")
         
         // Update reference
         traderManager = newManager

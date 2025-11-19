@@ -216,7 +216,7 @@ class UICoreServiceIntegrationTest {
         assertNotNull(apiResponse.data, "Response data should not be null")
         
         val trader = apiResponse.data!!
-        assertEquals(traderId, trader.id)
+        assertEquals(traderId.toLong(), trader.id)
         assertEquals(20, trader.leverage)
         
         println("✅ Trader configuration updated via REST API")
