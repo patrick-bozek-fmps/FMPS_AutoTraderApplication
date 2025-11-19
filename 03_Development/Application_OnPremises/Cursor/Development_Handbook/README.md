@@ -21,6 +21,7 @@ This folder contains all the essential documentation and templates needed for de
 ### **2. Development Process**
 - **[DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md)** - Standard development workflow and Git practices
 - **[ISSUE_TEMPLATE.md](./ISSUE_TEMPLATE.md)** ⭐ **NEW** - Template for creating new Issue files
+- **[DEFECT_TRACKING_TEMPLATE.md](./DEFECT_TRACKING_TEMPLATE.md)** ⭐ **NEW** - Template for tracking defects and bugs
 - **[TESTING_GUIDE.md](./TESTING_GUIDE.md)** - Testing standards and practices
 - **[LOGGING_GUIDE.md](./LOGGING_GUIDE.md)** - Logging standards and best practices
 
@@ -46,6 +47,13 @@ This folder contains all the essential documentation and templates needed for de
 2. Fill in all placeholders (marked with [brackets])
 3. Remove optional sections if not needed
 4. Update **Development_Plan_v2.md** to reference the new issue
+
+### **For Reporting Defects**
+1. Copy **[DEFECT_TRACKING_TEMPLATE.md](./DEFECT_TRACKING_TEMPLATE.md)** to `Development_Plan/Defects/Defect_[ID]_[Brief_Name].md`
+2. Fill in defect details, steps to reproduce, and evidence
+3. Set appropriate severity and priority
+4. Assign to developer for fix
+5. Follow workflow in **DEVELOPMENT_WORKFLOW.md** for resolution
 
 ### **For Testing**
 1. Follow guidelines in **[TESTING_GUIDE.md](./TESTING_GUIDE.md)**
@@ -88,6 +96,19 @@ Comprehensive template for creating new Issue files with:
 - Definition of Done
 
 **Use this template for all new issues to maintain consistency!**
+
+### **DEFECT_TRACKING_TEMPLATE.md** ⭐ **NEW**
+Comprehensive template for tracking defects and bugs with:
+- Defect metadata (ID, status, severity, priority, assignment)
+- Impact assessment (business, technical, development)
+- Detailed description and steps to reproduce
+- Environment details and evidence (logs, screenshots)
+- Root cause analysis and resolution details
+- Verification steps and results
+- Status tracking and comment history
+- Integration with development workflow
+
+**Use this template for all defect reports to ensure consistent tracking and resolution!**
 
 ### **TESTING_GUIDE.md**
 Testing standards and practices:
@@ -150,6 +171,14 @@ Excel to Markdown conversion tools:
 - ✅ Document blockers and risks
 - ✅ Update Development_Plan_v2.md when issues complete
 
+### **Defect Management**
+- ✅ Use **DEFECT_TRACKING_TEMPLATE.md** for all defect reports
+- ✅ Include clear steps to reproduce and evidence
+- ✅ Set appropriate severity and priority
+- ✅ Update status as defect progresses through workflow
+- ✅ Document root cause and resolution details
+- ✅ Verify fixes before closing defects
+
 ### **Code Quality**
 - ✅ Write tests before code (TDD when possible)
 - ✅ Maintain >80% code coverage
@@ -174,6 +203,10 @@ Excel to Markdown conversion tools:
 ---
 
 ## 🆕 **What's New**
+
+### **November 18, 2025**
+- ✅ **DEFECT_TRACKING_TEMPLATE.md** created for defect tracking and bug management
+- ✅ Template includes comprehensive fields for SW Test Engineers, SW Developers, and SW QA Engineers
 
 ### **October 28, 2025**
 - ✅ **ISSUE_TEMPLATE.md** created with standardized format
@@ -213,6 +246,7 @@ When updating documentation:
 | SETUP_GUIDE.md | ✅ Current | Oct 2025 | Nov 2025 |
 | DEVELOPMENT_WORKFLOW.md | ✅ Current | Oct 2025 | Nov 2025 |
 | ISSUE_TEMPLATE.md | ✅ Current | Oct 28, 2025 | Dec 2025 |
+| DEFECT_TRACKING_TEMPLATE.md | ✅ Current | Nov 18, 2025 | Dec 2025 |
 | TESTING_GUIDE.md | ✅ Current | Oct 2025 | Nov 2025 |
 | LOGGING_GUIDE.md | ✅ Current | Oct 2025 | Nov 2025 |
 | GITHUB_PROJECT_STRUCTURE.md | ✅ Current | Oct 2025 | Nov 2025 |
@@ -223,6 +257,6 @@ When updating documentation:
 ---
 
 **Maintained By**: Development Team  
-**Version**: 1.0  
-**Last Updated**: October 28, 2025
+**Version**: 1.1  
+**Last Updated**: November 18, 2025
 
