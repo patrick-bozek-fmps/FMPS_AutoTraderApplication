@@ -51,14 +51,51 @@ fun Route.configureHealthRoutes() {
     // Detailed status endpoint
     get("/api/status") {
         try {
+            // Check if database is initialized
+            val isDbInitialized = try {
+                DatabaseFactory.getDatabase()
+                true
+            } catch (e: IllegalStateException) {
+                false
+            }
+            
+            if (!isDbInitialized) {
+                call.respond(
+                    HttpStatusCode.ServiceUnavailable,
+                    StatusResponse(
+                        status = "DEGRADED",
+                        timestamp = Instant.now().toString(),
+                        activeTraders = 0,
+                        databaseStats = mapOf(
+                            "status" to "not_initialized",
+                            "error" to "Database not initialized. Please ensure DatabaseFactory.init() is called during application startup."
+                        )
+                    )
+                )
+                return@get
+            }
+            
+            // Call repository (route handler is already suspend context)
             val aiTraderRepo = AITraderRepository()
             val activeTraders = aiTraderRepo.findActive().size.toLong()
             
             // Get database connection stats
-            val dbStats = mapOf(
-                "status" to "connected",
-                "type" to "SQLite"
-            )
+            val dbStats = try {
+                val stats = DatabaseFactory.getStatistics()
+                mapOf(
+                    "status" to "connected",
+                    "type" to "SQLite",
+                    "activeConnections" to stats["activeConnections"].toString(),
+                    "idleConnections" to stats["idleConnections"].toString(),
+                    "totalConnections" to stats["totalConnections"].toString()
+                )
+            } catch (e: Exception) {
+                mapOf(
+                    "status" to "connected",
+                    "type" to "SQLite",
+                    "warning" to "Could not retrieve connection statistics"
+                )
+            }
             
             call.respond(
                 HttpStatusCode.OK,
@@ -76,7 +113,7 @@ fun Route.configureHealthRoutes() {
                     status = "DEGRADED",
                     timestamp = Instant.now().toString(),
                     activeTraders = 0,
-                    databaseStats = mapOf("error" to e.message.orEmpty())
+                    databaseStats = mapOf("error" to (e.message ?: "Unknown error"))
                 )
             )
         }

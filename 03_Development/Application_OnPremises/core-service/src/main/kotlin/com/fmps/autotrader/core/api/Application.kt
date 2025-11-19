@@ -1,6 +1,7 @@
 package com.fmps.autotrader.core.api
 
 import com.fmps.autotrader.core.api.plugins.*
+import com.fmps.autotrader.core.database.DatabaseFactory
 import com.fmps.autotrader.core.logging.LoggingContext
 import com.typesafe.config.ConfigFactory
 import io.ktor.server.application.*
@@ -74,9 +75,23 @@ fun main() {
         val port = config.getInt("server.port")
         
         logger.info { "Configuration loaded successfully" }
+        
+        // Initialize database
+        logger.info { "Initializing database..." }
+        DatabaseFactory.init(config)
+        logger.info { "✓ Database initialized successfully" }
+        
+        // Register shutdown hook for graceful shutdown
+        Runtime.getRuntime().addShutdownHook(Thread {
+            logger.info { "Shutting down..." }
+            DatabaseFactory.close()
+            logger.info { "✓ Database connections closed" }
+        })
+        
         startApiServer(host = host, port = port, wait = true)
     } catch (e: Exception) {
         logger.error(e) { "Failed to start application" }
+        DatabaseFactory.close()
         throw e
     }
 }
