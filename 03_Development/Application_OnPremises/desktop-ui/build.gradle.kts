@@ -115,11 +115,37 @@ tasks.test {
     }
     maxParallelForks = 1
     forkEvery = 1
+    
+    // Configure JVM args for headless testing and file lock prevention
+    jvmArgs(
+        "--add-opens=javafx.graphics/javafx.stage=ALL-UNNAMED",
+        "-Djava.awt.headless=false", // TestFX requires non-headless for UI tests
+        "-Dtestfx.robot=glass", // Use glass robot for better compatibility
+        "-Dtestfx.headless=false" // TestFX headless mode
+    )
+    
+    // Set system properties to help with file locking on Windows
+    systemProperty("java.io.tmpdir", System.getProperty("java.io.tmpdir"))
+    
     testLogging {
         events("passed", "skipped", "failed", "started")
         showStandardStreams = true
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
+    
+    // Ensure test output directory is cleaned before tests
+    doFirst {
+        // Clean test results to prevent file lock issues
+        val testResultsDir = file("$buildDir/test-results")
+        if (testResultsDir.exists()) {
+            try {
+                testResultsDir.deleteRecursively()
+            } catch (e: Exception) {
+                logger.warn("Could not clean test-results directory: ${e.message}")
+            }
+        }
+    }
+    
     // Note: Test timeout is handled by JUnit 5 @Timeout annotation if needed
     // Gradle test task timeout is not directly available in this version
 }
