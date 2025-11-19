@@ -160,11 +160,23 @@ jobs:
 
       - name: Run integration tests (only @integration)
         if: env.BINANCE_API_KEY != '' && env.BINANCE_API_SECRET != '' && env.BITGET_API_KEY != '' && env.BITGET_API_SECRET != '' && env.BITGET_API_PASSPHRASE != ''
+        env:
+          BINANCE_API_KEY: ${{ secrets.BINANCE_API_KEY }}
+          BINANCE_API_SECRET: ${{ secrets.BINANCE_API_SECRET }}
+          BITGET_API_KEY: ${{ secrets.BITGET_API_KEY }}
+          BITGET_API_SECRET: ${{ secrets.BITGET_API_SECRET }}
+          BITGET_API_PASSPHRASE: ${{ secrets.BITGET_API_PASSPHRASE }}
         run: |
-          ./gradlew test --no-daemon -Djunit.jupiter.includeTags=integration -Djunit.jupiter.excludeTags=ui \
-            -DBINANCE_API_KEY="${BINANCE_API_KEY}" \
-            -DBINANCE_API_SECRET="${BINANCE_API_SECRET}" \
-            -DBITGET_API_KEY="${BITGET_API_KEY}" \
-            -DBITGET_API_SECRET="${BITGET_API_SECRET}" \
-            -DBITGET_API_PASSPHRASE="${BITGET_API_PASSPHRASE}"
+          ./gradlew :core-service:integrationTest --no-daemon
         working-directory: 03_Development/Application_OnPremises
+      
+      - name: Integration tests skipped (no API keys)
+        if: env.BINANCE_API_KEY == '' || env.BINANCE_API_SECRET == '' || env.BITGET_API_KEY == '' || env.BITGET_API_SECRET == '' || env.BITGET_API_PASSPHRASE == ''
+        run: |
+          echo "Integration tests skipped: API keys not configured in GitHub secrets"
+          echo "To enable integration tests, configure the following secrets:"
+          echo "  - BINANCE_API_KEY"
+          echo "  - BINANCE_API_SECRET"
+          echo "  - BITGET_API_KEY"
+          echo "  - BITGET_API_SECRET"
+          echo "  - BITGET_API_PASSPHRASE"
