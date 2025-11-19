@@ -81,7 +81,19 @@ cd 03_Development\Application_OnPremises
 - **Fix**: Updated CI workflow to use `:core-service:integrationTest`
 - **Status**: ✅ Fixed in commit `83275ee`
 
-#### **Blocker #2: Some Integration Tests Require Environment Setup** ⚠️ **EXPECTED**
+#### **Blocker #2: Configuration Mismatch - Server Won't Start** ✅ **RESOLVED**
+- **Issue**: Server fails to start - configuration key mismatch
+- **Root Cause**: 
+  - Code reads `app.host` and `app.port` from config
+  - But config file has `server.host` and `server.port`
+  - Causes `ConfigException$Missing` error on startup
+- **Fix**: Updated `Application.kt` and `Main.kt` to use `server.host` and `server.port`
+- **Status**: ✅ Fixed (commit pending)
+- **Files Changed**:
+  - `core-service/src/main/kotlin/com/fmps/autotrader/core/api/Application.kt`
+  - `core-service/src/main/kotlin/com/fmps/autotrader/core/Main.kt`
+
+#### **Blocker #2b: Some Integration Tests Require Environment Setup** ⚠️ **EXPECTED**
 - **Issue**: 14 out of 56 integration tests fail due to environment
 - **Root Cause**: 
   - WebSocket tests require server running

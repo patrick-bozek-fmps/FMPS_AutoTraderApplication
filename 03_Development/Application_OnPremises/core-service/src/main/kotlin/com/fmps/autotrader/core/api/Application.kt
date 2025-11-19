@@ -70,8 +70,8 @@ fun main() {
     
     try {
         val config = ConfigFactory.load()
-        val host = config.getString("app.host")
-        val port = config.getInt("app.port")
+        val host = config.getString("server.host")
+        val port = config.getInt("server.port")
         
         logger.info { "Configuration loaded successfully" }
         startApiServer(host = host, port = port, wait = true)

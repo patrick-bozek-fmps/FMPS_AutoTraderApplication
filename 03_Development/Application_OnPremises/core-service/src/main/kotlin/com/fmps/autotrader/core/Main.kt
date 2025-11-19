@@ -21,8 +21,8 @@ fun main() {
         // Load configuration
         logger.info("Loading configuration...")
         val config = ConfigFactory.load()
-        val apiHost = config.getString("app.host")
-        val apiPort = config.getInt("app.port")
+        val apiHost = config.getString("server.host")
+        val apiPort = config.getInt("server.port")
         
         // Initialize database
         logger.info("Initializing database...")

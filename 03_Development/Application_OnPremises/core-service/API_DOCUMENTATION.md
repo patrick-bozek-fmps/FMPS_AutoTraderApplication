@@ -75,39 +75,55 @@ Check if the API server is running.
 **Response:**
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2025-10-24T12:00:00.000Z",
-  "uptime": 3600000
+  "status": "UP",
+  "timestamp": "2025-11-19T12:30:15.415306200Z",
+  "uptime": 20521
 }
 ```
+
+**Status Values:**
+- `"UP"` - Server is running and healthy
+
+---
 
 ### GET /api/status
 Get detailed system status including database and component health.
 
-**Response:**
+**Response (Success - HTTP 200):**
 ```json
 {
-  "status": "healthy",
-  "components": {
-    "database": "connected",
-    "aiTraders": 3,
-    "activeTrades": 5
-  },
-  "system": {
-    "uptime": 3600000,
-    "memory": {
-      "free": 512000000,
-      "total": 1024000000,
-      "max": 2048000000
-    },
-    "database": {
-      "activeConnections": 5,
-      "totalConnections": 10
-    }
-  },
-  "timestamp": "2025-10-24T12:00:00.000Z"
+  "status": "OPERATIONAL",
+  "timestamp": "2025-11-19T12:30:15.415306200Z",
+  "activeTraders": 0,
+  "databaseStats": {
+    "status": "connected",
+    "type": "SQLite"
+  }
 }
 ```
+
+**Response (Error - HTTP 503):**
+```json
+{
+  "status": "DEGRADED",
+  "timestamp": "2025-11-19T12:30:15.415306200Z",
+  "activeTraders": 0,
+  "databaseStats": {
+    "error": "Error message details"
+  }
+}
+```
+
+**Status Values:**
+- `"OPERATIONAL"` - System is healthy and all components are working
+- `"DEGRADED"` - System is experiencing issues (database connection problems, etc.)
+
+**Fields:**
+- `activeTraders` - Number of currently active AI traders
+- `databaseStats` - Database connection information
+  - `status` - Connection status ("connected" when healthy)
+  - `type` - Database type ("SQLite")
+  - `error` - Error message (only present when status is "DEGRADED")
 
 ### GET /api/version
 Get API version information.

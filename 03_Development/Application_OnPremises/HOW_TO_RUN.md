@@ -59,10 +59,13 @@ curl http://localhost:8080/api/health
 **Expected Response:**
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2025-11-19T10:00:00Z"
+  "status": "UP",
+  "timestamp": "2025-11-19T12:39:42.223411900Z",
+  "uptime": 587331
 }
 ```
+
+**Note**: Status value is `"UP"` (not "healthy"). See `core-service/API_DOCUMENTATION.md` for full API reference.
 
 #### Check System Status
 ```powershell
