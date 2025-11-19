@@ -116,7 +116,7 @@ class E2ETraderWorkflowTest {
         assertNotNull(trader, "Trader should exist in database")
         assertEquals("E2E Test Trader", trader!!.name)
         assertEquals("BINANCE", trader.exchange)
-        assertEquals("BTCUSDT", trader.tradingPair)
+        assertEquals("BTC/USDT", trader.tradingPair) // Database stores with slash separator
         
         println("✅ Trader created successfully: ID=$traderId")
     }
@@ -146,10 +146,8 @@ class E2ETraderWorkflowTest {
         // Verify database state
         val dbTrader = repository.findById(traderId.toInt())
         assertNotNull(dbTrader, "Trader should exist in database")
-        assertTrue(
-            dbTrader!!.status in listOf("RUNNING", "STARTING"),
-            "Database status should be RUNNING or STARTING, but was: ${dbTrader.status}"
-        )
+        assertEquals("ACTIVE", dbTrader!!.status, 
+            "Database status should be ACTIVE (maps from STARTING/RUNNING states), but was: ${dbTrader.status}")
         
         println("✅ Trader started successfully: State=${trader.getState()}")
     }
