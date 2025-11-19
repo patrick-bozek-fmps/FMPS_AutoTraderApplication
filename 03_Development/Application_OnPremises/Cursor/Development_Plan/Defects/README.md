@@ -9,15 +9,16 @@
 ```
 Defects/
 ├── README.md (this file)
-├── Defect_DEF-4-001_[Brief_Name].md
-├── Defect_DEF-5-023_[Brief_Name].md
+├── DEF-4-001_Brief_Description.md
+├── DEF-5-023_Another_Defect_Description.md
 └── ...
 ```
 
 ---
 
-## 🎯 **Defect ID Format**
+## 🎯 **Defect ID and File Naming Format**
 
+### **Defect ID Format**
 **Format**: `DEF-[EPIC]-[SEQUENCE]`
 
 **Examples**:
@@ -25,13 +26,30 @@ Defects/
 - `DEF-5-023` - 23rd defect found in Epic 5
 - `DEF-GEN-001` - First general defect (not tied to specific epic)
 
+### **File Naming Convention**
+**Format**: `DEF-[EPIC]-[SEQUENCE]_Brief_Description.md`
+
+**Rules**:
+- **NO "Defect_" prefix** - The ID already indicates it's a defect
+- Use underscores instead of spaces in the description
+- Keep description brief (3-5 words maximum)
+- Use title case for description words
+
+**Examples**:
+- ✅ `DEF-6-001_Server_Startup_Configuration_Mismatch.md`
+- ✅ `DEF-4-015_Database_Connection_Timeout.md`
+- ✅ `DEF-GEN-002_Memory_Leak_In_Telemetry.md`
+- ❌ `Defect_DEF-6-001_Server_Startup_Configuration_Mismatch.md` (redundant "Defect_" prefix)
+- ❌ `DEF-6-001 Server Startup Configuration Mismatch.md` (spaces not allowed)
+
 ---
 
 ## 📝 **How to Create a New Defect Report**
 
 1. **Copy the template**:
    - Source: `Development_Handbook/DEFECT_TRACKING_TEMPLATE.md`
-   - Destination: `Development_Plan/Defects/Defect_[ID]_[Brief_Name].md`
+   - Destination: `Development_Plan/Defects/DEF-[EPIC]-[SEQUENCE]_Brief_Description.md`
+   - **Important**: Use format `DEF-[EPIC]-[SEQUENCE]_Brief_Description.md` (NO "Defect_" prefix)
 
 2. **Fill in the defect details**:
    - Assign a unique defect ID

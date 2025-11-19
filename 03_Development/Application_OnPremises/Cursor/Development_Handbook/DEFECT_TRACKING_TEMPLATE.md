@@ -350,7 +350,8 @@ This defect follows the standard development workflow from `DEVELOPMENT_WORKFLOW
 
 ### **For SW Test Engineers**
 1. **When Finding a Defect**:
-   - Copy this template to `Development_Plan/Defects/Defect_[ID]_[Brief_Name].md`
+   - Copy this template to `Development_Plan/Defects/DEF-[EPIC]-[SEQUENCE]_Brief_Description.md`
+   - **Important**: Use format `DEF-[EPIC]-[SEQUENCE]_Brief_Description.md` (NO "Defect_" prefix)
    - Fill in all sections up to "Resolution Details"
    - Set status to 🆕 **NEW**
    - Assign appropriate severity and priority
@@ -404,14 +405,31 @@ This defect follows the standard development workflow from `DEVELOPMENT_WORKFLOW
 
 ---
 
-## 📋 **Defect ID Format**
+## 📋 **Defect ID and File Naming Format**
 
+### **Defect ID Format**
 **Format**: `DEF-[EPIC]-[SEQUENCE]`
 
 **Examples**:
 - `DEF-4-001` - First defect found in Epic 4
 - `DEF-5-023` - 23rd defect found in Epic 5
 - `DEF-GEN-001` - First general defect (not tied to specific epic)
+
+### **File Naming Convention**
+**Format**: `DEF-[EPIC]-[SEQUENCE]_Brief_Description.md`
+
+**Rules**:
+- **NO "Defect_" prefix** - The ID already indicates it's a defect
+- Use underscores instead of spaces in the description
+- Keep description brief (3-5 words maximum)
+- Use title case for description words
+
+**Examples**:
+- ✅ `DEF-6-001_Server_Startup_Configuration_Mismatch.md`
+- ✅ `DEF-4-015_Database_Connection_Timeout.md`
+- ✅ `DEF-GEN-002_Memory_Leak_In_Telemetry.md`
+- ❌ `Defect_DEF-6-001_Server_Startup_Configuration_Mismatch.md` (redundant "Defect_" prefix)
+- ❌ `DEF-6-001 Server Startup Configuration Mismatch.md` (spaces not allowed)
 
 **Storage Location**: `03_Development/Application_OnPremises/Cursor/Development_Plan/Defects/`
 
