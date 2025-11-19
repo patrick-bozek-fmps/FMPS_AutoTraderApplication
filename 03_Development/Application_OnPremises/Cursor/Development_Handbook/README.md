@@ -25,10 +25,13 @@ This folder contains all the essential documentation and templates needed for de
 - **[TESTING_GUIDE.md](./TESTING_GUIDE.md)** - Testing standards and practices
 - **[LOGGING_GUIDE.md](./LOGGING_GUIDE.md)** - Logging standards and best practices
 
-### **3. Project Structure**
+### **3. Component Guides**
+- **[AI_DESKTOP_UI_GUIDE.md](./AI_DESKTOP_UI_GUIDE.md)** - Desktop UI Developer Guide (JavaFX/TornadoFX, MVVM, services)
+
+### **4. Project Structure**
 - **[GITHUB_PROJECT_STRUCTURE.md](./GITHUB_PROJECT_STRUCTURE.md)** - Repository organization and structure
 
-### **4. Tools & Automation**
+### **5. Tools & Automation**
 - **[CI_AUTOMATION_README.md](./CI_AUTOMATION_README.md)** - CI/CD automation tools and scripts
 - **[CONVERTER_README.md](./CONVERTER_README.md)** - Excel to Markdown conversion tools
 
@@ -125,6 +128,19 @@ Logging standards and best practices:
 - Performance considerations
 - Security (what NOT to log)
 - Configuration examples
+
+### **AI_DESKTOP_UI_GUIDE.md**
+Desktop UI Developer Guide covering:
+- MVVM architecture and conventions
+- Dependency injection (Koin) setup
+- Navigation system
+- Service implementations (real services vs stubs)
+- Contract pattern for state/event management
+- Component guides (Dashboard, Trader Management, Monitoring, Configuration, Pattern Analytics)
+- Requirements traceability
+- Epic 5 completion status
+
+**Version**: 0.8 (November 19, 2025)
 
 ### **GITHUB_PROJECT_STRUCTURE.md**
 Repository organization:
@@ -249,6 +265,7 @@ When updating documentation:
 | DEFECT_TRACKING_TEMPLATE.md | ✅ Current | Nov 18, 2025 | Dec 2025 |
 | TESTING_GUIDE.md | ✅ Current | Oct 2025 | Nov 2025 |
 | LOGGING_GUIDE.md | ✅ Current | Oct 2025 | Nov 2025 |
+| AI_DESKTOP_UI_GUIDE.md | ✅ Current | Nov 19, 2025 | Dec 2025 |
 | GITHUB_PROJECT_STRUCTURE.md | ✅ Current | Oct 2025 | Nov 2025 |
 | PIPELINE_SETUP_GUIDE.md | ✅ Current | Oct 2025 | Nov 2025 |
 | CI_AUTOMATION_README.md | ✅ Current | Oct 2025 | Nov 2025 |

@@ -1,7 +1,7 @@
 # FMPS AutoTrader Desktop UI – Developer Guide
 
-**Version**: 0.7  
-**Last Updated**: November 14, 2025  
+**Version**: 0.8  
+**Last Updated**: November 19, 2025  
 **Maintainer**: AI Assistant
 
 ---
@@ -9,6 +9,18 @@
 ## 1. Purpose
 
 This guide captures the foundational decisions for the JavaFX/TornadoFX desktop client introduced in **Issue #19 – Desktop UI Foundation**. It explains the MVVM scaffolding, dependency injection strategy, navigation shell, and reusable components that subsequent Epic 5 issues will extend.
+
+### 1.1 Scope & Limitations
+
+**v1.0 Scope:**
+- **Desktop-only**: The UI Application is currently available only on Windows desktop (personal computer, notebook)
+- **Multi-device support** (tablet, smartphone, smartwatch) is deferred to v1.1+ per product roadmap
+- This aligns with **ATP_ProdSpec_14** which requires availability on all computer-like devices, but acknowledges phased rollout
+
+**Platform Support:**
+- **Windows 10/11** (64-bit) - ✅ Supported
+- **macOS** - ⏳ Planned for v1.1
+- **Linux** - ⏳ Planned for v1.1
 
 ---
 
@@ -45,7 +57,14 @@ This guide captures the foundational decisions for the JavaFX/TornadoFX desktop 
 ### 3.2 Views
 - Extend `BaseView<State, Event, VM>` when the view consumes a view model. State and event updates are marshalled onto the JavaFX thread automatically.
 - Use the shared components (`StatusBadge`, `MetricTile`, `ToolbarButton`) for consistent look-and-feel.
-- All views live under `desktop.views` and are registered with the navigation service in `DesktopApp.registerNavigation`.
+- Views are organized in feature-specific packages:
+  - `desktop.dashboard.DashboardView`
+  - `desktop.traders.TraderManagementView`
+  - `desktop.monitoring.MonitoringView`
+  - `desktop.config.ConfigurationView`
+  - `desktop.patterns.PatternAnalyticsView`
+- All views are registered with the navigation service in `DesktopApp.registerNavigation`.
+- Note: The `desktop.views` package exists but contains only placeholder views (not the actual implementations).
 
 ### 3.3 Controllers
 - Extend `BaseController` (wrapper around TornadoFX `Controller` + Koin) for non-UI orchestration.
@@ -60,17 +79,22 @@ The desktop client uses **Koin 3.5**:
 val desktopModule = module {
     single<DispatcherProvider> { DefaultDispatcherProvider() }
     single { NavigationService() }
-    single<CoreServiceClient> { StubCoreServiceClient() }
-    single<TelemetryClient> { StubTelemetryClient() }
-    single<TraderService> { StubTraderService() }
-    single<MarketDataService> { StubMarketDataService() }
-    single<ConfigService> { StubConfigService() }
-    single<PatternAnalyticsService> { StubPatternAnalyticsService() }
+    
+    // HTTP Client for REST API calls
+    single<HttpClient> { HttpClientFactory.create() }
+    
+    // Service implementations - Most use real services that connect to backend API
+    single<CoreServiceClient> { StubCoreServiceClient() }  // Only CoreServiceClient uses stub
+    single<TelemetryClient> { RealTelemetryClient(get()) }  // Real WebSocket client
+    single<TraderService> { RealTraderService(get()) }  // Real REST API client
+    single<MarketDataService> { RealMarketDataService(get(), get()) }  // Real service with WebSocket + REST fallback
+    single<ConfigService> { RealConfigService(get()) }  // Real REST API client
+    single<PatternAnalyticsService> { RealPatternAnalyticsService(get()) }  // Real REST API client
 
     factory { ShellViewModel(get(), get(), get()) }
-    factory { DashboardViewModel(get(), get(), get()) }
+    factory { DashboardViewModel(get(), get(), get(), get()) }  // 4 parameters: dispatcher, coreService, telemetry, traderService
     factory { DashboardView() }
-    factory { TraderManagementViewModel(get(), get()) }
+    factory { TraderManagementViewModel(get(), get(), get()) }
     factory { TraderManagementView() }
     factory { MonitoringViewModel(get(), get()) }
     factory { MonitoringView() }
@@ -81,7 +105,12 @@ val desktopModule = module {
 }
 ```
 
-`DesktopApp` starts Koin during `init()` and registers navigation routes using the `ViewDescriptor` abstraction. Each view is resolved via Koin so future issues can swap stubs for concrete implementations without touching the shell.
+**Service Implementation Status:**
+- **Real Services** (connect to backend API): `RealTelemetryClient`, `RealTraderService`, `RealMarketDataService`, `RealConfigService`, `RealPatternAnalyticsService`
+- **Stub Service** (synthetic data): `StubCoreServiceClient` (only service using stub)
+- **HttpClient**: Injected via `HttpClientFactory.create()` for REST API communication
+
+`DesktopApp` starts Koin during `init()` and registers navigation routes using the `ViewDescriptor` abstraction. Each view is resolved via Koin, and real services are wired to connect to the Core Service REST API and WebSocket endpoints.
 
 ---
 
@@ -123,8 +152,17 @@ val desktopModule = module {
 
 ## 8. Dashboard Implementation (Issue #20)
 
+**Status**: ✅ **COMPLETE** (November 18, 2025)  
+**Commits**: `535e114`, `037034f`, `44afbf0`  
+**Review**: ✅ PASS (see `Issue_20_REVIEW.md`)
+
 ### 8.1 ViewModel
 - `DashboardViewModel` (package `desktop.dashboard`) orchestrates trader summaries and telemetry feeds.
+- **Constructor Parameters** (4 total):
+  - `dispatcherProvider: DispatcherProvider` - Coroutine dispatcher provider
+  - `coreServiceClient: CoreServiceClient` - Core service client (stub)
+  - `telemetryClient: TelemetryClient` - Real telemetry client (WebSocket)
+  - `traderService: TraderService` - Real trader service (REST API)
 - State surface (`DashboardState`) captures:
   - `traderItems`: mapped trader summaries for UI list rendering.
   - `quickStats`: KPI counts (active/stopped traders, open positions, aggregated P&L, critical alert count).
@@ -199,17 +237,110 @@ val desktopModule = module {
 
 ---
 
-## 10. Service Stubs & Data Binding
+## 10. Service Implementations & Data Binding
 
-- `CoreServiceClient.traderSummaries()` exposes a `Flow<List<TraderSummary>>`. The stub emits synthetic updates every 4 seconds.
-- `TelemetryClient.samples()` now randomises channels (`trader.status`, `system.warning`, `risk.alert`) to exercise notification severities.
-- `ShellViewModel` continues to surface quick stats to the shell header; dashboard consumes the same flows for richer presentation.
+### 10.1 Real Service Implementations
+
+**RealTelemetryClient:**
+- Connects to WebSocket endpoint `/ws/telemetry`
+- Subscribes to channels: `trader.status`, `risk.alert`, `system.warning`
+- Automatic reconnection (up to 5 attempts)
+- Emits `TelemetrySample` events via Flow
+
+**RealTraderService:**
+- REST API client for trader CRUD operations
+- Endpoints: `/api/v1/traders` (GET, POST, PUT, DELETE)
+- Lifecycle operations: `/api/v1/traders/{id}/start`, `/api/v1/traders/{id}/stop`
+- Retry logic with exponential backoff
+
+**RealMarketDataService:**
+- WebSocket + REST fallback for market data
+- WebSocket channels: `market.candlestick`, `position.update`, `trade.executed`
+- Automatic REST polling (every 5 seconds) when WebSocket disconnected
+- Connection status monitoring
+
+**RealConfigService:**
+- REST API client for configuration management
+- Endpoints: `/api/v1/config/*`
+- Connection testing via `/api/v1/config/test-connection`
+- HOCON format import/export
+- File-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`)
+
+**RealPatternAnalyticsService:**
+- REST API client for pattern analytics
+- Endpoints: `/api/v1/patterns` (GET, POST, GET by ID, DELETE)
+- Archive operations: `/api/v1/patterns/{id}/deactivate`
+- Retry logic with exponential backoff
+
+### 10.2 Stub Service
+
+**StubCoreServiceClient:**
+- Only service using stub implementation
+- `traderSummaries()` exposes a `Flow<List<TraderSummary>>`
+- Emits synthetic updates every 4 seconds for UI testing
+- Used for dashboard quick stats when real trader summaries are not available
+
+### 10.3 Data Binding
+
+- `ShellViewModel` continues to surface quick stats to the shell header
+- Dashboard consumes real service flows for richer presentation
+- All real services provide automatic reconnection and error handling
 
 ---
 
-## 10. Trading Monitoring Workspace (Issue #22)
+## 11. Contract Pattern
 
-- `MonitoringViewModel` consumes `MarketDataService` flows:
+The Desktop UI uses a **Contract pattern** to define state and event types for each view. This pattern provides clear separation between state management and UI events.
+
+### 11.1 Contract Files
+
+Each view has a corresponding Contract file that defines:
+- **State**: Immutable data class containing all view state
+- **Event**: Sealed interface for one-time UI actions (toasts, dialogs, navigation)
+
+**Contract Files:**
+- `DashboardContract.kt` - Defines `DashboardState`, `DashboardEvent`, `TraderItem`, `NotificationItem`, `QuickStats`, `SystemStatusSummary`
+- `TraderManagementContract.kt` - Defines `TraderManagementState`, `TraderManagementEvent`
+- `MonitoringContract.kt` - Defines `MonitoringState`, `MonitoringEvent`
+- `ConfigurationContract.kt` - Defines `ConfigurationState`, `ConfigurationEvent`
+- `PatternAnalyticsContract.kt` - Defines `PatternAnalyticsState`, `PatternAnalyticsEvent`
+- `ShellContract.kt` - Defines `ShellState`, `ShellEvent`
+
+### 11.2 Contract Pattern Benefits
+
+- **Type Safety**: State and events are strongly typed
+- **Separation of Concerns**: State/event definitions separate from ViewModel logic
+- **Testability**: Contracts can be tested independently
+- **Documentation**: Contracts serve as clear API documentation for view state
+
+### 11.3 Usage Example
+
+```kotlin
+// Contract file: DashboardContract.kt
+data class DashboardState(
+    val traderItems: List<TraderItem> = emptyList(),
+    val quickStats: QuickStats = QuickStats(),
+    val systemStatus: SystemStatusSummary = SystemStatusSummary(),
+    val notifications: List<NotificationItem> = emptyList()
+)
+
+sealed interface DashboardEvent : ViewEvent {
+    data class ShowMessage(val message: String) : DashboardEvent
+}
+
+// ViewModel uses the contract
+class DashboardViewModel(...) : BaseViewModel<DashboardState, DashboardEvent>(...)
+```
+
+---
+
+## 12. Trading Monitoring Workspace (Issue #22)
+
+**Status**: ✅ **COMPLETE** (November 18, 2025)  
+**Commits**: `6d8b359`, `844946a`, `92c6a15`, `ae3f36a`  
+**Review**: ✅ PASS (see `Issue_22_REVIEW.md`)
+
+- `MonitoringViewModel` consumes `RealMarketDataService` flows:
   - `candlesticks(timeframe)` – updates price chart, tracks `latencyMs`/`lastUpdated`.
   - `positions()` – drives active positions table.
   - `tradeHistory()` – surfaces rolling trade history.
@@ -219,7 +350,7 @@ val desktopModule = module {
   - Manual refresh button (disabled while refresh in-flight).
   - Timeframe picker (1m/5m/15m/1h) triggers re-subscription.
   - Side panel summarizing positions/trades.
-- `StubMarketDataService` simulates candlesticks, positions, trades, and fluctuating connection states.
+- `RealMarketDataService` connects to WebSocket telemetry (`/ws/telemetry` channels: `market.candlestick`, `position.update`, `trade.executed`) with automatic REST polling fallback when WebSocket disconnected.
 - Manual QA flow:
   1. Navigate to **Monitoring** route.
   2. Switch timeframe; chart re-renders and latency resets.
@@ -228,39 +359,66 @@ val desktopModule = module {
 
 ---
 
-## 11. Configuration Workspace (Issue #23)
+## 13. Configuration Workspace (Issue #23)
 
-- `ConfigurationViewModel` leverages `ConfigService` to stream/persist settings:
+**Status**: ✅ **COMPLETE** (November 18, 2025)  
+**Commits**: `24c84b3`, `ded548c`  
+**Review**: ✅ PASS (see `Issue_23_REVIEW.md`)
+
+- `ConfigurationViewModel` leverages `RealConfigService` to stream/persist settings:
   - `configuration()` – snapshot flow consumed on init.
   - `saveExchangeSettings`, `saveGeneralSettings`, `saveTraderDefaults` – persist sections individually.
-  - `testExchangeConnection` – async validation with toast feedback and inline status chip.
-  - `exportConfiguration` / `importConfiguration` – text-based import/export with validation + preview.
+  - `testExchangeConnection` – async validation via `/api/v1/config/test-connection` endpoint using real exchange connectors, with toast feedback and inline status chip.
+  - `exportConfiguration` / `importConfiguration` – HOCON format import/export with validation + preview.
 - `ConfigurationView` is tabbed; highlights:
   - Exchange tab: API key/secret/passphrase fields, exchange selector, validation hints, manual connection test button.
   - General tab: numeric inputs for update interval/telemetry polling, logging level dropdown, theme preference toggle.
   - Trader defaults tab: budget/leverage/stop-loss/strategy fields feeding Issue #21 defaults.
   - Import/Export tab: read-only export area, editable import textarea, status label (success/error).
-- `StubConfigService` hosts in-memory snapshot + fake connection test; replace with backend adapter prior to GA.
+- `RealConfigService` connects to REST API (`/api/v1/config/*` endpoints) with file-based persistence fallback (`~/.fmps-autotrader/desktop-config.conf`).
 - Security: secrets remain masked in UI; encryption handled by server-side `ConfigManager` (Issue #6) — see Config Guide v1.1.
 
 ---
 
-## 12. Pattern Analytics Workspace (Issue #24)
+## 14. Pattern Analytics Workspace (Issue #24)
 
-- `PatternAnalyticsViewModel` consumes `PatternAnalyticsService.patternSummaries()` (Flow) and keeps `PatternAnalyticsState` in sync:
+**Status**: ✅ **COMPLETE** (November 18, 2025)  
+**Commits**: `54d6165`, `c8d14bb`, `d465e5b`  
+**Review**: ✅ PASS (see `Issue_24_REVIEW.md`)
+
+- `PatternAnalyticsViewModel` consumes `RealPatternAnalyticsService.patternSummaries()` (Flow) and keeps `PatternAnalyticsState` in sync:
   - Filters: search, exchange, timeframe, performance status, minimum success slider.
-  - `selectPattern(id)` lazily loads `patternDetail(id)` for the side panel.
+  - `selectPattern(id)` lazily loads `patternDetail(id)` from `/api/v1/patterns/{id}` endpoint for the side panel.
   - `refresh`, `archiveSelected`, `deleteSelected` delegate to service and emit toasts on completion.
 - `PatternAnalyticsView` splits layout into:
   - Left column list with badges for success %, profit factor, status colour.
   - Filter toolbar (search, dropdowns, slider, refresh button).
   - Detail pane containing KPI cards, indicator/criteria summary, AreaChart overlay (success % & profit factor), and management buttons.
-- `StubPatternAnalyticsService` streams synthetic summaries, generates detail snapshots (indicators, entry/exit criteria, performance points) to keep UI interactive offline.
-- Management actions currently mutate stub state in-memory; real implementation will call pattern repository endpoints (Issue #10). Audit logging is deferred to Epic 6.
+- `RealPatternAnalyticsService` connects to REST API:
+  - `/api/v1/patterns` (GET) - Fetch pattern summaries
+  - `/api/v1/patterns/{id}` (GET) - Fetch pattern details
+  - `/api/v1/patterns/{id}/deactivate` (POST) - Archive pattern
+  - `/api/v1/patterns/{id}` (DELETE) - Delete pattern
+- Archive/delete operations persist to database. Retry logic with exponential backoff implemented.
 
 ---
 
-## 13. Run & Build Commands
+## 15. Requirements Traceability
+
+This section maps the Desktop UI implementation to customer requirements (ATP_ProdSpec).
+
+| Requirement ID | Requirement Description | Implementation | Status |
+|----------------|------------------------|-----------------|--------|
+| **ATP_ProdSpec_13** | The UI Application shall connect the User with the Core Application | ✅ **IMPLEMENTED** | Section 4 (DI), Section 8 (Dashboard), Section 9 (Trader Management) - Real services (`RealTelemetryClient`, `RealTraderService`, `RealMarketDataService`, `RealConfigService`, `RealPatternAnalyticsService`) connect to Core Service via REST API and WebSocket |
+| **ATP_ProdSpec_14** | The UI Application shall be available on all computer-like devices | ⚠️ **PARTIAL** | v1.0: Desktop-only (Windows 10/11). Multi-device support (tablet, smartphone, smartwatch) deferred to v1.1+ per product roadmap. See Section 1.1 (Scope & Limitations) |
+| **ATP_ProdSpec_15** | The UI Application shall allow the user to select the exchange and configure their existing account | ✅ **IMPLEMENTED** | Section 13 (Configuration Workspace) - Exchange selection, API key management, connection testing via `/api/v1/config/test-connection` endpoint |
+| **ATP_ProdSpec_16** | The UI Application shall be the command center to create, re-configure and observe the AI trader, as well as providing a real-time overview of the status and trading success | ✅ **IMPLEMENTED** | Section 8 (Dashboard), Section 9 (Trader Management), Section 12 (Monitoring) - All required capabilities implemented with real-time updates via WebSocket telemetry |
+
+**Requirements Coverage**: 3/4 fully implemented, 1/4 partially implemented (multi-device support deferred to v1.1+)
+
+---
+
+## 16. Run & Build Commands
 
 | Task | Command |
 |------|---------|
@@ -274,21 +432,39 @@ JavaFX launcher scripts honour `--add-opens=javafx.graphics/javafx.stage=ALL-UNN
 
 ---
 
-## 14. Next Steps (Epics 5 & 6)
+## 17. Epic 5 Completion Status
 
-1. **Issue #22** – Trading Monitoring View (charts/positions, WebSocket bindings) ✅
-2. **Issue #23** – Configuration Management View (API credentials, defaults, import/export) ✅
-3. **Issue #24** – Pattern Analytics View (pattern list/detail/visualisations) ✅
-4. **Epic 6 Prep** – Regression plan, installer workflow, secure secret storage hardening (in progress)
+**Epic 5: Desktop UI Application** - ✅ **COMPLETE** (November 18, 2025)
 
-All issues should reuse the base MVVM scaffolding and follow the `Development_Workflow.md` gating steps.
+All Epic 5 issues have been completed and reviewed:
+
+| Issue | Title | Status | Completion Date | Review Status |
+|-------|-------|--------|-----------------|---------------|
+| **#19** | Desktop UI Foundation | ✅ **COMPLETE** | November 13, 2025 | ✅ PASS |
+| **#20** | Main Dashboard | ✅ **COMPLETE** | November 18, 2025 | ✅ PASS |
+| **#21** | AI Trader Management View | ✅ **COMPLETE** | November 18, 2025 | ✅ PASS |
+| **#22** | Trading Monitoring View | ✅ **COMPLETE** | November 18, 2025 | ✅ PASS |
+| **#23** | Configuration Management View | ✅ **COMPLETE** | November 18, 2025 | ✅ PASS |
+| **#24** | Pattern Analytics View | ✅ **COMPLETE** | November 18, 2025 | ✅ PASS |
+
+**Key Achievements:**
+- All real services wired via DI (`RealTelemetryClient`, `RealTraderService`, `RealMarketDataService`, `RealConfigService`, `RealPatternAnalyticsService`)
+- All views implemented with real backend integration
+- WebSocket telemetry integration active
+- REST API integration complete
+- All review findings addressed
+
+**Next Steps:**
+- **Epic 6** – Integration Testing, Performance Testing, Bug Fixing & Polish, Documentation, Release Preparation
+- See `Development_Plan_v2.md` Section 10 for Epic 6 details
 
 ---
 
-## 15. Change Log
+## 18. Change Log
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 0.8 | 2025-11-19 | Fixed documentation discrepancies (DEF_005): Updated service implementations to reflect real services, added Contract pattern documentation, added requirements traceability, updated Epic 5 completion status, added scope & limitations section, fixed DashboardViewModel constructor, clarified views package structure |
 | 0.7 | 2025-11-14 | Added pattern analytics workspace section + updated DI/navigation |
 | 0.6 | 2025-11-14 | Added configuration workspace section + module references |
 | 0.5 | 2025-11-14 | Added monitoring workspace section, DI/navigation updates |
