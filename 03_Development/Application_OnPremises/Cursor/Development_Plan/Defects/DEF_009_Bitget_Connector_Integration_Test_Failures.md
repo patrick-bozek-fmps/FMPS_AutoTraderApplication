@@ -185,22 +185,25 @@ org.opentest4j.AssertionFailedError: Should still have 3 traders ==> expected: <
 
 ### **Root Cause Analysis**
 
-**Root Cause**: Bitget connector was using underscore format (`BTC_USDT`) for public market endpoints, but Bitget's public market API endpoints require standard format (`BTCUSDT`). Additionally, the symbol `BTCUSDT` may not exist on Bitget testnet, or the API keys may be configured for a different environment.
+**Root Cause**: **Bitget API v1 and v2 have different symbol lists**. The connector uses v1 market endpoints (`/api/spot/v1/market/...`) which do not support `BTCUSDT`, while v2 API (`/api/v2/spot/public/symbols`) confirms that `BTCUSDT` exists and is online. Additionally, v1 symbols endpoint (`/api/spot/v1/public/symbols`) returns 404 Not Found, indicating v1 API may be deprecated or have limited symbol support.
 
 **Issues Identified**:
-1. **Symbol Format Mismatch**: Public market endpoints (candles, ticker, order book) were using `BTC_USDT` format, but Bitget public API requires `BTCUSDT` format.
-2. **Symbol Availability**: After fixing the format, API returns "Parameter BTCUSDT does not exist" (code 40034), suggesting:
-   - Bitget testnet may not have BTCUSDT symbol
-   - API keys may be for production environment
-   - Symbol format may still be incorrect for testnet
-3. **Parameter Verification**: Candlesticks endpoint returns "Parameter verification failed" (code 400172), suggesting parameter names or values may be incorrect.
-4. **Environment Mismatch**: Balance endpoint returns "exchange environment is incorrect" (code 40099), suggesting testnet environment configuration issue.
+1. **API Version Mismatch**: v1 and v2 APIs have different symbol lists:
+   - v2 API (`/api/v2/spot/public/symbols`): 790 trading pairs, `BTCUSDT` exists and is online
+   - v1 market endpoints (`/api/spot/v1/market/...`): Reject `BTCUSDT` with "Parameter BTCUSDT does not exist" (code 40034)
+   - v1 symbols endpoint (`/api/spot/v1/public/symbols`): 404 Not Found (doesn't exist)
+2. **Symbol Format**: Initially tested both `BTCUSDT` and `BTC_USDT` formats - both rejected by v1
+3. **Parameter Verification**: Candlesticks endpoint returns "Parameter verification failed" (code 400172) - fixed by changing `granularity` → `period`
+4. **Environment Mismatch**: Balance endpoint returns "exchange environment is incorrect" (code 40099) - separate issue
+5. **Symbol Compatibility Testing**: Tested `BTCUSDT`, `ETHUSDT`, `LUMIAUSDT`, `GOATUSDT` with v1 endpoints - **none are accepted**, suggesting v1 API may be deprecated or have very limited symbol support
 
 **Investigation Results**:
-- ✅ Symbol format fixed: Changed from `BTC_USDT` to `BTCUSDT` for public endpoints
-- ✅ Symbol conversion function updated to use standard format for public endpoints
-- ⚠️ Symbol `BTCUSDT` still not recognized by Bitget API
-- ⚠️ Environment configuration may be incorrect
+- ✅ Symbol format confirmed: `BTCUSDT` (no underscore) is correct format
+- ✅ Parameter name fixed: Changed `granularity` → `period` for candles endpoint
+- ✅ v2 symbols endpoint confirms: 790 pairs available, `BTCUSDT` exists and is online
+- ❌ v1 market endpoints: Do not support `BTCUSDT` or other tested symbols
+- ❌ v1 symbols endpoint: 404 Not Found (doesn't exist)
+- ❌ v2 market endpoints: 404 Not Found (don't exist)
 
 ### **Solution Description**
 
@@ -210,12 +213,32 @@ org.opentest4j.AssertionFailedError: Should still have 3 traders ==> expected: <
 3. ✅ **Updated Trading Endpoints**: Modified `placeOrder()` and `getOrder()` to use authenticated format.
 
 **Remaining Issues**:
-- ⚠️ Symbol `BTCUSDT` not recognized by Bitget API - requires verification of:
-  - Available symbols on Bitget testnet
-  - Correct symbol format for testnet
-  - API key environment (testnet vs production)
-- ⚠️ Candlesticks parameter verification - requires checking Bitget API documentation for correct parameter names
-- ⚠️ Environment configuration - "exchange environment is incorrect" error suggests testnet configuration issue
+- ❌ **CRITICAL**: v1 market endpoints do not support `BTCUSDT` or other common symbols
+  - v2 API confirms `BTCUSDT` exists (790 pairs available)
+  - v1 market endpoints reject all tested symbols (`BTCUSDT`, `ETHUSDT`, `LUMIAUSDT`, `GOATUSDT`)
+  - v1 symbols endpoint doesn't exist (404)
+  - v2 market endpoints don't exist (404)
+- ⚠️ **Solution Required**: 
+  - Option 1: Find which symbols v1 actually supports (if any)
+  - Option 2: Wait for v2 market endpoints to be available
+  - Option 3: Document as known limitation and skip tests requiring v1 market endpoints
+  - Option 4: Use a different exchange connector for integration tests
+- ⚠️ Environment configuration - "exchange environment is incorrect" (code 40099) - separate issue for balance endpoint
+
+**Latest Changes (2025-11-19)**:
+- ✅ Added symbols endpoint query (`/api/v2/spot/public/symbols`) in `onConnect()` to verify available trading pairs
+- ✅ Changed symbol format back to `BTCUSDT` (no underscore) based on Bitget API v2 documentation
+- ✅ Fixed parameter name: `granularity` → `period` for candles endpoint
+- ✅ Added logging to check if BTCUSDT is available and online in the environment
+- ✅ **CRITICAL DISCOVERY**: v1 and v2 APIs have different symbol lists:
+  - v2 API: 790 trading pairs, BTCUSDT exists and is online
+  - v1 market endpoints: Reject BTCUSDT with "Parameter BTCUSDT does not exist"
+  - v1 symbols endpoint: 404 Not Found (doesn't exist)
+- 📋 **Root Cause**: We're using v1 market endpoints (`/api/spot/v1/market/...`) but v1 doesn't support BTCUSDT, while v2 confirms it exists
+- 📋 **Solution Options**:
+  1. Find v2 market endpoints (tested, returned 404 - don't exist)
+  2. Use a symbol that v1 actually supports (need to identify which symbols v1 supports)
+  3. Document as known limitation: v1/v2 have different symbol lists
 
 ### **Code Changes**
 

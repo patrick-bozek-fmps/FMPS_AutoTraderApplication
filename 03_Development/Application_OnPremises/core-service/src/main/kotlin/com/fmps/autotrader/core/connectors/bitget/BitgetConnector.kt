@@ -112,30 +112,112 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
             }
             
             // Query available symbols to verify environment and symbol availability
+            // Check both v2 and v1 symbols endpoints to understand version differences
             try {
-                val symbolsResponse = httpClient.get("$baseUrl/api/v2/spot/public/symbols")
-                if (symbolsResponse.status == HttpStatusCode.OK) {
-                    val symbolsJson = Json.parseToJsonElement(symbolsResponse.bodyAsText()).jsonObject
+                // Query v2 symbols endpoint
+                logger.info { "Querying Bitget v2 symbols endpoint: $baseUrl/api/v2/spot/public/symbols" }
+                val v2SymbolsResponse = httpClient.get("$baseUrl/api/v2/spot/public/symbols")
+                logger.info { "V2 symbols endpoint response status: ${v2SymbolsResponse.status}" }
+                
+                if (v2SymbolsResponse.status == HttpStatusCode.OK) {
+                    val responseBody = v2SymbolsResponse.bodyAsText()
+                    val symbolsJson = Json.parseToJsonElement(responseBody).jsonObject
                     val symbolsArray = symbolsJson["data"]?.jsonArray
                     if (symbolsArray != null) {
                         val symbolCount = symbolsArray.size
-                        logger.info { "Bitget environment has $symbolCount available trading pairs" }
+                        println("✅ Bitget v2 API has $symbolCount available trading pairs")
+                        logger.info { "Bitget v2 API has $symbolCount available trading pairs" }
                         
-                        // Check if BTCUSDT is available
-                        val btcusdtAvailable = symbolsArray.any { symbol ->
+                        // Check if BTCUSDT is available in v2
+                        val btcusdtV2 = symbolsArray.firstOrNull { symbol ->
                             val symbolObj = symbol.jsonObject
-                            val symbolName = symbolObj["symbol"]?.jsonPrimitive?.content
-                            symbolName == "BTCUSDT" && symbolObj["status"]?.jsonPrimitive?.content == "online"
+                            symbolObj["symbol"]?.jsonPrimitive?.content == "BTCUSDT"
                         }
                         
-                        if (btcusdtAvailable) {
-                            logger.info { "✓ BTCUSDT is available and online" }
+                        if (btcusdtV2 != null) {
+                            val symbolObj = btcusdtV2.jsonObject
+                            val status = symbolObj["status"]?.jsonPrimitive?.content
+                            println("✅ BTCUSDT found in v2 API, status: $status")
+                            logger.info { "✓ BTCUSDT found in v2 API, status: $status" }
+                            
+                            // Test if v1 market endpoint works with BTCUSDT and other symbols
+                            // This will help us understand if v1/v2 have different symbol support
+                            val testSymbols = listOf("BTCUSDT", "ETHUSDT", "LUMIAUSDT", "GOATUSDT")
+                            var v1CompatibleSymbols = mutableListOf<String>()
+                            
+                            for (testSymbol in testSymbols) {
+                                try {
+                                    val testUrl = "$baseUrl/api/spot/v1/market/ticker?symbol=$testSymbol"
+                                    val testResponse = httpClient.get(testUrl)
+                                    if (testResponse.status == HttpStatusCode.OK) {
+                                        v1CompatibleSymbols.add(testSymbol)
+                                        println("   ✅ v1 accepts: $testSymbol")
+                                        logger.info { "v1 accepts: $testSymbol" }
+                                    } else {
+                                        logger.debug { "v1 rejects $testSymbol: ${testResponse.status}" }
+                                    }
+                                } catch (e: Exception) {
+                                    logger.debug(e) { "Test v1 endpoint call failed for $testSymbol" }
+                                }
+                            }
+                            
+                            if (v1CompatibleSymbols.isNotEmpty()) {
+                                println("   ✅ v1-compatible symbols found: ${v1CompatibleSymbols.joinToString(", ")}")
+                                logger.info { "v1-compatible symbols: ${v1CompatibleSymbols.joinToString(", ")}" }
+                            } else {
+                                println("   ⚠️  No v1-compatible symbols found in test set")
+                                logger.warn { "No v1-compatible symbols found in test set" }
+                            }
                         } else {
-                            logger.warn { "⚠ BTCUSDT is not available or not online in this environment" }
+                            println("⚠️  BTCUSDT NOT found in v2 API")
+                            logger.warn { "⚠ BTCUSDT NOT found in v2 API" }
                         }
                     }
                 }
+                
+                // Try v1 symbols endpoint to see what v1 supports
+                try {
+                    logger.info { "Querying Bitget v1 symbols endpoint: $baseUrl/api/spot/v1/public/symbols" }
+                    val v1SymbolsResponse = httpClient.get("$baseUrl/api/spot/v1/public/symbols")
+                    if (v1SymbolsResponse.status == HttpStatusCode.OK) {
+                        val v1ResponseBody = v1SymbolsResponse.bodyAsText()
+                        val v1SymbolsJson = Json.parseToJsonElement(v1ResponseBody).jsonObject
+                        val v1SymbolsArray = v1SymbolsJson["data"]?.jsonArray
+                        if (v1SymbolsArray != null) {
+                            val v1SymbolCount = v1SymbolsArray.size
+                            println("✅ Bitget v1 API has $v1SymbolCount available trading pairs")
+                            logger.info { "Bitget v1 API has $v1SymbolCount available trading pairs" }
+                            
+                            // Get first few v1 symbols for comparison
+                            val firstV1Symbols = v1SymbolsArray.take(5).mapNotNull { symbol ->
+                                val symbolObj = symbol.jsonObject
+                                symbolObj["symbol"]?.jsonPrimitive?.content
+                            }
+                            println("   V1 sample symbols: ${firstV1Symbols.joinToString(", ")}")
+                            logger.info { "V1 sample symbols: ${firstV1Symbols.joinToString(", ")}" }
+                            
+                            // Check if BTCUSDT exists in v1
+                            val btcusdtV1 = v1SymbolsArray.firstOrNull { symbol ->
+                                val symbolObj = symbol.jsonObject
+                                symbolObj["symbol"]?.jsonPrimitive?.content?.contains("BTC") == true
+                            }
+                            if (btcusdtV1 != null) {
+                                val symbolObj = btcusdtV1.jsonObject
+                                val v1SymbolName = symbolObj["symbol"]?.jsonPrimitive?.content
+                                println("   V1 BTC symbol format: $v1SymbolName")
+                                logger.info { "V1 BTC symbol format: $v1SymbolName" }
+                            }
+                        }
+                    } else {
+                        println("⚠️  V1 symbols endpoint returned: ${v1SymbolsResponse.status}")
+                        logger.warn { "V1 symbols endpoint returned: ${v1SymbolsResponse.status}" }
+                    }
+                } catch (e: Exception) {
+                    println("⚠️  V1 symbols endpoint not available: ${e.message}")
+                    logger.warn(e) { "V1 symbols endpoint not available" }
+                }
             } catch (e: Exception) {
+                println("⚠️  Failed to query available symbols: ${e.message}")
                 logger.warn(e) { "Failed to query available symbols (non-fatal)" }
             }
         } catch (e: Exception) {
@@ -203,6 +285,7 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
             }
             
             val queryString = params.entries.joinToString("&") { "${it.key}=${it.value}" }
+            // Use v1 API (v2 market endpoints don't exist - symbols uses /api/v2/spot/public/symbols but market uses v1)
             val url = "$baseUrl/api/spot/v1/market/candles?$queryString"
             
             val response = httpClient.get(url)
@@ -251,6 +334,7 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         try {
             val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
             val bitgetSymbol = convertSymbolToBitget(symbol)
+            // Use v1 API (v2 market endpoints don't exist - symbols uses /api/v2/spot/public/symbols but market uses v1)
             val url = "$baseUrl/api/spot/v1/market/ticker?symbol=$bitgetSymbol"
             
             val response = httpClient.get(url)
@@ -298,6 +382,7 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         try {
             val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
             val bitgetSymbol = convertSymbolToBitget(symbol)
+            // Use v1 API (v2 market endpoints don't exist - symbols uses /api/v2/spot/public/symbols but market uses v1)
             val url = "$baseUrl/api/spot/v1/market/depth?symbol=$bitgetSymbol&limit=$limit&type=step0"
             
             val response = httpClient.get(url)
@@ -628,12 +713,20 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
     /**
      * Converts symbol from standard format (BTCUSDT) to Bitget format
      * 
-     * Based on Bitget API v2 documentation, symbols use standard format (BTCUSDT) without underscores.
-     * The API returns symbols in format like "BTCUSDT" in the /api/v2/spot/public/symbols endpoint.
+     * Bitget API version differences:
+     * - V2 API: Uses standard format (BTCUSDT) - confirmed by /api/v2/spot/public/symbols endpoint
+     * - V1 API: May require different format (BTCUSDT_UMCBL for futures, but spot might be different)
+     * 
+     * Since we're using v1 market endpoints (/api/spot/v1/market/...) but v1 says BTCUSDT doesn't exist
+     * while v2 symbols endpoint confirms it exists, there's a version mismatch.
+     * 
+     * For now, we use standard format (BTCUSDT) as v2 symbols endpoint confirms this format exists.
+     * If v1 endpoints require different format, we may need to query v1 symbols endpoint or use v2 market endpoints.
      */
     private fun convertSymbolToBitget(symbol: String): String {
-        // Bitget API v2 uses standard format: BTCUSDT (uppercase, no underscore)
-        // According to API documentation: /api/v2/spot/public/symbols returns symbols as "BTCUSDT"
+        // Use standard format: BTCUSDT (uppercase, no underscore)
+        // v2 symbols endpoint confirms BTCUSDT exists in this format
+        // If v1 endpoints need different format, we'll need to handle that separately
         return symbol.uppercase()
     }
     
