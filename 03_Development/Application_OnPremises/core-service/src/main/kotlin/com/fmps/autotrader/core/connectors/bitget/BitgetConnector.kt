@@ -110,6 +110,34 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
                     logger.info { "Synchronized with Bitget server time (offset: ${authenticator.getTimestampOffset()}ms)" }
                 }
             }
+            
+            // Query available symbols to verify environment and symbol availability
+            try {
+                val symbolsResponse = httpClient.get("$baseUrl/api/v2/spot/public/symbols")
+                if (symbolsResponse.status == HttpStatusCode.OK) {
+                    val symbolsJson = Json.parseToJsonElement(symbolsResponse.bodyAsText()).jsonObject
+                    val symbolsArray = symbolsJson["data"]?.jsonArray
+                    if (symbolsArray != null) {
+                        val symbolCount = symbolsArray.size
+                        logger.info { "Bitget environment has $symbolCount available trading pairs" }
+                        
+                        // Check if BTCUSDT is available
+                        val btcusdtAvailable = symbolsArray.any { symbol ->
+                            val symbolObj = symbol.jsonObject
+                            val symbolName = symbolObj["symbol"]?.jsonPrimitive?.content
+                            symbolName == "BTCUSDT" && symbolObj["status"]?.jsonPrimitive?.content == "online"
+                        }
+                        
+                        if (btcusdtAvailable) {
+                            logger.info { "✓ BTCUSDT is available and online" }
+                        } else {
+                            logger.warn { "⚠ BTCUSDT is not available or not online in this environment" }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                logger.warn(e) { "Failed to query available symbols (non-fatal)" }
+            }
         } catch (e: Exception) {
             logger.warn(e) { "Failed to synchronize server time, will use local time" }
             // Non-fatal - can proceed with local time
@@ -165,9 +193,10 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
             val bitgetInterval = mapTimeFrameToBitgetInterval(interval)
             
             // Build query parameters
+            // Note: Bitget API uses 'period' parameter for candles endpoint, not 'granularity' or 'interval'
             val params = buildMap {
                 put("symbol", bitgetSymbol)
-                put("granularity", bitgetInterval)
+                put("period", bitgetInterval)  // Changed from 'granularity' to 'period'
                 if (startTime != null) put("startTime", startTime.toEpochMilli().toString())
                 if (endTime != null) put("endTime", endTime.toEpochMilli().toString())
                 if (limit > 0) put("limit", limit.toString())
@@ -179,7 +208,9 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
             val response = httpClient.get(url)
             
             if (response.status != HttpStatusCode.OK) {
-                errorHandler.handleHttpError(response.status.value, response.bodyAsText())
+                val responseBody = response.bodyAsText()
+                logger.error { "Bitget candles API error - URL: $url, Status: ${response.status}, Response: $responseBody" }
+                errorHandler.handleHttpError(response.status.value, responseBody)
             }
             
             val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
@@ -225,7 +256,9 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
             val response = httpClient.get(url)
             
             if (response.status != HttpStatusCode.OK) {
-                errorHandler.handleHttpError(response.status.value, response.bodyAsText())
+                val responseBody = response.bodyAsText()
+                logger.error { "Bitget ticker API error - URL: $url, Status: ${response.status}, Response: $responseBody" }
+                errorHandler.handleHttpError(response.status.value, responseBody)
             }
             
             val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
@@ -270,7 +303,9 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
             val response = httpClient.get(url)
             
             if (response.status != HttpStatusCode.OK) {
-                errorHandler.handleHttpError(response.status.value, response.bodyAsText())
+                val responseBody = response.bodyAsText()
+                logger.error { "Bitget order book API error - URL: $url, Status: ${response.status}, Response: $responseBody" }
+                errorHandler.handleHttpError(response.status.value, responseBody)
             }
             
             val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
@@ -593,14 +628,12 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
     /**
      * Converts symbol from standard format (BTCUSDT) to Bitget format
      * 
-     * Note: Bitget public market endpoints use standard format (BTCUSDT),
-     * while authenticated trading endpoints may use underscore format (BTC_USDT).
-     * For now, we use standard format for all endpoints as public endpoints
-     * are more commonly used and the error suggests underscore format doesn't work.
+     * Based on Bitget API v2 documentation, symbols use standard format (BTCUSDT) without underscores.
+     * The API returns symbols in format like "BTCUSDT" in the /api/v2/spot/public/symbols endpoint.
      */
     private fun convertSymbolToBitget(symbol: String): String {
-        // Bitget public market endpoints use standard format: BTCUSDT (uppercase)
-        // Ensure uppercase for consistency
+        // Bitget API v2 uses standard format: BTCUSDT (uppercase, no underscore)
+        // According to API documentation: /api/v2/spot/public/symbols returns symbols as "BTCUSDT"
         return symbol.uppercase()
     }
     
