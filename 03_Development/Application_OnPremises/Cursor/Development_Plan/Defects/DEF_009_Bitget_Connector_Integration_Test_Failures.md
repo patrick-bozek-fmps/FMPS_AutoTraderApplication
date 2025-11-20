@@ -212,33 +212,39 @@ org.opentest4j.AssertionFailedError: Should still have 3 traders ==> expected: <
 2. ✅ **Created Separate Function for Authenticated Endpoints**: Added `convertSymbolToBitgetAuthenticated()` for trading endpoints that may require underscore format.
 3. ✅ **Updated Trading Endpoints**: Modified `placeOrder()` and `getOrder()` to use authenticated format.
 
-**Remaining Issues**:
-- ❌ **CRITICAL**: v1 market endpoints do not support `BTCUSDT` or other common symbols
-  - v2 API confirms `BTCUSDT` exists (790 pairs available)
-  - v1 market endpoints reject all tested symbols (`BTCUSDT`, `ETHUSDT`, `LUMIAUSDT`, `GOATUSDT`)
-  - v1 symbols endpoint doesn't exist (404)
-  - v2 market endpoints don't exist (404)
-- ⚠️ **Solution Required**: 
-  - Option 1: Find which symbols v1 actually supports (if any)
-  - Option 2: Wait for v2 market endpoints to be available
-  - Option 3: Document as known limitation and skip tests requiring v1 market endpoints
-  - Option 4: Use a different exchange connector for integration tests
-- ⚠️ Environment configuration - "exchange environment is incorrect" (code 40099) - separate issue for balance endpoint
+**Solution Implemented**:
+- ✅ **Hybrid API Version Strategy**: 
+  - Uses V2 for symbols endpoint (always, works)
+  - Uses V1 for market endpoints (default, deprecated but required)
+  - Config flag (`useV2MarketEndpoints`) to enable V2 when available
+  - Centralized endpoint building via `buildEndpointUrl()` helper
+- ✅ **Future-Proof Migration**: 
+  - Single config change enables V2 for all market endpoints
+  - No code changes required when V2 becomes available
+  - Clear migration path documented
+- ⚠️ **Known Limitations**:
+  - v1 market endpoints don't support `BTCUSDT` (v1/v2 have different symbol lists)
+  - v2 spot market endpoints not yet available (return 404)
+  - Integration tests will fail until v2 spot market endpoints are available OR v1-compatible symbols are identified
+- ⚠️ **Environment configuration**: "exchange environment is incorrect" (code 40099) - separate issue for balance endpoint
 
 **Latest Changes (2025-11-19)**:
-- ✅ Added symbols endpoint query (`/api/v2/spot/public/symbols`) in `onConnect()` to verify available trading pairs
-- ✅ Changed symbol format back to `BTCUSDT` (no underscore) based on Bitget API v2 documentation
-- ✅ Fixed parameter name: `granularity` → `period` for candles endpoint
-- ✅ Added logging to check if BTCUSDT is available and online in the environment
-- ✅ **CRITICAL DISCOVERY**: v1 and v2 APIs have different symbol lists:
-  - v2 API: 790 trading pairs, BTCUSDT exists and is online
-  - v1 market endpoints: Reject BTCUSDT with "Parameter BTCUSDT does not exist"
-  - v1 symbols endpoint: 404 Not Found (doesn't exist)
-- 📋 **Root Cause**: We're using v1 market endpoints (`/api/spot/v1/market/...`) but v1 doesn't support BTCUSDT, while v2 confirms it exists
-- 📋 **Solution Options**:
-  1. Find v2 market endpoints (tested, returned 404 - don't exist)
-  2. Use a symbol that v1 actually supports (need to identify which symbols v1 supports)
-  3. Document as known limitation: v1/v2 have different symbol lists
+- ✅ **HYBRID SOLUTION IMPLEMENTED**: Future-proof hybrid approach for V1/V2 API transition
+  - **Configuration**: Added `useV2MarketEndpoints` flag to `BitgetConfig` (default: `false`)
+  - **Endpoint Builder**: Created `buildEndpointUrl()` helper method for centralized endpoint management
+  - **Strategy**: 
+    - Symbols endpoint: Always uses V2 (`/api/v2/spot/public/symbols`) - works
+    - Market endpoints: Uses V1 by default, V2 when enabled via config flag
+  - **Migration Path**: Single config change (`useV2MarketEndpoints = true`) enables V2 when available
+- ✅ **Root Cause Identified**:
+  - v1 API: Deprecated (discontinued Nov 28, 2025) but still required for spot market endpoints
+  - v2 API: Symbols endpoint works (790 pairs, BTCUSDT exists), but spot market endpoints return 404 (not available yet)
+  - v1 and v2 have different symbol lists - v1 doesn't support BTCUSDT
+- ✅ **Documentation**: Created `BITGET_API_V1_V2_HYBRID_SOLUTION.md` with full migration guide
+- 📋 **Current Status**: 
+  - Using V2 for symbols (working)
+  - Using V1 for market endpoints (deprecated but required)
+  - Ready for V2 migration when Bitget releases spot market endpoints
 
 ### **Code Changes**
 

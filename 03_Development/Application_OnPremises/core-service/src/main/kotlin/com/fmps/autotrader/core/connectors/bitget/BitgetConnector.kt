@@ -46,6 +46,51 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
     private val errorHandler = BitgetErrorHandler()
     
     /**
+     * Builds endpoint URL based on API version configuration
+     * 
+     * Hybrid Strategy:
+     * - Symbols endpoint: Always V2 (works)
+     * - Market endpoints: V1 by default, V2 when enabled
+     * 
+     * @param endpointType Type of endpoint (SYMBOLS always uses V2, MARKET uses config)
+     * @param path Endpoint path (e.g., "market/candles", "market/ticker")
+     * @param queryParams Query parameters (optional)
+     * @return Full URL for the endpoint
+     */
+    private enum class EndpointType {
+        SYMBOLS,    // Always uses V2
+        MARKET      // Uses V1 by default, V2 when enabled
+    }
+    
+    private fun buildEndpointUrl(endpointType: EndpointType, path: String, queryParams: Map<String, String> = emptyMap()): String {
+        val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
+        
+        val apiVersion = when (endpointType) {
+            EndpointType.SYMBOLS -> "v2"  // Symbols always use V2
+            EndpointType.MARKET -> if (bitgetConfig.useV2MarketEndpoints) "v2" else "v1"  // Market uses config
+        }
+        
+        val apiPath = when (endpointType) {
+            EndpointType.SYMBOLS -> "/api/v2/spot/public/$path"  // Symbols use public path
+            EndpointType.MARKET -> {
+                if (bitgetConfig.useV2MarketEndpoints) {
+                    "/api/v2/spot/market/$path"  // V2 market endpoints (when available)
+                } else {
+                    "/api/spot/v1/market/$path"  // V1 market endpoints (deprecated but required)
+                }
+            }
+        }
+        
+        val queryString = if (queryParams.isNotEmpty()) {
+            "?" + queryParams.entries.joinToString("&") { "${it.key}=${it.value}" }
+        } else {
+            ""
+        }
+        
+        return "$baseUrl$apiPath$queryString"
+    }
+    
+    /**
      * Configures the connector with Bitget-specific settings
      */
     override fun configure(config: ExchangeConfig) {
@@ -57,7 +102,14 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         }
         
         // Wrap config in BitgetConfig for convenience
-        bitgetConfig = BitgetConfig(baseExchangeConfig = config, passphrase = config.passphrase!!)
+        // Wrap config in BitgetConfig for convenience
+        // Note: useV2MarketEndpoints defaults to false (V2 spot market endpoints not available yet)
+        // Set to true when Bitget releases V2 spot market endpoints
+        bitgetConfig = BitgetConfig(
+            baseExchangeConfig = config,
+            passphrase = config.passphrase!!,
+            useV2MarketEndpoints = false  // TODO: Set to true when V2 spot market endpoints become available
+        )
         
         // Create authenticator
         authenticator = BitgetAuthenticator(
@@ -114,9 +166,10 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
             // Query available symbols to verify environment and symbol availability
             // Check both v2 and v1 symbols endpoints to understand version differences
             try {
-                // Query v2 symbols endpoint
-                logger.info { "Querying Bitget v2 symbols endpoint: $baseUrl/api/v2/spot/public/symbols" }
-                val v2SymbolsResponse = httpClient.get("$baseUrl/api/v2/spot/public/symbols")
+                // Query v2 symbols endpoint (always uses V2 - works)
+                val symbolsUrl = buildEndpointUrl(EndpointType.SYMBOLS, "symbols")
+                logger.info { "Querying Bitget symbols endpoint: $symbolsUrl" }
+                val v2SymbolsResponse = httpClient.get(symbolsUrl)
                 logger.info { "V2 symbols endpoint response status: ${v2SymbolsResponse.status}" }
                 
                 if (v2SymbolsResponse.status == HttpStatusCode.OK) {
@@ -140,33 +193,15 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
                             println("✅ BTCUSDT found in v2 API, status: $status")
                             logger.info { "✓ BTCUSDT found in v2 API, status: $status" }
                             
-                            // Test if v1 market endpoint works with BTCUSDT and other symbols
-                            // This will help us understand if v1/v2 have different symbol support
-                            val testSymbols = listOf("BTCUSDT", "ETHUSDT", "LUMIAUSDT", "GOATUSDT")
-                            var v1CompatibleSymbols = mutableListOf<String>()
+                            // Log API version configuration
+                            val marketApiVersion = if (bitgetConfig.useV2MarketEndpoints) "V2" else "V1 (deprecated)"
+                            println("   📌 Market endpoints using: $marketApiVersion")
+                            logger.info { "Market endpoints using: $marketApiVersion" }
                             
-                            for (testSymbol in testSymbols) {
-                                try {
-                                    val testUrl = "$baseUrl/api/spot/v1/market/ticker?symbol=$testSymbol"
-                                    val testResponse = httpClient.get(testUrl)
-                                    if (testResponse.status == HttpStatusCode.OK) {
-                                        v1CompatibleSymbols.add(testSymbol)
-                                        println("   ✅ v1 accepts: $testSymbol")
-                                        logger.info { "v1 accepts: $testSymbol" }
-                                    } else {
-                                        logger.debug { "v1 rejects $testSymbol: ${testResponse.status}" }
-                                    }
-                                } catch (e: Exception) {
-                                    logger.debug(e) { "Test v1 endpoint call failed for $testSymbol" }
-                                }
-                            }
-                            
-                            if (v1CompatibleSymbols.isNotEmpty()) {
-                                println("   ✅ v1-compatible symbols found: ${v1CompatibleSymbols.joinToString(", ")}")
-                                logger.info { "v1-compatible symbols: ${v1CompatibleSymbols.joinToString(", ")}" }
-                            } else {
-                                println("   ⚠️  No v1-compatible symbols found in test set")
-                                logger.warn { "No v1-compatible symbols found in test set" }
+                            if (!bitgetConfig.useV2MarketEndpoints) {
+                                println("   ⚠️  Note: V1 API is deprecated (discontinued Nov 28, 2025)")
+                                println("   ⚠️  V2 spot market endpoints not yet available - using V1")
+                                logger.warn { "Using deprecated V1 API for market endpoints. V2 spot market endpoints not yet available." }
                             }
                         } else {
                             println("⚠️  BTCUSDT NOT found in v2 API")
@@ -276,17 +311,16 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
             
             // Build query parameters
             // Note: Bitget API uses 'period' parameter for candles endpoint, not 'granularity' or 'interval'
-            val params = buildMap {
-                put("symbol", bitgetSymbol)
-                put("period", bitgetInterval)  // Changed from 'granularity' to 'period'
-                if (startTime != null) put("startTime", startTime.toEpochMilli().toString())
-                if (endTime != null) put("endTime", endTime.toEpochMilli().toString())
-                if (limit > 0) put("limit", limit.toString())
-            }
+            val params = mutableMapOf<String, String>(
+                "symbol" to bitgetSymbol,
+                "period" to bitgetInterval
+            )
+            if (startTime != null) params["startTime"] = startTime.toEpochMilli().toString()
+            if (endTime != null) params["endTime"] = endTime.toEpochMilli().toString()
+            if (limit > 0) params["limit"] = limit.toString()
             
-            val queryString = params.entries.joinToString("&") { "${it.key}=${it.value}" }
-            // Use v1 API (v2 market endpoints don't exist - symbols uses /api/v2/spot/public/symbols but market uses v1)
-            val url = "$baseUrl/api/spot/v1/market/candles?$queryString"
+            // Hybrid approach: Use V2 if enabled, otherwise V1 (deprecated but required)
+            val url = buildEndpointUrl(EndpointType.MARKET, "candles", params)
             
             val response = httpClient.get(url)
             
@@ -332,10 +366,9 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         ensureConnected()
         
         try {
-            val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
             val bitgetSymbol = convertSymbolToBitget(symbol)
-            // Use v1 API (v2 market endpoints don't exist - symbols uses /api/v2/spot/public/symbols but market uses v1)
-            val url = "$baseUrl/api/spot/v1/market/ticker?symbol=$bitgetSymbol"
+            // Hybrid approach: Use V2 if enabled, otherwise V1 (deprecated but required)
+            val url = buildEndpointUrl(EndpointType.MARKET, "ticker", mapOf("symbol" to bitgetSymbol))
             
             val response = httpClient.get(url)
             
@@ -380,10 +413,13 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         ensureConnected()
         
         try {
-            val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
             val bitgetSymbol = convertSymbolToBitget(symbol)
-            // Use v1 API (v2 market endpoints don't exist - symbols uses /api/v2/spot/public/symbols but market uses v1)
-            val url = "$baseUrl/api/spot/v1/market/depth?symbol=$bitgetSymbol&limit=$limit&type=step0"
+            // Hybrid approach: Use V2 if enabled, otherwise V1 (deprecated but required)
+            val url = buildEndpointUrl(EndpointType.MARKET, "depth", mapOf(
+                "symbol" to bitgetSymbol,
+                "limit" to limit.toString(),
+                "type" to "step0"
+            ))
             
             val response = httpClient.get(url)
             

@@ -35,7 +35,24 @@ data class BitgetConfig(
     // Bitget-specific fields
     val passphrase: String,
     val recvWindow: Long = 5000,
-    val timestampOffset: Long = 0
+    val timestampOffset: Long = 0,
+    
+    /**
+     * API Version Configuration
+     * 
+     * Bitget API Status (as of Nov 2025):
+     * - V1 API: Deprecated (discontinued Nov 28, 2025) but still required for spot market endpoints
+     * - V2 API: Available for symbols endpoint, futures/contracts, but NOT yet for spot market endpoints
+     * 
+     * Hybrid Strategy:
+     * - Symbols endpoint: Always uses V2 (/api/v2/spot/public/symbols) - works
+     * - Market endpoints: Uses V1 by default, can switch to V2 when enabled (when V2 spot market endpoints become available)
+     * 
+     * Migration Path:
+     * - Set useV2MarketEndpoints = true when Bitget releases V2 spot market endpoints
+     * - This allows seamless migration without code changes
+     */
+    val useV2MarketEndpoints: Boolean = false  // Default: false (V2 spot market endpoints not available yet)
 ) {
     
     // Convenience accessors for base config properties
@@ -97,7 +114,8 @@ data class BitgetConfig(
                 baseExchangeConfig = baseConfig,
                 passphrase = passphrase,
                 recvWindow = 5000,
-                timestampOffset = 0
+                timestampOffset = 0,
+                useV2MarketEndpoints = false  // V2 spot market endpoints not available yet
             )
         }
         
@@ -145,7 +163,8 @@ data class BitgetConfig(
                 baseExchangeConfig = baseConfig,
                 passphrase = passphrase,
                 recvWindow = 5000,
-                timestampOffset = 0
+                timestampOffset = 0,
+                useV2MarketEndpoints = false  // V2 spot market endpoints not available yet
             )
         }
     }

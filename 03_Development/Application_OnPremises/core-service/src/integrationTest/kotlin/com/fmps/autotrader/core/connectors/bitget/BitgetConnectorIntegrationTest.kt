@@ -158,6 +158,8 @@ class BitgetConnectorIntegrationTest {
         Assumptions.assumeTrue(apiKeysAvailable, "API keys not available")
         
         println("\n--- Test: Get Candlesticks ---")
+        println("⚠️  Note: Using V1 API for market endpoints (as required by Bitget)")
+        println("⚠️  V1 may not support BTCUSDT - test may fail due to v1/v2 symbol list differences")
         
         runBlocking {
             val symbol = "BTCUSDT"
@@ -199,6 +201,8 @@ class BitgetConnectorIntegrationTest {
         Assumptions.assumeTrue(apiKeysAvailable, "API keys not available")
         
         println("\n--- Test: Get Ticker ---")
+        println("⚠️  Note: Using V1 API for market endpoints (as required by Bitget)")
+        println("⚠️  V1 may not support BTCUSDT - test may fail due to v1/v2 symbol list differences")
         
         runBlocking {
             val symbol = "BTCUSDT"
@@ -231,6 +235,8 @@ class BitgetConnectorIntegrationTest {
         Assumptions.assumeTrue(apiKeysAvailable, "API keys not available")
         
         println("\n--- Test: Get Order Book ---")
+        println("⚠️  Note: Using V1 API for market endpoints (as required by Bitget)")
+        println("⚠️  V1 may not support BTCUSDT - test may fail due to v1/v2 symbol list differences")
         
         runBlocking {
             val symbol = "BTCUSDT"
