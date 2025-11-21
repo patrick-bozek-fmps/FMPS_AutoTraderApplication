@@ -2,12 +2,14 @@ package com.fmps.autotrader.core.integration
 
 import com.fmps.autotrader.core.connectors.ConnectorFactory
 import com.fmps.autotrader.core.database.repositories.AITraderRepository
+import com.fmps.autotrader.core.traders.AITraderConfig
 import com.fmps.autotrader.core.traders.AITraderManager
 import com.fmps.autotrader.shared.enums.Exchange
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
+import java.math.BigDecimal
 
 /**
  * Integration test for error recovery scenarios
@@ -142,25 +144,74 @@ class ErrorRecoveryTest {
     fun `should handle invalid configuration gracefully`() = runBlocking {
         println("Test 3: Handle invalid configuration gracefully")
         
-        // Try to create trader with invalid exchange config
-        val invalidConfig = TestUtilities.createTestTraderConfig(
-            name = "Invalid Config Trader",
-            exchange = Exchange.BINANCE,
-            symbol = "INVALID",
-            budgetUsd = -100.0 // Invalid budget
-        )
+        // Test 1: Invalid budget (negative value) - validation happens at config construction
+        println("  Testing invalid budget (negative value)...")
+        try {
+            TestUtilities.createTestTraderConfig(
+                name = "Invalid Config Trader",
+                exchange = Exchange.BINANCE,
+                symbol = "BTCUSDT",
+                budgetUsd = -100.0 // Invalid budget - should fail at construction
+            )
+            // If we get here, validation didn't work (unexpected)
+            fail("Expected IllegalArgumentException for negative budget, but config was created")
+        } catch (e: IllegalArgumentException) {
+            // Expected: AITraderConfig validates maxStakeAmount > 0 in init block
+            assertTrue(
+                e.message?.contains("Max stake amount must be positive") == true,
+                "Exception should mention max stake amount validation: ${e.message}"
+            )
+            println("    ✅ Negative budget correctly rejected: ${e.message}")
+        }
         
-        // Note: Budget validation might happen at different layers
-        // This test verifies that invalid configs are handled gracefully
-        val result = traderManager.createTrader(invalidConfig)
+        // Test 2: Invalid symbol (empty) - validation happens at config construction
+        println("  Testing invalid symbol (empty)...")
+        try {
+            TestUtilities.createTestTraderConfig(
+                name = "Invalid Symbol Trader",
+                exchange = Exchange.BINANCE,
+                symbol = "", // Invalid symbol - should fail at construction
+                budgetUsd = 1000.0
+            )
+            fail("Expected IllegalArgumentException for empty symbol, but config was created")
+        } catch (e: IllegalArgumentException) {
+            // Expected: AITraderConfig validates symbol.isNotBlank() in init block
+            assertTrue(
+                e.message?.contains("Symbol cannot be blank") == true,
+                "Exception should mention symbol validation: ${e.message}"
+            )
+            println("    ✅ Empty symbol correctly rejected: ${e.message}")
+        }
         
-        // Should either fail gracefully or succeed (if validation is deferred)
-        assertTrue(
-            result.isSuccess || result.isFailure,
-            "Invalid configuration should be handled (either rejected or accepted with validation)"
-        )
+        // Test 3: Invalid risk level (out of range) - validation happens at config construction
+        println("  Testing invalid risk level (out of range)...")
+        try {
+            // Create config with invalid risk level by directly constructing AITraderConfig
+            // (TestUtilities doesn't support custom risk level, so we test it directly)
+            AITraderConfig(
+                id = "test-invalid-risk",
+                name = "Invalid Risk Trader",
+                exchange = Exchange.BINANCE,
+                symbol = "BTCUSDT",
+                virtualMoney = true,
+                maxStakeAmount = BigDecimal.valueOf(1000.0),
+                maxRiskLevel = 15, // Invalid: must be 1-10
+                maxTradingDuration = java.time.Duration.ofHours(24),
+                minReturnPercent = 5.0,
+                strategy = com.fmps.autotrader.shared.model.TradingStrategy.TREND_FOLLOWING,
+                candlestickInterval = com.fmps.autotrader.shared.enums.TimeFrame.ONE_HOUR
+            )
+            fail("Expected IllegalArgumentException for invalid risk level, but config was created")
+        } catch (e: IllegalArgumentException) {
+            // Expected: AITraderConfig validates maxRiskLevel in 1..10 in init block
+            assertTrue(
+                e.message?.contains("Max risk level must be between 1 and 10") == true,
+                "Exception should mention risk level validation: ${e.message}"
+            )
+            println("    ✅ Invalid risk level correctly rejected: ${e.message}")
+        }
         
-        println("✅ Invalid configuration handled gracefully")
+        println("✅ Invalid configuration handled gracefully (validation at construction time)")
     }
     
     @Test
