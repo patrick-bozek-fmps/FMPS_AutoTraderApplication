@@ -488,14 +488,35 @@ class AITraderManager(
     // Helper methods
 
     private fun createExchangeConfig(exchange: Exchange): ExchangeConfig {
-        // Create a default testnet config
+        // Create exchange config from environment variables
         // In production, this would load from ConfigManager
-        return ExchangeConfig(
-            exchange = exchange,
-            apiKey = "test-api-key",
-            apiSecret = "test-api-secret",
-            testnet = true
-        )
+        return when (exchange) {
+            Exchange.BINANCE -> {
+                ExchangeConfig(
+                    exchange = exchange,
+                    apiKey = System.getenv("BINANCE_API_KEY") ?: "test-api-key",
+                    apiSecret = System.getenv("BINANCE_API_SECRET") ?: "test-api-secret",
+                    testnet = true
+                )
+            }
+            Exchange.BITGET -> {
+                ExchangeConfig(
+                    exchange = exchange,
+                    apiKey = System.getenv("BITGET_API_KEY") ?: "test-api-key",
+                    apiSecret = System.getenv("BITGET_API_SECRET") ?: "test-api-secret",
+                    passphrase = System.getenv("BITGET_API_PASSPHRASE") ?: System.getenv("BITGET_PASSPHRASE"),
+                    testnet = true
+                )
+            }
+            else -> {
+                ExchangeConfig(
+                    exchange = exchange,
+                    apiKey = "test-api-key",
+                    apiSecret = "test-api-secret",
+                    testnet = true
+                )
+            }
+        }
     }
 
     private fun formatTradingPair(symbol: String): String {

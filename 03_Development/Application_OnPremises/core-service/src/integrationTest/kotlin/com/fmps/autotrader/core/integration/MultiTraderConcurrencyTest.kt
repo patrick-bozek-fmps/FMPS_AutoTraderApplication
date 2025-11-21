@@ -329,11 +329,20 @@ class MultiTraderConcurrencyTest {
         operations.forEach { it.await() }
         
         // Verify system is still stable
-        assertEquals(3, traderManager.getTraderCount(), "Should still have 3 traders")
-        assertTrue(
-            errorsCount.get() < operationsCount.get() / 2,
-            "Error rate should be low: ${errorsCount.get()}/${operationsCount.get()}"
-        )
+        val finalTraderCount = traderManager.getTraderCount()
+        assertEquals(3, finalTraderCount, "Should still have 3 traders")
+        
+        // Check error rate (avoid division by zero)
+        val totalOperations = operationsCount.get()
+        if (totalOperations > 0) {
+            assertTrue(
+                errorsCount.get() < totalOperations / 2,
+                "Error rate should be low: ${errorsCount.get()}/$totalOperations"
+            )
+        } else {
+            // If no operations completed, that's also a problem
+            assertTrue(false, "No operations completed - system may be unstable")
+        }
         
         println("✅ System stability verified: ${operationsCount.get()} operations, ${errorsCount.get()} errors")
     }
