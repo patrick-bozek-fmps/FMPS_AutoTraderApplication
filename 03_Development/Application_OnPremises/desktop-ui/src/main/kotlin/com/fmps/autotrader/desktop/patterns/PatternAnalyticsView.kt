@@ -17,7 +17,9 @@ import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.control.Slider
 import javafx.scene.control.TextField
+import javafx.scene.Node
 import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
@@ -43,6 +45,12 @@ class PatternAnalyticsView :
     private val successSlider = Slider(0.0, 100.0, 0.0)
     private val refreshButton = ToolbarButton("Refresh", icon = "⟳")
     private val primaryChart = AreaChart<String, Number>(CategoryAxis(), NumberAxis())
+
+    // Helper to safely add a node, removing it from old parent first
+    private fun Node.safeAddTo(parent: Pane) {
+        this.parent?.let { (it as? Pane)?.children?.remove(this) }
+        parent.children += this
+    }
 
     override val root = borderpane {
         padding = Insets(20.0)
@@ -87,9 +95,9 @@ class PatternAnalyticsView :
         successSlider.valueProperty().addListener { _, _, new -> viewModel.updateSuccessThreshold(new.toDouble()) }
         val sliderBox = VBox(4.0).apply {
             children += label("Min Success %")
-            children += successSlider
+            successSlider.safeAddTo(this)
         }
-        children += sliderBox
+        sliderBox.safeAddTo(this)
 
         val spacer = Region()
         HBox.setHgrow(spacer, Priority.ALWAYS)

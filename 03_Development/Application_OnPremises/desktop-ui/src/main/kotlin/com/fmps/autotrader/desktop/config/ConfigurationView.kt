@@ -13,7 +13,9 @@ import javafx.scene.control.Label
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
+import javafx.scene.Node
 import javafx.scene.control.TextFormatter
+import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
@@ -55,6 +57,12 @@ class ConfigurationView :
     private val connectionLabel = Label()
 
     private val isExchangeUpdating = SimpleBooleanProperty(false)
+
+    // Helper to safely add a node, removing it from old parent first
+    private fun Node.safeAddTo(parent: Pane) {
+        this.parent?.let { (it as? Pane)?.children?.remove(this) }
+        parent.children += this
+    }
 
     override val root = borderpane {
         padding = Insets(20.0)
@@ -99,9 +107,9 @@ class ConfigurationView :
         children += labeledField("Passphrase", exchangePassphrase)
 
         exchangeErrors.styleClass += "validation-label"
-        children += exchangeErrors
+        exchangeErrors.safeAddTo(this)
         connectionLabel.styleClass += "meta-muted"
-        children += connectionLabel
+        connectionLabel.safeAddTo(this)
 
         hbox(10.0) {
             alignment = Pos.CENTER_RIGHT
@@ -196,7 +204,7 @@ class ConfigurationView :
         VBox.setVgrow(importArea, Priority.ALWAYS)
 
         children += label("Export Snapshot") { styleClass += "section-title" }
-        children += exportArea
+        exportArea.safeAddTo(this)
         children += ToolbarButton("Export Configuration", icon = "⬇").apply {
             action { viewModel.exportConfiguration() }
         }
@@ -204,12 +212,12 @@ class ConfigurationView :
         children += Region().apply { prefHeight = 10.0 }
         children += label("Import Configuration") { styleClass += "section-title" }
         importArea.promptText = "Paste configuration text..."
-        children += importArea
+        importArea.safeAddTo(this)
         children += ToolbarButton("Import Configuration", icon = "⬆").apply {
             action { viewModel.importConfiguration(importArea.text) }
         }
         importStatus.styleClass += "validation-label"
-        children += importStatus
+        importStatus.safeAddTo(this)
     }
 
     private fun labeledField(labelText: String, node: javafx.scene.Node) = vbox(4.0) {

@@ -15,7 +15,9 @@ import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
+import javafx.scene.Node
 import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
@@ -48,16 +50,25 @@ class MonitoringView :
         center = buildContent()
     }
 
+    // Helper to safely add a node, removing it from old parent first
+    private fun Node.safeAddTo(parent: javafx.scene.layout.Pane) {
+        this.parent?.let { (it as? javafx.scene.layout.Pane)?.children?.remove(this) }
+        parent.children += this
+    }
+
     private fun buildHeader(): VBox = vbox(8.0) {
         label("Trading Monitoring") { styleClass += "section-title" }
         val statusRow = hbox(12.0) {
             alignment = Pos.CENTER_LEFT
             connectionChip.styleClass.addAll("connection-chip", "connection-chip-good")
-            children += connectionChip
+            connectionChip.safeAddTo(this)
+            
             lastUpdatedLabel.styleClass += "meta-muted"
+            lastUpdatedLabel.safeAddTo(this)
+            
             latencyLabel.styleClass += "meta-muted"
-            children += lastUpdatedLabel
-            children += latencyLabel
+            latencyLabel.safeAddTo(this)
+            
             val spacer = Region()
             HBox.setHgrow(spacer, Priority.ALWAYS)
             children += spacer
