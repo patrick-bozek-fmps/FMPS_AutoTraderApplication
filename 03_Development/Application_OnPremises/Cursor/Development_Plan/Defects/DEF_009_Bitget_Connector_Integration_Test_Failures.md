@@ -1,6 +1,6 @@
 # DEF_009: Bitget Connector Integration Test Failures
 
-**Status**: ✅ **FIXED** (pending GitHub secrets configuration)  
+**Status**: ✅ **FIXED** (pending CI verification with GitHub secrets)  
 **Severity**: 🟠 **HIGH**  
 **Priority**: **P1 (High)**  
 **Reported By**: AI Assistant - SW Developer  
@@ -9,16 +9,21 @@
 **Assigned Date**: 2025-11-19  
 **Fixed By**: AI Assistant - SW Developer  
 **Fixed Date**: 2025-11-21  
-**Verified By**: AI Assistant - SW Developer  
-**Verified Date**: 2025-11-21  
-**Closed Date**: Pending (after GitHub secrets configured and tests pass)  
+**Verified By**: Pending (requires CI verification)  
+**Verified Date**: Pending  
+**Closed Date**: Pending (after GitHub secrets configured AND all CI tests pass)  
 **Epic**: Epic 6 (Testing & Polish)  
 **Issue**: Issue #25 (Integration Testing)  
 **Module/Component**: core-service, connectors, integration-tests  
 **Version Found**: dee046b  
 **Version Fixed**: 3eb3eae (hybrid testing implementation)
 
-> **NOTE**: Hybrid testing solution implemented (commit 3eb3eae). Tests now automatically discover V1/V2-compatible symbols and adapt accordingly. Tests skip gracefully if no V1-compatible symbols found. Integration tests are currently skipped in CI due to missing GitHub secrets. Once secrets are configured, tests will run and verify the fix.
+> **⚠️ IMPORTANT**: This defect CANNOT be closed until:
+> 1. GitHub secrets are configured (BINANCE_API_KEY, BINANCE_API_SECRET, BITGET_API_KEY, BITGET_API_SECRET, BITGET_API_PASSPHRASE)
+> 2. Integration tests run in CI with those secrets
+> 3. **ALL tests pass** (unit tests + integration tests) in GitHub Actions CI
+> 
+> Hybrid testing solution is implemented (commit 3eb3eae), but closure requires full CI verification.
 
 ---
 
@@ -418,18 +423,24 @@ This defect follows the standard development workflow from `DEVELOPMENT_WORKFLOW
   - ✅ All CI checks passed (unit tests)
   - ⚠️ Integration tests skipped (no GitHub secrets configured)
 - [ ] Fix verified by QA/Test Engineer
-  - ⏳ Pending: Configure GitHub secrets and verify integration tests pass
+  - ⏳ **REQUIRED**: Configure GitHub secrets and verify ALL tests pass in CI
+  - ⏳ **REQUIRED**: Integration tests must run (not skipped) and pass
 - [x] Regression tests pass
-  - ✅ CI workflow passed, no regressions
+  - ✅ CI workflow passed (unit tests only)
+  - ⏳ Integration tests not yet verified (secrets not configured)
 - [x] Documentation updated (if applicable)
   - ✅ BITGET_API_V1_V2_HYBRID_SOLUTION.md created
   - ✅ BITGET_HYBRID_TESTING_GUIDE.md created
   - ✅ GITHUB_SECRETS_SETUP_GUIDE.md created
   - ✅ DEF_009 updated with solution details
-- [x] Defect status updated to VERIFIED
-  - ✅ Status: FIXED (pending GitHub secrets configuration)
+- [ ] Defect status updated to VERIFIED
+  - ⏳ **REQUIRED**: All CI tests (unit + integration) must pass
+  - ⏳ **REQUIRED**: Integration tests must execute (not skipped)
 - [ ] Defect status updated to CLOSED
-  - ⏳ Pending: Configure GitHub secrets and verify integration tests pass in CI
+  - ⏳ **BLOCKED**: Cannot close until:
+    1. GitHub secrets configured
+    2. Integration tests run in CI
+    3. **ALL tests pass** in GitHub Actions
 - [ ] Related issues/epics updated (if applicable)
   - ⏳ Pending update to Issue #25 and Epic 6
 - [x] Lessons learned documented
@@ -454,22 +465,43 @@ This defect follows the standard development workflow from `DEVELOPMENT_WORKFLOW
    - BITGET_HYBRID_TESTING_GUIDE.md
    - GITHUB_SECRETS_SETUP_GUIDE.md
 
-**Next Steps to Close Defect**:
+**⚠️ BLOCKER: Defect Cannot Be Closed Until CI Verification**
+
+**Required Steps to Close Defect**:
 1. **Configure GitHub Secrets** (see GITHUB_SECRETS_SETUP_GUIDE.md):
-   - `BINANCE_API_KEY`
-   - `BINANCE_API_SECRET`
-   - `BITGET_API_KEY`
-   - `BITGET_API_SECRET`
-   - `BITGET_API_PASSPHRASE`
-2. **Re-run CI Workflow**: Trigger workflow with integration tests enabled
-3. **Verify Integration Tests Pass**: Confirm all Bitget integration tests pass
-4. **Close Defect**: Update status to CLOSED once verified
+   - `BINANCE_API_KEY` - Required
+   - `BINANCE_API_SECRET` - Required
+   - `BITGET_API_KEY` - Required
+   - `BITGET_API_SECRET` - Required
+   - `BITGET_API_PASSPHRASE` - Required
+   
+2. **Re-run CI Workflow**: 
+   - Trigger workflow (push or manual trigger)
+   - Integration tests must run (not skipped)
+   - Verify both `unit-tests` and `integration-tests` jobs execute
+
+3. **Verify ALL Tests Pass in CI**:
+   - ✅ Unit tests: Must pass (currently passing)
+   - ✅ Integration tests: Must run AND pass (currently skipped)
+   - ✅ No test failures in either job
+   - ✅ CI workflow shows green checkmark ✅
+
+4. **Only Then Close Defect**:
+   - Update status to VERIFIED (after CI passes)
+   - Update status to CLOSED (after verification)
+   - Document final CI run ID and commit SHA
+
+**Current Status**:
+- ✅ Code implementation: Complete
+- ✅ Unit tests: Passing in CI
+- ⚠️ Integration tests: **SKIPPED** (secrets not configured)
+- ❌ **Defect closure: BLOCKED** - Cannot close until integration tests pass in CI
 
 **Expected Behavior After Secrets Configuration**:
-- Integration tests will run in CI
+- Integration tests will run in CI (not skipped)
 - Tests will discover V1-compatible symbols automatically
 - Tests will use discovered symbols (or skip gracefully if none found)
-- All tests should pass with hybrid testing approach
+- **All tests must pass** for defect to be closed
 
 ---
 
