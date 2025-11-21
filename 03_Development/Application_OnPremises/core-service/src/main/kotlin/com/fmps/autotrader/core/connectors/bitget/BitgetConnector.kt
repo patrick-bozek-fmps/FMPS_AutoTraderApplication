@@ -46,6 +46,38 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
     private val errorHandler = BitgetErrorHandler()
     
     /**
+     * Hybrid Testing Support: Discovered symbol compatibility
+     * 
+     * These are populated during connection to enable hybrid testing:
+     * - Use V1-compatible symbols for V1 market endpoint tests
+     * - Use V2-compatible symbols for V2 market endpoint tests (when available)
+     */
+    private var v1CompatibleSymbols: List<String> = emptyList()
+    private var v2CompatibleSymbols: List<String> = emptyList()
+    
+    /**
+     * Gets a V1-compatible symbol for testing
+     * Returns the first available V1-compatible symbol, or null if none found
+     */
+    fun getV1CompatibleSymbol(): String? = v1CompatibleSymbols.firstOrNull()
+    
+    /**
+     * Gets a V2-compatible symbol for testing
+     * Returns the first available V2-compatible symbol, or null if none found
+     */
+    fun getV2CompatibleSymbol(): String? = v2CompatibleSymbols.firstOrNull()
+    
+    /**
+     * Gets all discovered V1-compatible symbols
+     */
+    fun getV1CompatibleSymbols(): List<String> = v1CompatibleSymbols
+    
+    /**
+     * Gets all discovered V2-compatible symbols
+     */
+    fun getV2CompatibleSymbols(): List<String> = v2CompatibleSymbols
+    
+    /**
      * Builds endpoint URL based on API version configuration
      * 
      * Hybrid Strategy:
@@ -187,25 +219,43 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
                             symbolObj["symbol"]?.jsonPrimitive?.content == "BTCUSDT"
                         }
                         
+                        // Collect all V2-compatible symbols (online status)
+                        v2CompatibleSymbols = symbolsArray.mapNotNull { symbol ->
+                            val symbolObj = symbol.jsonObject
+                            val symbolName = symbolObj["symbol"]?.jsonPrimitive?.content
+                            val status = symbolObj["status"]?.jsonPrimitive?.content
+                            if (status == "online" && symbolName != null) {
+                                symbolName
+                            } else null
+                        }
+                        
+                        println("✅ Discovered ${v2CompatibleSymbols.size} V2-compatible symbols (online)")
+                        logger.info { "Discovered ${v2CompatibleSymbols.size} V2-compatible symbols" }
+                        
+                        // Check if BTCUSDT is available in v2 (using already found btcusdtV2)
                         if (btcusdtV2 != null) {
                             val symbolObj = btcusdtV2.jsonObject
                             val status = symbolObj["status"]?.jsonPrimitive?.content
                             println("✅ BTCUSDT found in v2 API, status: $status")
                             logger.info { "✓ BTCUSDT found in v2 API, status: $status" }
-                            
-                            // Log API version configuration
-                            val marketApiVersion = if (bitgetConfig.useV2MarketEndpoints) "V2" else "V1 (deprecated)"
-                            println("   📌 Market endpoints using: $marketApiVersion")
-                            logger.info { "Market endpoints using: $marketApiVersion" }
-                            
-                            if (!bitgetConfig.useV2MarketEndpoints) {
-                                println("   ⚠️  Note: V1 API is deprecated (discontinued Nov 28, 2025)")
-                                println("   ⚠️  V2 spot market endpoints not yet available - using V1")
-                                logger.warn { "Using deprecated V1 API for market endpoints. V2 spot market endpoints not yet available." }
-                            }
                         } else {
                             println("⚠️  BTCUSDT NOT found in v2 API")
                             logger.warn { "⚠ BTCUSDT NOT found in v2 API" }
+                        }
+                        
+                        // Log API version configuration
+                        val marketApiVersion = if (bitgetConfig.useV2MarketEndpoints) "V2" else "V1 (deprecated)"
+                        println("   📌 Market endpoints using: $marketApiVersion")
+                        logger.info { "Market endpoints using: $marketApiVersion" }
+                        
+                        if (!bitgetConfig.useV2MarketEndpoints) {
+                            println("   ⚠️  Note: V1 API is deprecated (discontinued Nov 28, 2025)")
+                            println("   ⚠️  V2 spot market endpoints not yet available - using V1")
+                            logger.warn { "Using deprecated V1 API for market endpoints. V2 spot market endpoints not yet available." }
+                            
+                            // Discover V1-compatible symbols by testing them
+                            println("   🔍 Discovering V1-compatible symbols...")
+                            discoverV1CompatibleSymbols(v2CompatibleSymbols.take(20)) // Test first 20 V2 symbols
                         }
                     }
                 }
@@ -258,6 +308,70 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         } catch (e: Exception) {
             logger.warn(e) { "Failed to synchronize server time, will use local time" }
             // Non-fatal - can proceed with local time
+        }
+    }
+    
+    /**
+     * Discovers which symbols are compatible with V1 market endpoints
+     * Tests symbols by attempting to fetch ticker data
+     * 
+     * @param candidateSymbols List of symbols to test (typically from V2 symbols endpoint)
+     * @return List of symbols that work with V1 endpoints
+     */
+    private suspend fun discoverV1CompatibleSymbols(candidateSymbols: List<String>) {
+        val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
+        val discovered = mutableListOf<String>()
+        
+        // Test more symbols (up to 50) to increase chances of finding V1-compatible ones
+        // V1 API is deprecated and may have limited symbol support
+        val symbolsToTest = candidateSymbols.take(50)
+        
+        println("   Testing ${symbolsToTest.size} symbols with V1 endpoints...")
+        logger.info { "Testing ${symbolsToTest.size} symbols with V1 endpoints for compatibility" }
+        
+        for ((index, symbol) in symbolsToTest.withIndex()) {
+            try {
+                // Test with ticker endpoint (lightweight test)
+                val testUrl = buildEndpointUrl(EndpointType.MARKET, "ticker", mapOf("symbol" to symbol))
+                val testResponse = httpClient.get(testUrl)
+                
+                if (testResponse.status == HttpStatusCode.OK) {
+                    discovered.add(symbol)
+                    println("   ✓ V1 accepts: $symbol (${discovered.size}/${symbolsToTest.size})")
+                    logger.info { "✓ V1 accepts: $symbol" }
+                } else {
+                    // Only log first few rejections to avoid spam
+                    if (index < 5) {
+                        logger.debug { "✗ V1 rejects: $symbol (${testResponse.status})" }
+                    }
+                }
+            } catch (e: Exception) {
+                // Only log first few errors to avoid spam
+                if (index < 5) {
+                    logger.debug(e) { "Error testing symbol $symbol with V1" }
+                }
+            }
+            
+            // Limit discovery to avoid rate limiting, but try to find at least 3
+            if (discovered.size >= 3) {
+                break // Found enough symbols
+            }
+            
+            // Add small delay to avoid rate limiting
+            if (index > 0 && index % 10 == 0) {
+                kotlinx.coroutines.delay(100) // 100ms delay every 10 requests
+            }
+        }
+        
+        v1CompatibleSymbols = discovered
+        
+        if (v1CompatibleSymbols.isNotEmpty()) {
+            println("   ✅ Discovered ${v1CompatibleSymbols.size} V1-compatible symbols: ${v1CompatibleSymbols.joinToString(", ")}")
+            logger.info { "Discovered ${v1CompatibleSymbols.size} V1-compatible symbols: ${v1CompatibleSymbols.joinToString(", ")}" }
+        } else {
+            println("   ⚠️  No V1-compatible symbols found after testing ${symbolsToTest.size} symbols")
+            println("   ⚠️  This is expected - V1 API is deprecated and may not support V2 symbols")
+            logger.warn { "No V1-compatible symbols found after testing ${symbolsToTest.size} symbols. V1 API is deprecated." }
         }
     }
     
