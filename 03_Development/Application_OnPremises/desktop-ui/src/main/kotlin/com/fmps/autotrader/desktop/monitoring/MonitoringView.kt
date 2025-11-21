@@ -94,12 +94,28 @@ class MonitoringView :
                 Timeframe.values().first { it.label == string }
         }
         timeframePicker.selectionModel.selectedItemProperty().addListener { _, _, new ->
-            new?.let { viewModel.changeTimeframe(it) }
+            new?.let { 
+                // ViewModel will be available after onDock() is called
+                try {
+                    viewModel.changeTimeframe(it)
+                } catch (e: IllegalStateException) {
+                    // ViewModel not ready yet - this is normal during construction
+                    // The listener will work once the View is docked
+                }
+            }
         }
         children += Label("Timeframe")
         children += timeframePicker
         refreshButton = ToolbarButton("Manual Refresh", icon = "⟳").apply {
-            action { viewModel.refresh() }
+            action { 
+                // ViewModel will be available after onDock() is called
+                try {
+                    viewModel.refresh()
+                } catch (e: IllegalStateException) {
+                    // ViewModel not ready yet - this is normal during construction
+                    // The button will work once the View is docked
+                }
+            }
         }
         children += refreshButton
     }

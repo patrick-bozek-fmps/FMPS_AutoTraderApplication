@@ -77,11 +77,41 @@ class DesktopApp : App(ShellView::class) {
         val koin = koinApp.koin
         navigationService.registerAll(
             listOf(
-                ViewDescriptor(route = "dashboard", title = "Overview", factory = { koin.get<DashboardView>() }),
-                ViewDescriptor(route = "traders", title = "AI Traders", factory = { koin.get<TraderManagementView>() }),
-                ViewDescriptor(route = "monitoring", title = "Monitoring", factory = { koin.get<MonitoringView>() }),
-                       ViewDescriptor(route = "configuration", title = "Configuration", factory = { koin.get<ConfigurationView>() }),
-                       ViewDescriptor(route = "patterns", title = "Pattern Analytics", factory = { koin.get<PatternAnalyticsView>() })
+                ViewDescriptor(route = "dashboard", title = "Overview", factory = { 
+                    try {
+                        koin.get<DashboardView>()
+                    } catch (e: Exception) {
+                        throw RuntimeException("Failed to create DashboardView: ${e.message}", e)
+                    }
+                }),
+                ViewDescriptor(route = "traders", title = "AI Traders", factory = { 
+                    try {
+                        koin.get<TraderManagementView>()
+                    } catch (e: Exception) {
+                        throw RuntimeException("Failed to create TraderManagementView: ${e.message}", e)
+                    }
+                }),
+                ViewDescriptor(route = "monitoring", title = "Monitoring", factory = { 
+                    try {
+                        koin.get<MonitoringView>()
+                    } catch (e: Exception) {
+                        throw RuntimeException("Failed to create MonitoringView: ${e.message}", e)
+                    }
+                }),
+                ViewDescriptor(route = "configuration", title = "Configuration", factory = { 
+                    try {
+                        koin.get<ConfigurationView>()
+                    } catch (e: Exception) {
+                        throw RuntimeException("Failed to create ConfigurationView: ${e.message}", e)
+                    }
+                }),
+                ViewDescriptor(route = "patterns", title = "Pattern Analytics", factory = { 
+                    try {
+                        koin.get<PatternAnalyticsView>()
+                    } catch (e: Exception) {
+                        throw RuntimeException("Failed to create PatternAnalyticsView: ${e.message}", e)
+                    }
+                })
             )
         )
     }
