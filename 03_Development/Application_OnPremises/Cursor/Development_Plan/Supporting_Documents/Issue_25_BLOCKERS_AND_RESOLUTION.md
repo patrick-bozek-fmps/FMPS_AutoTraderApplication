@@ -130,19 +130,16 @@ cd 03_Development\Application_OnPremises
     5. Close DEF_009 after verification
 - **Status**: ⏸️ **ON HOLD** - Required but blocked by admin rights
 
-#### **Blocker #4: Load Testing** ❓ **UNDER REVIEW**
+#### **Blocker #4: Load Testing** ✅ **DEFERRED**
 - **Issue**: Load testing not implemented as part of Issue #25
-- **Original Decision**: Deferred to Issue #26 (Performance Testing)
-- **Review Question**: Can load testing be done as part of Issue #25?
-- **Considerations**:
-  - Issue #25 scope includes "Load Testing: Validate system stability under continuous operation"
-  - Issue #26 focuses on performance benchmarks, optimization, and profiling
-  - Load testing could be part of integration testing (Issue #25) or performance testing (Issue #26)
-- **Current Status**: ❓ **UNDER REVIEW** - Decision needed: Include in Issue #25 or defer to Issue #26?
-- **Recommendation**: 
-  - **Option A**: Include basic load testing in Issue #25 (continuous operation, multi-trader scenarios)
-  - **Option B**: Defer to Issue #26 if load testing requires performance profiling tools
-- **Action Required**: Decision on scope - load testing as integration test (Issue #25) or performance test (Issue #26)?
+- **Decision**: **DEFERRED to Issue #26 (Performance Testing)** - Confirmed by user
+- **Rationale**:
+  - Issue #25 focuses on integration testing (end-to-end workflows, component communication)
+  - Issue #26 focuses on performance testing, optimization, and benchmarking
+  - Load testing (24-hour continuous operation, stress testing) is better suited for performance testing phase
+  - Performance testing requires profiling tools and optimization work that belongs in Issue #26
+- **Current Status**: ✅ **DEFERRED** - Will be addressed in Issue #26
+- **Action Required**: None - decision confirmed
 
 ---
 
@@ -200,12 +197,11 @@ cd 03_Development\Application_OnPremises
    - Re-run CI to verify integration tests pass
    - Close DEF_009 after verification
 
-2. ❓ **UNDER REVIEW**: Decision on load testing scope
-   - Review Issue #25 requirements vs Issue #26 scope
-   - Decide: Include basic load testing in Issue #25 or defer to Issue #26?
-   - Update blocker status based on decision
+2. ✅ **CONFIRMED**: Load testing deferred to Issue #26 (Performance Testing)
+   - Decision confirmed by user
+   - Load testing will be addressed in Issue #26
 
-3. 🐛 **NEW**: Identify and raise Desktop UI defects
+3. 🐛 **COMPLETED**: Desktop UI defects identified and raised
    - Review Desktop UI functionality
    - Identify issues/defects
    - Create defect reports using `DEFECT_TRACKING_TEMPLATE.md`
@@ -213,8 +209,7 @@ cd 03_Development\Application_OnPremises
 
 4. ⏳ **PENDING**: Update Issue #25 documentation with final status
    - After blockers resolved
-   - After load testing decision made
-   - After Desktop UI defects raised
+   - After Desktop UI defects fixed
 
 5. ⏳ **PENDING**: Mark Issue #25 as complete
    - Only after all blockers resolved
@@ -237,8 +232,8 @@ cd 03_Development\Application_OnPremises
 | **#2: Config Mismatch** | ✅ RESOLVED | Fixed server.host/server.port usage | `11db4af` (DEF_001) |
 | **#2b: Environment Setup** | ⚠️ EXPECTED | Not a blocker - tests skip gracefully (local + GitHub) | N/A |
 | **#3: API Keys** | ⏸️ **ON HOLD** | **REQUIRED** - Waiting for admin rights to configure GitHub secrets | N/A |
-| **#4: Load Testing** | ❓ **UNDER REVIEW** | Decision needed: Issue #25 vs Issue #26? | N/A |
-| **#5: Desktop UI Defects** | 🐛 **NEW** | Desktop UI issues need to be identified and raised | N/A |
+| **#4: Load Testing** | ✅ **DEFERRED** | Deferred to Issue #26 (Performance Testing) | N/A |
+| **#5: Desktop UI Defects** | 🐛 **NEW** | Desktop UI navigation failures (DEF_011, DEF_012, DEF_013) | N/A |
 
 ### **Current State** (Updated November 21, 2025):
 - ✅ CI pipeline passing (latest run: 19567852207)
@@ -247,8 +242,8 @@ cd 03_Development\Application_OnPremises
 - ✅ All critical defects fixed (DEF_006, DEF_007, DEF_008, DEF_010)
 - ⏸️ **BLOCKED**: DEF_009 on hold (pending GitHub secrets - hybrid testing implemented)
 - ⏸️ **BLOCKED**: Full integration test coverage requires GitHub secrets (admin rights needed)
-- ❓ **UNDER REVIEW**: Load testing scope decision (Issue #25 vs Issue #26)
-- 🐛 **NEW**: Desktop UI defects need to be identified and raised
+- ✅ **DEFERRED**: Load testing deferred to Issue #26 (confirmed by user)
+- 🐛 **NEW**: Desktop UI navigation defects raised (DEF_011, DEF_012, DEF_013)
 
 ### **Defect Resolution Summary**:
 | Defect | Status | Commit | CI Verification |
