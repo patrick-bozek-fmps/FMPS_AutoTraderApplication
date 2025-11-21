@@ -1,14 +1,14 @@
 # DEF_011: Desktop UI Monitoring Tab Navigation Failure
 
-**Status**: 🆕 **NEW**  
+**Status**: 🏗️ **IN PROGRESS**  
 **Severity**: 🔴 **HIGH**  
 **Priority**: **P1 (High)**  
 **Reported By**: User  
 **Reported Date**: 2025-11-21  
-**Assigned To**: Unassigned  
-**Assigned Date**: Not Assigned  
-**Fixed By**: N/A  
-**Fixed Date**: N/A  
+**Assigned To**: Auto  
+**Assigned Date**: 2025-11-21  
+**Fixed By**: Auto  
+**Fixed Date**: 2025-11-21  
 **Verified By**: N/A  
 **Verified Date**: N/A  
 **Closed Date**: Not Closed  
@@ -152,32 +152,48 @@ Unable to navigate to 'monitoring' (Could not create instance for '[Factory:'com
 
 ### **Root Cause Analysis**
 
-**Status**: 🔍 **INVESTIGATING**
+**Status**: ✅ **RESOLVED**
 
-**Investigation Steps**:
-1. ⏳ Review `BaseView.kt` - Check how it gets ViewModel from Koin
-2. ⏳ Review `DesktopModule.kt` - Verify MonitoringView and MonitoringViewModel factory definitions
-3. ⏳ Review `DesktopApp.kt` - Check Koin initialization and navigation registration
-4. ⏳ Check `MonitoringViewModel` dependencies - Verify DispatcherProvider and MarketDataService are registered
-5. ⏳ Test Koin context - Verify GlobalContext is available when BaseView tries to get ViewModel
+**Root Cause Identified**:
+`BaseView` was using `GlobalContext.get().get()` to retrieve ViewModels, which may not work correctly when Views are created via Koin factories. Since `BaseView` implements `KoinComponent`, it should use `getKoin().get()` instead, which ensures it uses the same Koin instance that created the component.
 
-**Potential Root Causes**:
-1. `BaseView` uses `GlobalContext.get()` which may not be initialized
-2. ViewModel factory dependencies not properly resolved
-3. Timing issue - View created before Koin is ready
-4. Circular dependency between View and ViewModel
+**Investigation Steps Completed**:
+1. ✅ Reviewed `BaseView.kt` - Found it uses `GlobalContext.get().get()` instead of `getKoin()`
+2. ✅ Reviewed `DesktopModule.kt` - Verified MonitoringView and MonitoringViewModel factory definitions are correct
+3. ✅ Reviewed `DesktopApp.kt` - Confirmed Koin initialization and navigation registration are correct
+4. ✅ Checked `MonitoringViewModel` dependencies - All dependencies (DispatcherProvider, MarketDataService) are registered
+5. ✅ Identified root cause - `BaseView` should use `getKoin()` from `KoinComponent` instead of `GlobalContext.get()`
 
-### **Proposed Solution**
+### **Solution Implemented**
 
-**Status**: ⏳ **PENDING INVESTIGATION**
+**Status**: ✅ **FIXED**
 
-**Solution Options**:
-1. **Option A**: Fix `BaseView` to use KoinComponent properly instead of GlobalContext
-2. **Option B**: Ensure Koin is fully initialized before navigation registration
-3. **Option C**: Change View factory registration to use lazy initialization
-4. **Option D**: Fix dependency resolution in DesktopModule
+**Solution Applied**:
+- Modified `BaseView.kt` to use `getKoin().get(viewModelClass)` instead of `GlobalContext.get().get(viewModelClass)`
+- This ensures that the View uses the same Koin instance that created it, which is the recommended approach for `KoinComponent` implementations
+- Removed unused `GlobalContext` import
 
-**Recommended Approach**: Investigate root cause first, then implement appropriate fix.
+**Code Changes**:
+```kotlin
+// Before:
+protected val viewModel: VM by lazy { GlobalContext.get().get(viewModelClass, qualifier = qualifier) }
+
+// After:
+protected val viewModel: VM by lazy { 
+    val koin = getKoin()
+    if (qualifier != null) {
+        koin.get(viewModelClass, qualifier = qualifier)
+    } else {
+        koin.get(viewModelClass)
+    }
+}
+```
+
+**Files Modified**:
+- `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/mvvm/BaseView.kt`
+
+**Version Fixed**: TBD (pending commit)
+**Fixed Date**: 2025-11-21
 
 ---
 
@@ -191,11 +207,14 @@ Unable to navigate to 'monitoring' (Could not create instance for '[Factory:'com
 5. ✅ Verify other tabs still work (Dashboard, Traders)
 
 ### **Acceptance Criteria**
-- [ ] Monitoring tab can be navigated to without errors
-- [ ] MonitoringView displays correctly with all components
-- [ ] Price charts, positions table, and trade history table are visible
-- [ ] No Koin dependency injection errors in logs
-- [ ] All other navigation tabs continue to work
+- [x] Fix implemented - BaseView uses getKoin() instead of GlobalContext.get()
+- [x] Code compiles successfully
+- [x] Unit tests pass
+- [ ] Monitoring tab can be navigated to without errors (pending manual testing)
+- [ ] MonitoringView displays correctly with all components (pending manual testing)
+- [ ] Price charts, positions table, and trade history table are visible (pending manual testing)
+- [ ] No Koin dependency injection errors in logs (pending manual testing)
+- [ ] All other navigation tabs continue to work (pending manual testing)
 
 ---
 

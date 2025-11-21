@@ -9,8 +9,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.qualifier.Qualifier
-import org.koin.core.context.GlobalContext
-import org.koin.core.component.get
 import tornadofx.View
 import kotlin.reflect.KClass
 
@@ -23,7 +21,16 @@ abstract class BaseView<State : Any, Event : ViewEvent, VM : BaseViewModel<State
     private val qualifier: Qualifier? = null
 ) : View(), KoinComponent {
 
-    protected val viewModel: VM by lazy { GlobalContext.get().get(viewModelClass, qualifier = qualifier) }
+    protected val viewModel: VM by lazy { 
+        // Use getKoin() from KoinComponent to get the Koin instance
+        // This ensures we use the same Koin context that created this component
+        val koin = getKoin()
+        if (qualifier != null) {
+            koin.get(viewModelClass, qualifier = qualifier)
+        } else {
+            koin.get(viewModelClass)
+        }
+    }
 
     private val viewScope = CoroutineScope(Dispatchers.Main)
     private var bindingJob: Job? = null
