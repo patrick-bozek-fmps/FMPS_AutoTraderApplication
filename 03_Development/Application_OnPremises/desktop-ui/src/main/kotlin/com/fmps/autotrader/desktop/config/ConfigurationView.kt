@@ -60,8 +60,14 @@ class ConfigurationView :
 
     // Helper to safely add a node, removing it from old parent first
     private fun Node.safeAddTo(parent: Pane) {
-        this.parent?.let { (it as? Pane)?.children?.remove(this) }
-        parent.children += this
+        // Remove from old parent if exists and different from target
+        if (this.parent != null && this.parent != parent) {
+            (this.parent as? Pane)?.children?.remove(this)
+        }
+        // Only add if not already in the target parent's children list
+        if (this.parent != parent && !parent.children.contains(this)) {
+            parent.children += this
+        }
     }
 
     override val root = borderpane {

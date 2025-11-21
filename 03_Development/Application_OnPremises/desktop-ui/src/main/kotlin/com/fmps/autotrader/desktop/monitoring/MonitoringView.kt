@@ -52,8 +52,14 @@ class MonitoringView :
 
     // Helper to safely add a node, removing it from old parent first
     private fun Node.safeAddTo(parent: javafx.scene.layout.Pane) {
-        this.parent?.let { (it as? javafx.scene.layout.Pane)?.children?.remove(this) }
-        parent.children += this
+        // Remove from old parent if exists and different from target
+        if (this.parent != null && this.parent != parent) {
+            (this.parent as? javafx.scene.layout.Pane)?.children?.remove(this)
+        }
+        // Only add if not already in the target parent's children list
+        if (this.parent != parent && !parent.children.contains(this)) {
+            parent.children += this
+        }
     }
 
     private fun buildHeader(): VBox = vbox(8.0) {
