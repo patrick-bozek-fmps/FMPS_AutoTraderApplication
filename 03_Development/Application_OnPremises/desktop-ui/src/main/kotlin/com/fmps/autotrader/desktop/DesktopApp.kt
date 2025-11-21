@@ -93,22 +93,37 @@ class DesktopApp : App(ShellView::class) {
                 }),
                 ViewDescriptor(route = "monitoring", title = "Monitoring", factory = { 
                     try {
-                        koin.get<MonitoringView>()
+                        println("🔍 Attempting to create MonitoringView...")
+                        val view = koin.get<MonitoringView>()
+                        println("✅ MonitoringView created successfully")
+                        view
                     } catch (e: Exception) {
+                        println("❌ Failed to create MonitoringView: ${e.message}")
+                        e.printStackTrace()
                         throw RuntimeException("Failed to create MonitoringView: ${e.message}", e)
                     }
                 }),
                 ViewDescriptor(route = "configuration", title = "Configuration", factory = { 
                     try {
-                        koin.get<ConfigurationView>()
+                        println("🔍 Attempting to create ConfigurationView...")
+                        val view = koin.get<ConfigurationView>()
+                        println("✅ ConfigurationView created successfully")
+                        view
                     } catch (e: Exception) {
+                        println("❌ Failed to create ConfigurationView: ${e.message}")
+                        e.printStackTrace()
                         throw RuntimeException("Failed to create ConfigurationView: ${e.message}", e)
                     }
                 }),
                 ViewDescriptor(route = "patterns", title = "Pattern Analytics", factory = { 
                     try {
-                        koin.get<PatternAnalyticsView>()
+                        println("🔍 Attempting to create PatternAnalyticsView...")
+                        val view = koin.get<PatternAnalyticsView>()
+                        println("✅ PatternAnalyticsView created successfully")
+                        view
                     } catch (e: Exception) {
+                        println("❌ Failed to create PatternAnalyticsView: ${e.message}")
+                        e.printStackTrace()
                         throw RuntimeException("Failed to create PatternAnalyticsView: ${e.message}", e)
                     }
                 })
