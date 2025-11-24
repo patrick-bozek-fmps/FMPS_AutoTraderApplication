@@ -121,7 +121,7 @@ class PatternAnalyticsView :
         }
         patternList.prefWidth = 360.0
 
-        val listPane = vbox(8.0) {
+        val listPane = VBox(8.0).apply {
             label("Patterns") { styleClass += "section-title" }
             VBox.setVgrow(patternList, Priority.ALWAYS)
             children += patternList
