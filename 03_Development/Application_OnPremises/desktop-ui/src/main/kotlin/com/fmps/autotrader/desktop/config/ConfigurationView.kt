@@ -209,17 +209,17 @@ class ConfigurationView :
         VBox.setVgrow(exportArea, Priority.ALWAYS)
         VBox.setVgrow(importArea, Priority.ALWAYS)
 
-        children += label("Export Snapshot") { styleClass += "section-title" }
+        label("Export Snapshot") { styleClass += "section-title" }
         exportArea.safeAddTo(this)
-        children += ToolbarButton("Export Configuration", icon = "⬇").apply {
+        ToolbarButton("Export Configuration", icon = "⬇").apply {
             action { viewModel.exportConfiguration() }
         }
 
-        children += Region().apply { prefHeight = 10.0 }
-        children += label("Import Configuration") { styleClass += "section-title" }
+        Region().apply { prefHeight = 10.0 }
+        label("Import Configuration") { styleClass += "section-title" }
         importArea.promptText = "Paste configuration text..."
         importArea.safeAddTo(this)
-        children += ToolbarButton("Import Configuration", icon = "⬆").apply {
+        ToolbarButton("Import Configuration", icon = "⬆").apply {
             action { viewModel.importConfiguration(importArea.text) }
         }
         importStatus.styleClass += "validation-label"
