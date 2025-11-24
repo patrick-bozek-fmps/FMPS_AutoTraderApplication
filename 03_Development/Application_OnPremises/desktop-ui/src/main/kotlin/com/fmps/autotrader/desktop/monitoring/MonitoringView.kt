@@ -64,7 +64,7 @@ class MonitoringView :
 
     private fun buildHeader(): VBox = vbox(8.0) {
         label("Trading Monitoring") { styleClass += "section-title" }
-        val statusRow = hbox(12.0) {
+        hbox(12.0) {
             alignment = Pos.CENTER_LEFT
             connectionChip.styleClass.addAll("connection-chip", "connection-chip-good")
             connectionChip.safeAddTo(this)
@@ -79,7 +79,7 @@ class MonitoringView :
             HBox.setHgrow(spacer, Priority.ALWAYS)
             children += spacer
         }
-        children += statusRow
+        // Note: No need to manually add statusRow - TornadoFX automatically adds nodes created in vbox/hbox blocks
     }
 
     private fun buildContent() = HBox(16.0).apply {
