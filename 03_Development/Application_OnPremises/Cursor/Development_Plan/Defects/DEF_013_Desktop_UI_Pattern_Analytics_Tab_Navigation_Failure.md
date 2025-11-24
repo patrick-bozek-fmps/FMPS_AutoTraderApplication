@@ -1,22 +1,24 @@
 # DEF_013: Desktop UI Pattern Analytics Tab Navigation Failure
 
-**Status**: 🆕 **NEW**  
+**Status**: 🏗️ **IN PROGRESS**  
 **Severity**: 🔴 **HIGH**  
 **Priority**: **P1 (High)**  
 **Reported By**: User  
 **Reported Date**: 2025-11-21  
-**Assigned To**: Unassigned  
-**Assigned Date**: Not Assigned  
-**Fixed By**: N/A  
-**Fixed Date**: N/A  
+**Assigned To**: Auto  
+**Assigned Date**: 2025-11-21  
+**Fixed By**: Auto  
+**Fixed Date**: 2025-11-24  
 **Verified By**: N/A  
 **Verified Date**: N/A  
 **Closed Date**: Not Closed  
 **Epic**: Epic 5 (Desktop UI)  
 **Issue**: Issue #24 (Pattern Analytics View)  
-**Module/Component**: desktop-ui, navigation, dependency-injection  
+**Module/Component**: desktop-ui, navigation, JavaFX UI  
 **Version Found**: f13583f  
-**Version Fixed**: N/A
+**Version Fixed**: 4c59bac
+
+> **NOTE**: Same root cause as DEF_011 - JavaFX "duplicate children" error. Class properties (successSlider, sliderBox) were being added to parent containers multiple times.
 
 > **NOTE**: Desktop UI fails to navigate to Pattern Analytics tab with error "Could not create instance for '[Factory:'com.fmps.autotrader.desktop.patterns.PatternAnalyticsView']'". This indicates a Koin dependency injection issue preventing PatternAnalyticsView from being instantiated.
 
@@ -152,32 +154,30 @@ Unable to navigate to 'patterns' (Could not create instance for '[Factory:'com.f
 
 ### **Root Cause Analysis**
 
-**Status**: 🔍 **INVESTIGATING**
+**Status**: ✅ **RESOLVED**
 
-**Investigation Steps**:
-1. ⏳ Review `BaseView.kt` - Check how it gets ViewModel from Koin
-2. ⏳ Review `DesktopModule.kt` - Verify PatternAnalyticsView and PatternAnalyticsViewModel factory definitions
-3. ⏳ Review `DesktopApp.kt` - Check Koin initialization and navigation registration
-4. ⏳ Check `PatternAnalyticsViewModel` dependencies - Verify DispatcherProvider and PatternAnalyticsService are registered
-5. ⏳ Test Koin context - Verify GlobalContext is available when BaseView tries to get ViewModel
+**Root Cause Identified**:
+Same root cause as DEF_011 - JavaFX `IllegalArgumentException: Children: duplicate children added` error during View construction. Class properties like `successSlider` and `sliderBox` were being added to parent containers multiple times when the View was instantiated via Koin factory.
 
-**Potential Root Causes**:
-1. `BaseView` uses `GlobalContext.get()` which may not be initialized
-2. ViewModel factory dependencies not properly resolved
-3. Timing issue - View created before Koin is ready
-4. Circular dependency between View and ViewModel
+**Investigation Steps Completed**:
+1. ✅ Identified same root cause as DEF_011 (duplicate children error)
+2. ✅ Confirmed class properties (successSlider, sliderBox) are reused across View instances
+3. ✅ Applied same solution as DEF_011
 
-### **Proposed Solution**
+### **Solution Implemented**
 
-**Status**: ⏳ **PENDING INVESTIGATION**
+**Status**: ✅ **FIXED** (Pending Verification)
 
-**Solution Options**:
-1. **Option A**: Fix `BaseView` to use KoinComponent properly instead of GlobalContext
-2. **Option B**: Ensure Koin is fully initialized before navigation registration
-3. **Option C**: Change View factory registration to use lazy initialization
-4. **Option D**: Fix dependency resolution in DesktopModule
+**Solution Applied**:
+- Same solution as DEF_011 - Created `safeAddTo()` extension function on `Node`
+- Applied to PatternAnalyticsView for successSlider and sliderBox
+- See DEF_011 for detailed solution description
 
-**Recommended Approach**: Investigate root cause first, then implement appropriate fix. Consider fixing all three related defects (DEF_011, DEF_012, DEF_013) together if root cause is common.
+**Files Modified**:
+- `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/patterns/PatternAnalyticsView.kt`
+
+**Version Fixed**: 4c59bac
+**Fixed Date**: 2025-11-24
 
 ---
 
@@ -208,6 +208,6 @@ Unable to navigate to 'patterns' (Could not create instance for '[Factory:'com.f
 
 ---
 
-**Last Updated**: 2025-11-21  
-**Next Review**: After root cause investigation
+**Last Updated**: 2025-11-24  
+**Next Review**: After manual testing to verify fix resolves the duplicate children error
 

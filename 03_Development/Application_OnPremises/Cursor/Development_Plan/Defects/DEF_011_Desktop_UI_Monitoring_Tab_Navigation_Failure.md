@@ -8,17 +8,17 @@
 **Assigned To**: Auto  
 **Assigned Date**: 2025-11-21  
 **Fixed By**: Auto  
-**Fixed Date**: 2025-11-21  
+**Fixed Date**: 2025-11-24  
 **Verified By**: N/A  
 **Verified Date**: N/A  
 **Closed Date**: Not Closed  
 **Epic**: Epic 5 (Desktop UI)  
 **Issue**: Issue #22 (Trading Monitoring View)  
-**Module/Component**: desktop-ui, navigation, dependency-injection  
+**Module/Component**: desktop-ui, navigation, JavaFX UI  
 **Version Found**: f13583f  
-**Version Fixed**: N/A
+**Version Fixed**: 4c59bac
 
-> **NOTE**: Desktop UI fails to navigate to Monitoring tab with error "Could not create instance for '[Factory:'com.fmps.autotrader.desktop.monitoring.MonitoringView']'". This indicates a Koin dependency injection issue preventing MonitoringView from being instantiated.
+> **NOTE**: Desktop UI fails to navigate to Monitoring tab with error "Could not create instance for '[Factory:'com.fmps.autotrader.desktop.monitoring.MonitoringView']'". Root cause identified as JavaFX "duplicate children" error, not a Koin DI issue. Class properties (connectionChip, labels) were being added to parent containers multiple times.
 
 ---
 
@@ -155,45 +155,54 @@ Unable to navigate to 'monitoring' (Could not create instance for '[Factory:'com
 **Status**: ✅ **RESOLVED**
 
 **Root Cause Identified**:
-`BaseView` was using `GlobalContext.get().get()` to retrieve ViewModels, which may not work correctly when Views are created via Koin factories. Since `BaseView` implements `KoinComponent`, it should use `getKoin().get()` instead, which ensures it uses the same Koin instance that created the component.
+The error "Could not create instance for '[Factory:'...View']'" was actually caused by a JavaFX `IllegalArgumentException: Children: duplicate children added` error during View construction. Class properties like `connectionChip`, `lastUpdatedLabel`, and `latencyLabel` were being added to parent containers multiple times when the View was instantiated via Koin factory. This is not a Koin DI issue, but a JavaFX UI construction issue.
 
 **Investigation Steps Completed**:
-1. ✅ Reviewed `BaseView.kt` - Found it uses `GlobalContext.get().get()` instead of `getKoin()`
-2. ✅ Reviewed `DesktopModule.kt` - Verified MonitoringView and MonitoringViewModel factory definitions are correct
-3. ✅ Reviewed `DesktopApp.kt` - Confirmed Koin initialization and navigation registration are correct
-4. ✅ Checked `MonitoringViewModel` dependencies - All dependencies (DispatcherProvider, MarketDataService) are registered
-5. ✅ Identified root cause - `BaseView` should use `getKoin()` from `KoinComponent` instead of `GlobalContext.get()`
+1. ✅ Added detailed logging to identify exact failure point
+2. ✅ Discovered the actual error: `java.lang.IllegalArgumentException: Children: duplicate children added: parent = VBox@...`
+3. ✅ Identified that class properties (connectionChip, labels) are reused across View instances
+4. ✅ Confirmed that JavaFX nodes can only have one parent at a time
+5. ✅ Root cause: Nodes were being added to new parents without removing them from old parents first
 
 ### **Solution Implemented**
 
-**Status**: ✅ **FIXED**
+**Status**: ✅ **FIXED** (Pending Verification)
 
 **Solution Applied**:
-- Modified `BaseView.kt` to use `getKoin().get(viewModelClass)` instead of `GlobalContext.get().get(viewModelClass)`
-- This ensures that the View uses the same Koin instance that created it, which is the recommended approach for `KoinComponent` implementations
-- Removed unused `GlobalContext` import
+- Created `safeAddTo()` extension function on `Node` that:
+  1. Removes the node from its old parent (if different from target)
+  2. Checks if the node is already in the target parent's children list
+  3. Only adds the node if it's not already present
+- Applied to all three affected Views: MonitoringView, ConfigurationView, PatternAnalyticsView
+- Used `Pane` type instead of `Parent` for proper children access
 
 **Code Changes**:
 ```kotlin
-// Before:
-protected val viewModel: VM by lazy { GlobalContext.get().get(viewModelClass, qualifier = qualifier) }
-
-// After:
-protected val viewModel: VM by lazy { 
-    val koin = getKoin()
-    if (qualifier != null) {
-        koin.get(viewModelClass, qualifier = qualifier)
-    } else {
-        koin.get(viewModelClass)
+// Helper to safely add a node, removing it from old parent first
+private fun Node.safeAddTo(parent: javafx.scene.layout.Pane) {
+    // Remove from old parent if exists and different from target
+    if (this.parent != null && this.parent != parent) {
+        (this.parent as? javafx.scene.layout.Pane)?.children?.remove(this)
+    }
+    // Only add if not already in the target parent's children list
+    if (this.parent != parent && !parent.children.contains(this)) {
+        parent.children += this
     }
 }
+
+// Usage:
+connectionChip.safeAddTo(this)
+lastUpdatedLabel.safeAddTo(this)
+latencyLabel.safeAddTo(this)
 ```
 
 **Files Modified**:
-- `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/mvvm/BaseView.kt`
+- `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/monitoring/MonitoringView.kt`
+- `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/config/ConfigurationView.kt`
+- `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/patterns/PatternAnalyticsView.kt`
 
-**Version Fixed**: TBD (pending commit)
-**Fixed Date**: 2025-11-21
+**Version Fixed**: 4c59bac
+**Fixed Date**: 2025-11-24
 
 ---
 
@@ -226,6 +235,6 @@ protected val viewModel: VM by lazy {
 
 ---
 
-**Last Updated**: 2025-11-21  
-**Next Review**: After root cause investigation
+**Last Updated**: 2025-11-24  
+**Next Review**: After manual testing to verify fix resolves the duplicate children error
 
