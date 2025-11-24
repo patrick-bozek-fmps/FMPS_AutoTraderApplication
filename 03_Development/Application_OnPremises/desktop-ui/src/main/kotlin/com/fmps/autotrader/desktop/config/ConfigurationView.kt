@@ -60,7 +60,7 @@ class ConfigurationView :
 
     // Helper to safely add a node, removing it from old parent first
     private fun Node.safeAddTo(parent: Pane) {
-        // Remove from old parent if exists and different from target
+        // Always remove from current parent first (if any and different from target)
         if (this.parent != null && this.parent != parent) {
             (this.parent as? Pane)?.children?.remove(this)
         }
@@ -209,17 +209,17 @@ class ConfigurationView :
         VBox.setVgrow(exportArea, Priority.ALWAYS)
         VBox.setVgrow(importArea, Priority.ALWAYS)
 
-        label("Export Snapshot") { styleClass += "section-title" }
+        children += label("Export Snapshot") { styleClass += "section-title" }
         exportArea.safeAddTo(this)
-        ToolbarButton("Export Configuration", icon = "⬇").apply {
+        children += ToolbarButton("Export Configuration", icon = "⬇").apply {
             action { viewModel.exportConfiguration() }
         }
 
-        Region().apply { prefHeight = 10.0 }
-        label("Import Configuration") { styleClass += "section-title" }
+        children += Region().apply { prefHeight = 10.0 }
+        children += label("Import Configuration") { styleClass += "section-title" }
         importArea.promptText = "Paste configuration text..."
         importArea.safeAddTo(this)
-        ToolbarButton("Import Configuration", icon = "⬆").apply {
+        children += ToolbarButton("Import Configuration", icon = "⬆").apply {
             action { viewModel.importConfiguration(importArea.text) }
         }
         importStatus.styleClass += "validation-label"
