@@ -86,8 +86,15 @@ class DesktopApp : App(ShellView::class) {
                 }),
                 ViewDescriptor(route = "traders", title = "AI Traders", factory = { 
                     try {
-                        koin.get<TraderManagementView>()
+                        println("🔍 Attempting to create TraderManagementView...")
+                        val view = koin.get<TraderManagementView>()
+                        println("✅ TraderManagementView created successfully")
+                        view
                     } catch (e: Exception) {
+                        println("❌ Failed to create TraderManagementView")
+                        println("   Error type: ${e.javaClass.simpleName}")
+                        println("   Error message: ${e.message}")
+                        e.printStackTrace()
                         throw RuntimeException("Failed to create TraderManagementView: ${e.message}", e)
                     }
                 }),

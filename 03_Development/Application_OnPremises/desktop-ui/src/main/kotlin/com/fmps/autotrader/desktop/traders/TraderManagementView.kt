@@ -79,12 +79,23 @@ class TraderManagementView :
         }
     }
 
-    override val root: BorderPane = BorderPane().apply {
-        // Clean up any nodes from previous instantiations first
-        cleanupNodes()
-        padding = Insets(20.0)
-        left = buildSidebar()
-        center = buildContent()
+    override val root: BorderPane = try {
+        BorderPane().apply {
+            // Clean up any nodes from previous instantiations first
+            cleanupNodes()
+            padding = Insets(20.0)
+            println("🔍 TraderManagementView: Building sidebar...")
+            left = buildSidebar()
+            println("🔍 TraderManagementView: Building content...")
+            center = buildContent()
+            println("✅ TraderManagementView: Root BorderPane initialized successfully")
+        }
+    } catch (e: Exception) {
+        println("❌ TraderManagementView: Exception during root initialization")
+        println("   Error type: ${e.javaClass.simpleName}")
+        println("   Error message: ${e.message}")
+        e.printStackTrace()
+        throw e
     }
 
     private fun buildSidebar(): VBox = VBox(12.0).apply {
