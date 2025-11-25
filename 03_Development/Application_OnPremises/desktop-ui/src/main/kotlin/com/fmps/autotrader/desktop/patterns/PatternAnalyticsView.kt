@@ -102,8 +102,12 @@ class PatternAnalyticsView :
         successSlider.isShowTickLabels = true
         successSlider.majorTickUnit = 20.0
         successSlider.valueProperty().addListener { _, _, new -> viewModel.updateSuccessThreshold(new.toDouble()) }
+        // Create sliderBox fresh each time to avoid duplicate children
         val sliderBox = VBox(4.0).apply {
-            children += label("Min Success %")
+            // Create label explicitly to avoid TornadoFX DSL auto-addition
+            val minSuccessLabel = Label("Min Success %")
+            children += minSuccessLabel
+            // Ensure successSlider is removed from any previous parent before adding
             successSlider.safeAddTo(this)
         }
         sliderBox.safeAddTo(this)
