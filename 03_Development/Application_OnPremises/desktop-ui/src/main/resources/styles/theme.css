@@ -278,3 +278,9 @@
     -fx-background-radius: 10px;
 }
 
+.field-label {
+    -fx-text-fill: #c1c6da;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
