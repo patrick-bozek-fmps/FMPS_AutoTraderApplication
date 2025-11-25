@@ -66,7 +66,22 @@ class TraderManagementView :
         parent.children += this
     }
 
+    // Cleanup all class property nodes from their old parents before root initialization
+    private fun cleanupNodes() {
+        listOf(
+            traderTable, searchField, statusFilter, nameField, exchangeField,
+            strategyField, riskField, baseAssetField, quoteAssetField, budgetField,
+            apiKeyField, apiSecretField, apiPassphraseField, validationLabel
+        ).forEach { node ->
+            node.parent?.let { oldParent ->
+                (oldParent as? Pane)?.children?.remove(node)
+            }
+        }
+    }
+
     override val root: BorderPane = BorderPane().apply {
+        // Clean up any nodes from previous instantiations first
+        cleanupNodes()
         padding = Insets(20.0)
         left = buildSidebar()
         center = buildContent()
