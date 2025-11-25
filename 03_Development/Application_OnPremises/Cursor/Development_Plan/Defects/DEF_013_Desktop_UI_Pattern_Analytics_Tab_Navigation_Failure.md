@@ -169,12 +169,19 @@ Same root cause as DEF_011 - JavaFX `IllegalArgumentException: Children: duplica
 **Status**: ✅ **FIXED** (Pending Verification)
 
 **Solution Applied**:
-- Same solution as DEF_011 - Created `safeAddTo()` extension function on `Node`
-- Applied to PatternAnalyticsView for successSlider and sliderBox
+- Created `safeAddTo()` extension function on `Node` (same as DEF_011)
+- Applied to PatternAnalyticsView for successSlider, sliderBox, listPane, and detailScroll
+- Changed TornadoFX `label()` DSL to explicit `Label()` constructor to prevent auto-addition
+- Applied to both `buildFilters()` (sliderBox) and `buildContent()` (listPane)
 - See DEF_011 for detailed solution description
 
 **Files Modified**:
 - `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/patterns/PatternAnalyticsView.kt`
+
+**Commits**:
+- `8bfbac6`: Fix DEF_013: Use safeAddTo() for listPane and detailScroll
+- `f1adf79`: Fix DEF_013: Use explicit Label() instead of TornadoFX label() DSL in sliderBox
+- `9a5cd14`: Fix DEF_013: Use explicit Label() instead of TornadoFX label() DSL in listPane
 
 **Version Fixed**: 9a5cd14 (final fix)
 **Fixed Date**: 2025-11-24
