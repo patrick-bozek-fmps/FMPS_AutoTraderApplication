@@ -256,7 +256,14 @@ class TraderManagementView :
 
     private fun labeledField(labelText: String, field: javafx.scene.Node) = VBox(4.0).apply {
         children += Label(labelText).apply { styleClass += "field-label" }
-        children += field
+        // Use safeAddTo for class property fields to prevent duplicate children
+        // Remove from old parent first, then add to this VBox
+        field.parent?.let { oldParent ->
+            (oldParent as? Pane)?.children?.remove(field)
+        }
+        if (!children.contains(field)) {
+            children += field
+        }
     }
 
     override fun onStateChanged(state: TraderManagementState) {
