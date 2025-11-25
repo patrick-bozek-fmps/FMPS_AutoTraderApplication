@@ -16,7 +16,7 @@
 **Issue**: Issue #19 (Desktop UI Foundation)  
 **Module/Component**: desktop-ui, user-experience, documentation  
 **Version Found**: ae89d77  
-**Version Fixed**: TBD (will be set after commit)  
+**Version Fixed**: a484c27  
 
 > **NOTE**: This is a UX/documentation issue, not a technical bug. The core service is designed to run as a separate process. However, users need better guidance when the service is not running.
 
