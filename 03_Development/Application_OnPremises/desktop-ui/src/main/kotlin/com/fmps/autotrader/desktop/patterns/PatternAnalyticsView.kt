@@ -48,14 +48,16 @@ class PatternAnalyticsView :
 
     // Helper to safely add a node, removing it from old parent first
     private fun Node.safeAddTo(parent: Pane) {
-        // Remove from old parent if exists and different from target
-        if (this.parent != null && this.parent != parent) {
-            (this.parent as? Pane)?.children?.remove(this)
+        // Always remove from current parent first (if any)
+        this.parent?.let { currentParent ->
+            (currentParent as? Pane)?.children?.remove(this)
         }
-        // Only add if not already in the target parent's children list
-        if (this.parent != parent && !parent.children.contains(this)) {
-            parent.children += this
+        // Also remove from target parent if already there (defensive)
+        if (parent.children.contains(this)) {
+            parent.children.remove(this)
         }
+        // Now safely add
+        parent.children += this
     }
 
     override val root = borderpane {
@@ -68,7 +70,8 @@ class PatternAnalyticsView :
         alignment = Pos.CENTER_LEFT
         searchField.promptText = "Search patterns..."
         searchField.textProperty().addListener { _, _, new -> viewModel.updateSearch(new.orEmpty()) }
-        children += searchField.apply { prefWidth = 200.0 }
+        searchField.apply { prefWidth = 200.0 }
+        searchField.safeAddTo(this)
 
         exchangeFilter.promptText = "Exchange"
         exchangeFilter.items.addAll("All", "Binance", "Bitget", "Coinbase")
@@ -77,7 +80,7 @@ class PatternAnalyticsView :
             val value = new.takeUnless { it == null || it == "All" }
             viewModel.updateExchange(value)
         }
-        children += exchangeFilter
+        exchangeFilter.safeAddTo(this)
 
         timeframeFilter.promptText = "Timeframe"
         timeframeFilter.items.addAll("All", "5m", "15m", "1h", "4h")
@@ -86,14 +89,14 @@ class PatternAnalyticsView :
             val value = new.takeUnless { it == null || it == "All" }
             viewModel.updateTimeframe(value)
         }
-        children += timeframeFilter
+        timeframeFilter.safeAddTo(this)
 
         statusFilter.promptText = "Status"
         statusFilter.items.addAll(PatternPerformanceStatus.values())
         statusFilter.selectionModel.selectedItemProperty().addListener { _, _, new ->
             viewModel.updateStatus(new)
         }
-        children += statusFilter
+        statusFilter.safeAddTo(this)
 
         successSlider.isShowTickMarks = true
         successSlider.isShowTickLabels = true
@@ -110,7 +113,7 @@ class PatternAnalyticsView :
         children += spacer
 
         refreshButton.action { viewModel.refresh() }
-        children += refreshButton
+        refreshButton.safeAddTo(this)
     }
 
     private fun buildContent() = HBox(16.0).apply {
@@ -122,12 +125,12 @@ class PatternAnalyticsView :
         patternList.prefWidth = 360.0
 
         val listPane = VBox(8.0).apply {
-            label("Patterns") { styleClass += "section-title" }
+            children += label("Patterns") { styleClass += "section-title" }
             VBox.setVgrow(patternList, Priority.ALWAYS)
-            children += patternList
+            patternList.safeAddTo(this)
         }
         listPane.prefWidth = 360.0
-        children += listPane
+        listPane.safeAddTo(this)
 
         detailContainer.apply {
             spacing = 12.0
@@ -138,7 +141,7 @@ class PatternAnalyticsView :
             isFitToWidth = true
         }
         HBox.setHgrow(detailScroll, Priority.ALWAYS)
-        children += detailScroll
+        detailScroll.safeAddTo(this)
     }
 
     override fun onStateChanged(state: PatternAnalyticsState) {
