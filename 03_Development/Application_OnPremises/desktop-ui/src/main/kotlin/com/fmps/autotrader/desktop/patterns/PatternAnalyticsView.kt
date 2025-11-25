@@ -129,7 +129,10 @@ class PatternAnalyticsView :
         patternList.prefWidth = 360.0
 
         val listPane = VBox(8.0).apply {
-            children += label("Patterns") { styleClass += "section-title" }
+            // Create label explicitly to avoid TornadoFX DSL auto-addition
+            val patternsLabel = Label("Patterns")
+            patternsLabel.styleClass += "section-title"
+            children += patternsLabel
             VBox.setVgrow(patternList, Priority.ALWAYS)
             patternList.safeAddTo(this)
         }
