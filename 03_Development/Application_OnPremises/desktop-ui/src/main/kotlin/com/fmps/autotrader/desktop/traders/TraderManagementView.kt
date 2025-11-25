@@ -24,6 +24,8 @@ import javafx.util.StringConverter
 import tornadofx.action
 import tornadofx.error
 import tornadofx.information
+import tornadofx.scrollpane
+import javafx.scene.control.ScrollPane
 import java.text.DecimalFormat
 
 class TraderManagementView :
@@ -109,8 +111,15 @@ class TraderManagementView :
         children += traderTable
 
         val form = buildForm()
-        HBox.setHgrow(form, Priority.ALWAYS)
-        children += form
+        // Wrap form in ScrollPane to ensure all fields are accessible
+        val formScroll = scrollpane {
+            content = form
+            isFitToWidth = true
+            vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+        }
+        HBox.setHgrow(formScroll, Priority.ALWAYS)
+        children += formScroll
     }
 
     private fun <T> createColumn(title: String, extractor: (TraderDetail) -> T) =
