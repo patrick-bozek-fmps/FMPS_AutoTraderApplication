@@ -26,6 +26,8 @@ import tornadofx.error
 import tornadofx.information
 import tornadofx.scrollpane
 import javafx.scene.control.ScrollPane
+import javafx.scene.Node
+import javafx.scene.layout.Pane
 import java.text.DecimalFormat
 
 class TraderManagementView :
@@ -50,6 +52,20 @@ class TraderManagementView :
     private val exchanges = listOf("Binance", "Bitget")
     private val strategies = listOf("Momentum", "Mean Reversion", "Arbitrage", "Scalping")
 
+    // Helper to safely add a node, removing it from old parent first
+    private fun Node.safeAddTo(parent: Pane) {
+        // Always remove from current parent first (if any)
+        this.parent?.let { currentParent ->
+            (currentParent as? Pane)?.children?.remove(this)
+        }
+        // Also remove from target parent if already there (defensive)
+        if (parent.children.contains(this)) {
+            parent.children.remove(this)
+        }
+        // Now safely add
+        parent.children += this
+    }
+
     override val root: BorderPane = BorderPane().apply {
         padding = Insets(20.0)
         left = buildSidebar()
@@ -65,7 +81,7 @@ class TraderManagementView :
         searchField.textProperty().addListener { _, _, newValue ->
             viewModel.updateSearch(newValue.orEmpty())
         }
-        children += searchField
+        searchField.safeAddTo(this)
 
         statusFilter.items.addAll(TraderStatusFilter.values())
         statusFilter.selectionModel.select(TraderStatusFilter.ALL)
@@ -73,7 +89,7 @@ class TraderManagementView :
             new?.let { viewModel.updateStatusFilter(it) }
         }
         statusFilter.prefWidth = Double.MAX_VALUE
-        children += statusFilter
+        statusFilter.safeAddTo(this)
 
         children += Separator()
 
@@ -108,7 +124,7 @@ class TraderManagementView :
                 viewModel.selectTrader(new)
             }
         }
-        children += traderTable
+        traderTable.safeAddTo(this)
 
         val form = buildForm()
         // Wrap form in ScrollPane to ensure all fields are accessible
@@ -219,7 +235,7 @@ class TraderManagementView :
         children += labeledField("Passphrase", apiPassphraseField)
 
         validationLabel.styleClass += "validation-label"
-        children += validationLabel
+        validationLabel.safeAddTo(this)
 
         val buttonRow = HBox(10.0).apply {
             alignment = Pos.CENTER_RIGHT
