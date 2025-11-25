@@ -107,16 +107,29 @@ class RealTelemetryClient(
             } catch (e: Exception) {
                 attempt++
                 connected.set(false)
-                logger.warn(e) { "Telemetry WebSocket connection failed (attempt $attempt/$maxReconnectAttempts)" }
+                
+                // Provide user-friendly error message
+                val userFriendlyMessage = when {
+                    e.message?.contains("Connection refused") == true -> 
+                        "Cannot connect to core service. Please ensure the core service is running on localhost:8080"
+                    e.message?.contains("getsockopt") == true -> 
+                        "Cannot connect to core service. Please ensure the core service is running."
+                    e.message?.contains("timeout") == true -> 
+                        "Connection timeout. The core service may be slow to respond."
+                    else -> 
+                        "Connection error: ${e.message ?: "Unknown error"}"
+                }
+                
+                logger.warn(e) { "Telemetry WebSocket connection failed (attempt $attempt/$maxReconnectAttempts): $userFriendlyMessage" }
                 
                 if (attempt < maxReconnectAttempts && running.get()) {
                     delay(reconnectDelayMs)
                 } else if (running.get()) {
                     logger.error { "Max reconnection attempts reached. Telemetry client will stop retrying." }
-                    // Emit a disconnected sample to notify UI
+                    // Emit a disconnected sample to notify UI with user-friendly message
                     samples.emit(TelemetrySample(
                         channel = "system.error",
-                        payload = """{"type":"CONNECTION","message":"Telemetry connection failed after $maxReconnectAttempts attempts","timestamp":${System.currentTimeMillis()}}"""
+                        payload = """{"type":"CONNECTION","message":"$userFriendlyMessage","timestamp":${System.currentTimeMillis()}}"""
                     ))
                 }
             }

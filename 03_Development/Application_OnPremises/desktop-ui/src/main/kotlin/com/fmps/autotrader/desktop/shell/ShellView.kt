@@ -50,12 +50,20 @@ class ShellView : BaseView<ShellState, ShellEvent, ShellViewModel>(ShellViewMode
         updateBreadcrumbs(state)
         updateQuickStats(state)
         updateTraderList(state.traderSummaries)
+        updateConnectionStatus(state)
         backButton.isDisable = !state.canNavigateBack
     }
 
     override fun onEvent(event: ShellEvent) {
         when (event) {
             is ShellEvent.Toast -> information(event.message)
+            is ShellEvent.ShowConnectionHelp -> {
+                information(
+                    title = "How to Start Core Service",
+                    header = "Core Service Not Running",
+                    content = event.instructions
+                )
+            }
         }
     }
 
@@ -90,6 +98,8 @@ class ShellView : BaseView<ShellState, ShellEvent, ShellViewModel>(ShellViewMode
         VBox.setVgrow(children.last(), Priority.ALWAYS)
     }
 
+    private lateinit var connectionStatusIndicator: HBox
+    
     private fun buildContent(): VBox = vbox(16.0) {
         padding = Insets(0.0, 0.0, 0.0, 4.0)
 
@@ -97,6 +107,12 @@ class ShellView : BaseView<ShellState, ShellEvent, ShellViewModel>(ShellViewMode
             children += breadcrumbBar
             children += Separator(Orientation.VERTICAL)
             children += quickStatsContainer
+            // Create connection status indicator inline
+            connectionStatusIndicator = HBox(8.0).apply {
+                addClass("connection-status")
+                alignment = javafx.geometry.Pos.CENTER_LEFT
+            }
+            children += connectionStatusIndicator
             children += HBox().apply {
                 hgrow = Priority.ALWAYS
             }
@@ -175,6 +191,49 @@ class ShellView : BaseView<ShellState, ShellEvent, ShellViewModel>(ShellViewMode
 
     private fun placeholderView() = Label(Localization.string("placeholder.select_module")).apply {
         styleClass += "placeholder-label"
+    }
+    
+    private fun updateConnectionStatus(state: ShellState) {
+        if (!::connectionStatusIndicator.isInitialized) return
+        connectionStatusIndicator.children.clear()
+        
+        val statusColor = when (state.connectionStatus) {
+            com.fmps.autotrader.desktop.services.ConnectionStatus.CONNECTED -> "#4CAF50"
+            com.fmps.autotrader.desktop.services.ConnectionStatus.DISCONNECTED -> "#F44336"
+            com.fmps.autotrader.desktop.services.ConnectionStatus.RECONNECTING -> "#FF9800"
+        }
+        
+        val statusText = when (state.connectionStatus) {
+            com.fmps.autotrader.desktop.services.ConnectionStatus.CONNECTED -> "Core Service: Connected"
+            com.fmps.autotrader.desktop.services.ConnectionStatus.DISCONNECTED -> "Core Service: Disconnected"
+            com.fmps.autotrader.desktop.services.ConnectionStatus.RECONNECTING -> "Core Service: Connecting..."
+        }
+        
+        // Status indicator circle
+        val indicator = javafx.scene.shape.Circle(6.0).apply {
+            fill = javafx.scene.paint.Color.web(statusColor)
+        }
+        
+        val statusLabel = Label(statusText).apply {
+            styleClass += "connection-status-label"
+            style = "-fx-text-fill: $statusColor; -fx-font-size: 12px;"
+        }
+        
+        connectionStatusIndicator.children.addAll(indicator, statusLabel)
+        
+        // Add help button if disconnected
+        if (state.connectionStatus == com.fmps.autotrader.desktop.services.ConnectionStatus.DISCONNECTED) {
+            val helpButton = ToolbarButton("?", icon = "?", emphasis = ToolbarButton.Emphasis.SECONDARY).apply {
+                tooltip("Click for instructions on starting the core service")
+                action { viewModel.showConnectionHelp() }
+            }
+            connectionStatusIndicator.children += helpButton
+            
+            // Show error message tooltip if available
+            state.connectionErrorMessage?.let { errorMsg ->
+                statusLabel.tooltip(errorMsg)
+            }
+        }
     }
 }
 

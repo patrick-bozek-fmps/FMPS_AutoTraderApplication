@@ -25,6 +25,7 @@ import com.fmps.autotrader.desktop.services.RealTraderService
 import com.fmps.autotrader.desktop.services.StubTraderService
 import com.fmps.autotrader.desktop.services.TelemetryClient
 import com.fmps.autotrader.desktop.services.TraderService
+import com.fmps.autotrader.desktop.services.ConnectionStatusService
 import io.ktor.client.*
 import com.fmps.autotrader.desktop.shell.ShellViewModel
 import com.fmps.autotrader.desktop.monitoring.MonitoringView
@@ -48,8 +49,11 @@ val desktopModule = module {
     single<MarketDataService> { RealMarketDataService(get(), get()) } // Use RealMarketDataService with WebSocket + REST fallback
     single<ConfigService> { RealConfigService(get()) } // Use RealConfigService instead of stub
     single<PatternAnalyticsService> { RealPatternAnalyticsService(get()) } // Use RealPatternAnalyticsService instead of stub
+    
+    // Connection status monitoring
+    single<ConnectionStatusService> { ConnectionStatusService(get(), get()) }
 
-    factory { ShellViewModel(get(), get(), get()) }
+    factory { ShellViewModel(get(), get(), get(), get(), get()) }
     factory { DashboardViewModel(get(), get(), get(), get()) }
     factory { DashboardView() }
     factory { TraderManagementViewModel(get(), get(), get()) }

@@ -67,8 +67,13 @@ class RealTraderService(
         
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
-            logger.error { "Failed to create trader: ${response.status} - $errorBody" }
-            throw ClientRequestException(response, "Failed to create trader: ${response.status}")
+            val userFriendlyMessage = when {
+                response.status.value == 503 -> "Core service is unavailable. Please ensure the core service is running."
+                response.status.value == 500 -> "Server error occurred. Please try again later."
+                else -> "Failed to create trader: ${response.status}"
+            }
+            logger.error { "$userFriendlyMessage - $errorBody" }
+            throw ClientRequestException(response, userFriendlyMessage)
         }
         
         val apiResponse = json.decodeFromString<ApiResponse<TraderDTO>>(response.bodyAsText())
@@ -99,8 +104,13 @@ class RealTraderService(
         
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
-            logger.error { "Failed to update trader: ${response.status} - $errorBody" }
-            throw ClientRequestException(response, "Failed to update trader: ${response.status}")
+            val userFriendlyMessage = when {
+                response.status.value == 503 -> "Core service is unavailable. Please ensure the core service is running."
+                response.status.value == 500 -> "Server error occurred. Please try again later."
+                else -> "Failed to update trader: ${response.status}"
+            }
+            logger.error { "$userFriendlyMessage - $errorBody" }
+            throw ClientRequestException(response, userFriendlyMessage)
         }
         
         val apiResponse = json.decodeFromString<ApiResponse<TraderDTO>>(response.bodyAsText())
@@ -119,8 +129,13 @@ class RealTraderService(
         
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
-            logger.error { "Failed to delete trader: ${response.status} - $errorBody" }
-            throw ClientRequestException(response, "Failed to delete trader: ${response.status}")
+            val userFriendlyMessage = when {
+                response.status.value == 503 -> "Core service is unavailable. Please ensure the core service is running."
+                response.status.value == 500 -> "Server error occurred. Please try again later."
+                else -> "Failed to delete trader: ${response.status}"
+            }
+            logger.error { "$userFriendlyMessage - $errorBody" }
+            throw ClientRequestException(response, userFriendlyMessage)
         }
         
         tradersFlow.update { it.filterNot { trader -> trader.id == id } }
@@ -135,8 +150,13 @@ class RealTraderService(
         
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
-            logger.error { "Failed to start trader: ${response.status} - $errorBody" }
-            throw ClientRequestException(response, "Failed to start trader: ${response.status}")
+            val userFriendlyMessage = when {
+                response.status.value == 503 -> "Core service is unavailable. Please ensure the core service is running."
+                response.status.value == 500 -> "Server error occurred. Please try again later."
+                else -> "Failed to start trader: ${response.status}"
+            }
+            logger.error { "$userFriendlyMessage - $errorBody" }
+            throw ClientRequestException(response, userFriendlyMessage)
         }
         
         refreshTraders()
@@ -151,8 +171,13 @@ class RealTraderService(
         
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
-            logger.error { "Failed to stop trader: ${response.status} - $errorBody" }
-            throw ClientRequestException(response, "Failed to stop trader: ${response.status}")
+            val userFriendlyMessage = when {
+                response.status.value == 503 -> "Core service is unavailable. Please ensure the core service is running."
+                response.status.value == 500 -> "Server error occurred. Please try again later."
+                else -> "Failed to stop trader: ${response.status}"
+            }
+            logger.error { "$userFriendlyMessage - $errorBody" }
+            throw ClientRequestException(response, userFriendlyMessage)
         }
         
         refreshTraders()
@@ -171,7 +196,17 @@ class RealTraderService(
                 logger.warn { "Failed to refresh traders: ${response.status}" }
             }
         } catch (e: Exception) {
-            logger.error(e) { "Error refreshing traders" }
+            val userFriendlyMessage = when {
+                e.message?.contains("Connection refused") == true -> 
+                    "Cannot connect to core service. Please ensure the core service is running on localhost:8080"
+                e.message?.contains("getsockopt") == true -> 
+                    "Cannot connect to core service. Please ensure the core service is running."
+                e.message?.contains("timeout") == true -> 
+                    "Connection timeout. The core service may be slow to respond."
+                else -> 
+                    "Error refreshing traders: ${e.message ?: "Unknown error"}"
+            }
+            logger.error(e) { userFriendlyMessage }
         }
     }
 

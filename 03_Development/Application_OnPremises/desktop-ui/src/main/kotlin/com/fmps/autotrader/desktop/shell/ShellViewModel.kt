@@ -5,17 +5,27 @@ import com.fmps.autotrader.desktop.mvvm.BaseViewModel
 import com.fmps.autotrader.desktop.mvvm.DispatcherProvider
 import com.fmps.autotrader.desktop.navigation.NavigationEvent
 import com.fmps.autotrader.desktop.navigation.NavigationService
+import com.fmps.autotrader.desktop.services.ConnectionStatusService
 import com.fmps.autotrader.desktop.services.CoreServiceClient
+import com.fmps.autotrader.desktop.services.TelemetryClient
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ShellViewModel(
     dispatcherProvider: DispatcherProvider,
     private val navigationService: NavigationService,
-    private val coreServiceClient: CoreServiceClient
+    private val coreServiceClient: CoreServiceClient,
+    private val connectionStatusService: ConnectionStatusService,
+    private val telemetryClient: TelemetryClient
 ) : BaseViewModel<ShellState, ShellEvent>(ShellState(), dispatcherProvider) {
 
     init {
+        // Start monitoring connection status
+        connectionStatusService.startMonitoring()
+        
+        // Start telemetry client (WebSocket) automatically on app startup
+        telemetryClient.start()
+        
         navigationService.addListener { event ->
             when (event) {
                 is NavigationEvent.Navigated -> setState { state ->
@@ -44,6 +54,30 @@ class ShellViewModel(
                 }
             }
         }
+        
+        // Observe connection status changes
+        launchIO {
+            connectionStatusService.status.collectLatest { status ->
+                setState { state ->
+                    state.copy(
+                        connectionStatus = status,
+                        lastUpdatedTimestamp = System.currentTimeMillis()
+                    )
+                }
+            }
+        }
+        
+        // Observe connection error messages
+        launchIO {
+            connectionStatusService.errorMessage.collectLatest { errorMessage ->
+                setState { state ->
+                    state.copy(
+                        connectionErrorMessage = errorMessage,
+                        lastUpdatedTimestamp = System.currentTimeMillis()
+                    )
+                }
+            }
+        }
     }
 
     fun navigate(route: String) {
@@ -59,6 +93,11 @@ class ShellViewModel(
         } else {
             publishEvent(ShellEvent.Toast(Localization.string("toast.no_previous", "No previous view available")))
         }
+    }
+    
+    fun showConnectionHelp() {
+        val instructions = connectionStatusService.getStartInstructions()
+        publishEvent(ShellEvent.ShowConnectionHelp(instructions))
     }
 
     private fun buildBreadcrumbs(currentTitle: String): List<String> =

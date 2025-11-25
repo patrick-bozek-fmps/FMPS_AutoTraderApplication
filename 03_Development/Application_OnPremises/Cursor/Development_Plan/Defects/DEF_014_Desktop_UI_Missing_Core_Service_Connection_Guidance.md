@@ -1,22 +1,22 @@
 # DEF_014: Desktop UI Missing Core Service Connection Guidance
 
-**Status**: 🆕 **NEW**  
+**Status**: ✅ **FIXED**  
 **Severity**: 🟡 **MEDIUM**  
 **Priority**: **P2 (Medium)**  
 **Reported By**: User  
 **Reported Date**: 2025-11-25  
-**Assigned To**: Unassigned  
-**Assigned Date**: Not Assigned  
-**Fixed By**: N/A  
-**Fixed Date**: N/A  
-**Verified By**: N/A  
-**Verified Date**: N/A  
-**Closed Date**: Not Closed  
+**Assigned To**: Auto  
+**Assigned Date**: 2025-11-25  
+**Fixed By**: Auto  
+**Fixed Date**: 2025-11-25  
+**Verified By**: User  
+**Verified Date**: 2025-11-25  
+**Closed Date**: 2025-11-25  
 **Epic**: Epic 5 (Desktop UI)  
 **Issue**: Issue #19 (Desktop UI Foundation)  
 **Module/Component**: desktop-ui, user-experience, documentation  
 **Version Found**: ae89d77  
-**Version Fixed**: N/A  
+**Version Fixed**: TBD (will be set after commit)  
 
 > **NOTE**: This is a UX/documentation issue, not a technical bug. The core service is designed to run as a separate process. However, users need better guidance when the service is not running.
 
@@ -149,51 +149,55 @@ Max reconnection attempts reached. Telemetry client will stop retrying.
 
 ### **Root Cause Analysis**
 
-**Status**: ⏳ **PENDING**
+**Status**: ✅ **COMPLETE**
 
 **Root Cause Identified**:
-The Desktop UI is designed as a client that connects to a separate core service process. This is correct architecture, but the user experience is poor when the service is not running:
-1. Error messages are technical and not user-friendly
+The Desktop UI is designed as a client that connects to a separate core service process. This is correct architecture, but the user experience was poor when the service is not running:
+1. Error messages were technical and not user-friendly
 2. No status indicator in UI showing connection state
 3. No guidance on how to start the core service
 4. No documentation visible within the application
 
 ### **Solution Description**
 
-**Status**: ⏳ **PENDING**
+**Status**: ✅ **IMPLEMENTED**
 
-**Proposed Solutions**:
+**Solutions Implemented**:
 
-1. **Add Connection Status Indicator**:
-   - Display connection status in UI (e.g., in status bar or header)
-   - Show "Connected" / "Disconnected" with visual indicator (green/red)
-   - Update in real-time as connection state changes
+1. **✅ Added Connection Status Indicator**:
+   - Connection status displayed in UI top bar (next to quick stats)
+   - Shows "Core Service: Connected" / "Core Service: Disconnected" / "Core Service: Connecting..." with visual indicator (green/red/orange)
+   - Updates in real-time as connection state changes (every 5 seconds)
+   - Status text clearly indicates it refers to Core Service connection
 
-2. **Improve Error Messages**:
-   - Replace technical errors with user-friendly messages
+2. **✅ Improved Error Messages**:
+   - Replaced technical errors with user-friendly messages
    - Example: "Cannot connect to core service. Please ensure the core service is running on localhost:8080"
-   - Include instructions: "Start the core service with: .\gradlew :core-service:run"
+   - Error messages in RealTelemetryClient and RealTraderService now provide clear guidance
 
-3. **Add Help/Documentation**:
-   - Add "Help" menu or button in Desktop UI
-   - Include "Getting Started" guide
-   - Show connection status and troubleshooting tips
+3. **✅ Added Help/Documentation**:
+   - Added "?" help button when disconnected
+   - Shows instructions dialog: "How to Start Core Service" with step-by-step guide
+   - Instructions include: navigate to project directory, run `.\gradlew.bat :core-service:run`
 
-4. **Optional: Auto-start Detection**:
-   - Check if core service is running on startup
-   - Show dialog with instructions if not running
-   - Provide option to open documentation
+4. **✅ Connection Status Monitoring**:
+   - Created `ConnectionStatusService` to monitor REST API health endpoint
+   - Checks connection status every 5 seconds
+   - Automatically detects when core service becomes available
+   - WebSocket connection starts automatically on app startup (not lazy)
 
 ### **Code Changes**
 
-**Status**: ⏳ **PENDING**
+**Status**: ✅ **COMPLETE**
 
-**Files to Modify**:
-- `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/DesktopApp.kt` - Add connection status monitoring
-- `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/shell/ShellView.kt` - Add status indicator
-- `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/services/RealTelemetryClient.kt` - Improve error messages
-- `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/services/RealTraderService.kt` - Improve error messages
-- `README.md` - Improve documentation visibility
+**Files Modified**:
+- ✅ `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/services/ConnectionStatusService.kt` - **NEW** - Connection status monitoring service
+- ✅ `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/shell/ShellView.kt` - Added status indicator with "Core Service:" prefix
+- ✅ `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/shell/ShellViewModel.kt` - Observes connection status, starts telemetry client automatically
+- ✅ `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/shell/ShellContract.kt` - Added connection status to ShellState
+- ✅ `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/services/RealTelemetryClient.kt` - Improved error messages with user-friendly text
+- ✅ `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/services/RealTraderService.kt` - Improved error messages for all operations
+- ✅ `desktop-ui/src/main/kotlin/com/fmps/autotrader/desktop/di/DesktopModule.kt` - Added ConnectionStatusService to DI, updated ShellViewModel factory
 
 ---
 
@@ -210,11 +214,13 @@ The Desktop UI is designed as a client that connects to a separate core service 
 7. Verify: Features work correctly
 
 ### **Acceptance Criteria**
-- [ ] User-friendly error messages when core service is not running
-- [ ] Connection status indicator visible in UI
-- [ ] Instructions provided on how to start core service
-- [ ] Status updates automatically when connection is established
-- [ ] No technical stack traces shown to end users
+- [x] User-friendly error messages when core service is not running ✅
+- [x] Connection status indicator visible in UI ✅
+- [x] Instructions provided on how to start core service ✅
+- [x] Status updates automatically when connection is established ✅
+- [x] No technical stack traces shown to end users ✅
+- [x] Status text clearly indicates "Core Service:" prefix ✅
+- [x] WebSocket connects automatically on startup ✅
 
 ---
 
@@ -228,5 +234,13 @@ The Desktop UI is designed as a client that connects to a separate core service 
 ---
 
 **Last Updated**: 2025-11-25  
-**Next Review**: After UX improvements are implemented
+**Resolution Summary**: 
+- Connection status indicator implemented with "Core Service:" prefix
+- User-friendly error messages added to all service clients
+- Help button with instructions added when disconnected
+- Connection status monitoring service created
+- WebSocket auto-connects on app startup
+- All acceptance criteria met and verified by user
+
+**Next Review**: N/A - Defect resolved and closed
 
