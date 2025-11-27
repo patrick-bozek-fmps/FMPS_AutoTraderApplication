@@ -148,6 +148,7 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
             apiKey = config.apiKey,
             apiSecret = config.apiSecret,
             passphrase = config.passphrase!!,
+            testnet = config.testnet,  // Pass testnet flag to add paptrading header for demo keys
             recvWindow = bitgetConfig.recvWindow,
             timestampOffset = bitgetConfig.timestampOffset
         )
@@ -156,23 +157,142 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
     }
     
     /**
-     * Tests connectivity with Bitget API
+     * Tests connectivity with Bitget API and validates API keys
+     * 
+     * Uses an authenticated endpoint (/api/spot/v1/account/assets) to verify that:
+     * 1. The exchange API is reachable
+     * 2. The API keys, secret, and passphrase are valid
+     * 3. The API key has proper permissions
+     * 
+     * This will fail if:
+     * - Network connectivity issues
+     * - Invalid API key, secret, or passphrase
+     * - API key doesn't have required permissions
+     * - Clock synchronization issues (timestamp errors)
      */
     override suspend fun testConnectivity() {
         val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
         
         try {
-            // Test with server time endpoint
-            val response = httpClient.get("$baseUrl/api/spot/v1/public/time")
-            
-            if (response.status != HttpStatusCode.OK) {
-                throw ConnectionException("Connectivity test failed: ${response.status}", exchangeName = "BITGET")
+            // First, test basic connectivity with server time endpoint (public)
+            val timeResponse = httpClient.get("$baseUrl/api/spot/v1/public/time")
+            if (timeResponse.status != HttpStatusCode.OK) {
+                throw ConnectionException("Connectivity test failed: ${timeResponse.status}", exchangeName = "BITGET")
             }
             
-            logger.debug { "✓ Bitget connectivity test passed" }
+            // Test both account endpoints (V2) and market endpoints (V1) since we use both for trading
+            // V2 account endpoints work for demo trading with paptrading header
+            // V1 market endpoints are still required for actual trading operations
+            var accountSuccess = false
+            var marketSuccess = false
+            var lastError: Exception? = null
             
+            // Test 1: V2 Account endpoint (for account operations like getBalance)
+            logger.info { "Testing V2 account endpoint for connectivity (testnet: ${bitgetConfig.testnet})" }
+            println("🔍 [BitgetConnector] Testing V2 account endpoint: /api/v2/spot/account/assets")
+            try {
+                val accountPath = "/api/v2/spot/account/assets"
+                val accountHeaders = authenticator.createHeaders("GET", accountPath)
+                
+                if (accountHeaders.containsKey("paptrading")) {
+                    println("✅ [BitgetConnector] paptrading header is present: ${accountHeaders["paptrading"]}")
+                }
+                
+                val accountResponse = httpClient.get("$baseUrl$accountPath") {
+                    headers {
+                        accountHeaders.forEach { (key, value) ->
+                            append(key, value)
+                        }
+                    }
+                }
+                
+                if (accountResponse.status == HttpStatusCode.OK) {
+                    logger.info { "✓ V2 account endpoint test passed" }
+                    println("✅ [BitgetConnector] V2 account endpoint test passed")
+                    accountSuccess = true
+                } else {
+                    val errorBody = accountResponse.bodyAsText()
+                    val errorMsg = "V2 account endpoint failed: ${accountResponse.status} - $errorBody"
+                    logger.warn { errorMsg }
+                    println("❌ [BitgetConnector] V2 account endpoint failed: ${accountResponse.status}")
+                    
+                    if (errorBody.contains("40099") || errorBody.contains("exchange environment")) {
+                        throw ConnectionException(errorMsg, exchangeName = "BITGET")
+                    }
+                    lastError = ConnectionException(errorMsg, exchangeName = "BITGET")
+                }
+            } catch (e: ConnectionException) {
+                lastError = e
+                val errorMsg = e.message ?: ""
+                if (errorMsg.contains("40099") || errorMsg.contains("exchange environment")) {
+                    throw e
+                }
+            } catch (e: Exception) {
+                lastError = e
+                logger.warn(e) { "Exception testing V2 account endpoint" }
+                println("⚠️ [BitgetConnector] Exception testing V2 account endpoint: ${e.message}")
+            }
+            
+            // Test 2: V1 Market endpoint (for trading operations like getCandles, getTicker, getOrderBook)
+            // Use a simple public market endpoint that doesn't require authentication to verify V1 works
+            logger.info { "Testing V1 market endpoint for connectivity" }
+            println("🔍 [BitgetConnector] Testing V1 market endpoint: /api/spot/v1/market/ticker")
+            try {
+                // Test with a common symbol - use BTCUSDT_SPBL (Bitget format) or just test the endpoint structure
+                // For connectivity, we just need to verify the endpoint responds (even if symbol doesn't exist, we get a proper error, not 404)
+                val marketPath = "/api/spot/v1/market/ticker"
+                val marketUrl = "$baseUrl$marketPath?symbol=BTCUSDT_SPBL"
+                
+                val marketResponse = httpClient.get(marketUrl)
+                
+                // V1 market endpoints are public, so 200 OK or 400 (bad symbol) both indicate the endpoint exists
+                if (marketResponse.status == HttpStatusCode.OK || marketResponse.status == HttpStatusCode.BadRequest) {
+                    logger.info { "✓ V1 market endpoint test passed (status: ${marketResponse.status})" }
+                    println("✅ [BitgetConnector] V1 market endpoint test passed (status: ${marketResponse.status})")
+                    marketSuccess = true
+                } else if (marketResponse.status == HttpStatusCode.NotFound) {
+                    val errorMsg = "V1 market endpoint returned 404 - endpoint may not exist for demo trading"
+                    logger.warn { errorMsg }
+                    println("⚠️ [BitgetConnector] V1 market endpoint returned 404")
+                    lastError = ConnectionException(errorMsg, exchangeName = "BITGET")
+                } else {
+                    val errorBody = marketResponse.bodyAsText()
+                    val errorMsg = "V1 market endpoint failed: ${marketResponse.status} - $errorBody"
+                    logger.warn { errorMsg }
+                    println("❌ [BitgetConnector] V1 market endpoint failed: ${marketResponse.status}")
+                    lastError = ConnectionException(errorMsg, exchangeName = "BITGET")
+                }
+            } catch (e: Exception) {
+                lastError = e
+                logger.warn(e) { "Exception testing V1 market endpoint" }
+                println("⚠️ [BitgetConnector] Exception testing V1 market endpoint: ${e.message}")
+            }
+            
+            // Both tests must pass for connectivity to be considered successful
+            if (!accountSuccess || !marketSuccess) {
+                val missingTests = mutableListOf<String>()
+                if (!accountSuccess) missingTests.add("V2 account endpoint")
+                if (!marketSuccess) missingTests.add("V1 market endpoint")
+                
+                val errorDetails = "Connection test incomplete. Failed tests: ${missingTests.joinToString(", ")}.\n" +
+                        "Account operations require V2 endpoints, trading operations require V1 market endpoints.\n" +
+                        if (lastError != null) "Last error: ${lastError.message}" else "No additional error details"
+                
+                throw ConnectionException(
+                    errorDetails,
+                    lastError,
+                    exchangeName = "BITGET"
+                )
+            }
+            
+            logger.info { "✓ Bitget connectivity test passed - both V2 account and V1 market endpoints are working" }
+            println("✅ [BitgetConnector] Connectivity test passed - both V2 account and V1 market endpoints are working")
+            
+        } catch (e: ConnectionException) {
+            // Re-throw connection exceptions
+            throw e
         } catch (e: Exception) {
-            if (e is ConnectionException) throw e
+            // Wrap other exceptions
             throw ConnectionException("Failed to connect to Bitget: ${e.message}", e, exchangeName = "BITGET")
         }
     }
@@ -587,7 +707,9 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         
         try {
             val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
-            val requestPath = "/api/spot/v1/account/assets"
+            // Use V2 endpoint for account assets (works for demo trading with paptrading header)
+            // V1 endpoint returns 404 for demo trading
+            val requestPath = "/api/v2/spot/account/assets"
             val (_, headers) = authenticator.signRequest("GET", requestPath)
             val url = "$baseUrl$requestPath"
             

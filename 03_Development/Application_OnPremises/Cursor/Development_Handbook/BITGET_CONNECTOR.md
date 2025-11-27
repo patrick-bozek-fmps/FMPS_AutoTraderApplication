@@ -1,8 +1,8 @@
 # Bitget Connector Documentation
 
 **Status**: ✅ Complete  
-**Version**: 1.0  
-**Last Updated**: October 30, 2025  
+**Version**: 1.1  
+**Last Updated**: November 27, 2025  
 **Related Issue**: [#9 - Bitget Connector Implementation](../Development_Plan/Issue_09_Bitget_Connector.md)
 
 ---
@@ -178,7 +178,14 @@ val config = ExchangeConfig(
 
 ⚠️ **Passphrase is Required**: Unlike Binance, Bitget requires a passphrase for API authentication. The connector will fail if the passphrase is not provided.
 
-⚠️ **Testnet Access**: Bitget may not have a separate testnet URL. Check with Bitget documentation for current testnet availability.
+⚠️ **Demo Trading Support**: For demo/sandbox trading, the connector automatically adds the `paptrading: 1` header when `testnet = true`. This header is required for Bitget to route requests to the demo environment. Without this header, Bitget returns error 40099 "exchange environment is incorrect".
+
+⚠️ **API Version Strategy**: The connector uses a hybrid approach:
+- **V2 API** for account operations (`/api/v2/spot/account/assets`) - works for demo trading
+- **V1 API** for market data operations (`/api/spot/v1/market/*`) - still required as V2 market endpoints are not yet available
+- **V2 API** for symbols (`/api/v2/spot/public/symbols`) - always uses V2
+
+⚠️ **Connectivity Testing**: The `testConnectivity()` method tests both V2 account endpoints and V1 market endpoints to ensure full trading capability. Both must pass for the connection to be considered successful.
 
 ---
 
@@ -348,7 +355,7 @@ connector.unsubscribeAll()
 
 ## Authentication
 
-Bitget uses HMAC SHA256 signature-based authentication with an additional passphrase parameter.
+Bitget uses HMAC SHA256 signature-based authentication with an additional passphrase parameter. For demo/sandbox trading, the `paptrading: 1` header must be included in all authenticated requests.
 
 ### Signature Generation Process
 

@@ -20,6 +20,7 @@ private val logger = KotlinLogging.logger {}
  *    - ACCESS-TIMESTAMP: Request timestamp in milliseconds
  *    - ACCESS-PASSPHRASE: API passphrase
  *    - Content-Type: application/json
+ *    - paptrading: 1 (when using demo/sandbox/testnet API keys)
  * 
  * **Signature Generation:**
  * ```
@@ -31,9 +32,15 @@ private val logger = KotlinLogging.logger {}
  * Bitget requires timestamp to be within recvWindow of server time.
  * Use timestampOffset to adjust for clock differences.
  * 
+ * **Demo/Sandbox Mode:**
+ * When using demo/sandbox API keys, the `paptrading: 1` header must be included
+ * to tell Bitget to route the request to the demo environment. Without this header,
+ * Bitget returns error 40099 "exchange environment is incorrect".
+ * 
  * @property apiKey Bitget API key
  * @property apiSecret Bitget API secret
  * @property passphrase Bitget API passphrase
+ * @property testnet Whether using demo/sandbox/testnet API keys (adds paptrading header)
  * @property recvWindow Request validity window in milliseconds
  * @property timestampOffset Server time offset in milliseconds
  */
@@ -41,6 +48,7 @@ class BitgetAuthenticator(
     private val apiKey: String,
     private val apiSecret: String,
     private val passphrase: String,
+    private val testnet: Boolean = false,
     private val recvWindow: Long = 5000,
     private var timestampOffset: Long = 0
 ) {
@@ -69,13 +77,26 @@ class BitgetAuthenticator(
         val prehash = createPrehashString(timestamp, method, requestPath, queryString)
         val signature = generateSignature(prehash)
         
-        return mapOf(
+        val headers = mutableMapOf(
             "ACCESS-KEY" to apiKey,
             "ACCESS-SIGN" to signature,
             "ACCESS-TIMESTAMP" to timestamp.toString(),
             "ACCESS-PASSPHRASE" to passphrase,
             "Content-Type" to "application/json"
         )
+        
+        // Add paptrading header for demo/sandbox/testnet API keys
+        // This tells Bitget to route the request to the demo environment
+        // Without this header, Bitget returns error 40099 "exchange environment is incorrect"
+        if (testnet) {
+            headers["paptrading"] = "1"
+            logger.info { "✓ Added paptrading: 1 header for demo/sandbox mode" }
+            println("✓ [BitgetAuthenticator] Added paptrading: 1 header for demo/sandbox mode")
+        } else {
+            logger.debug { "Not adding paptrading header (production mode)" }
+        }
+        
+        return headers
     }
     
     /**

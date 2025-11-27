@@ -212,38 +212,121 @@ fun Route.configureConfigurationRoutes() {
                 }
                 
                 // Create exchange config
+                // Note: For Bitget, the same URL is used for both testnet and production.
+                // The API keys themselves determine the environment. We try both environments
+                // automatically to detect which one the keys are for.
+                // For Binance, we use testnet=true for connection testing.
                 val exchangeConfig = ExchangeConfig(
                     exchange = exchange,
                     apiKey = request.apiKey,
                     apiSecret = request.secretKey,
                     passphrase = request.passphrase?.takeIf { it.isNotBlank() },
-                    testnet = true // Use testnet for connection testing
+                    testnet = exchange != com.fmps.autotrader.shared.enums.Exchange.BITGET // Use testnet for Binance, will try both for Bitget
                 )
                 
                 // Test connection using ConnectorFactory
                 val connectorFactory = ConnectorFactory.getInstance()
-                val connector = connectorFactory.createConnector(exchange, exchangeConfig, useCache = false)
                 
                 var success = false
                 var message = ""
                 
                 runBlocking {
-                    try {
-                        connector.configure(exchangeConfig)
-                        connector.connect()
-                        success = true
-                        message = "Successfully connected to ${exchange.name} testnet"
+                    if (exchange == com.fmps.autotrader.shared.enums.Exchange.BITGET) {
+                        // For Bitget demo trading:
+                        // 1. Must use Demo API Key (created in Demo mode)
+                        // 2. Must add 'paptrading: 1' header (handled by BitgetAuthenticator when testnet=true)
+                        // 3. Uses same REST URL (https://api.bitget.com) but different WebSocket URLs
+                        // 
+                        // Strategy: Try testnet/demo FIRST (most common for testing), then production if demo fails
+                        var connected = false
+                        var lastError: Exception? = null
+                        var triedEnvironments = mutableListOf<String>()
                         
-                        // Disconnect after test
-                        connector.disconnect()
-                    } catch (e: ConnectionException) {
-                        success = false
-                        message = "Connection failed: ${e.message}"
-                        logger.warn("Connection test failed for ${exchange.name}", e)
-                    } catch (e: Exception) {
-                        success = false
-                        message = "Connection test error: ${e.message}"
-                        logger.error("Unexpected error during connection test for ${exchange.name}", e)
+                        // Try testnet/demo FIRST (with paptrading header)
+                        println("🔍 [Bitget] Trying demo/testnet environment (testnet=true, paptrading: 1)...")
+                        logger.info("Trying Bitget with demo/testnet environment (paptrading header)...")
+                        triedEnvironments.add("demo/testnet")
+                        try {
+                            val testnetConfig = exchangeConfig.copy(testnet = true)
+                            val testnetConnector = connectorFactory.createConnector(exchange, testnetConfig, useCache = false)
+                            testnetConnector.configure(testnetConfig)
+                            println("🔍 [Bitget] Demo/testnet connector configured with paptrading header, attempting connection...")
+                            testnetConnector.connect()
+                            success = true
+                            message = "Successfully connected to ${exchange.name} demo/testnet"
+                            testnetConnector.disconnect()
+                            connected = true
+                            println("✅ [Bitget] Demo/testnet connection successful!")
+                        } catch (e: ConnectionException) {
+                            lastError = e
+                            val errorMsg = e.message ?: "Unknown error"
+                            println("❌ [Bitget] Demo/testnet failed: $errorMsg")
+                            logger.info("Bitget demo/testnet failed: $errorMsg")
+                            
+                            // Check if it's an environment error (40099) - means keys are for production
+                            val isEnvironmentError = errorMsg.contains("exchange environment is incorrect") || 
+                                                   errorMsg.contains("40099") ||
+                                                   errorMsg.contains("exchange environment")
+                            
+                            if (isEnvironmentError) {
+                                // Keys are for production, try production (without paptrading header)
+                                println("🔍 [Bitget] Environment error (40099) detected - keys appear to be for production. Trying production (testnet=false)...")
+                                logger.info("Bitget environment error detected, trying production environment...")
+                                triedEnvironments.add("production")
+                                try {
+                                    val productionConfig = exchangeConfig.copy(testnet = false)
+                                    val productionConnector = connectorFactory.createConnector(exchange, productionConfig, useCache = false)
+                                    productionConnector.configure(productionConfig)
+                                    println("🔍 [Bitget] Production connector configured (no paptrading header), attempting connection...")
+                                    productionConnector.connect()
+                                    success = true
+                                    message = "Successfully connected to ${exchange.name} production"
+                                    productionConnector.disconnect()
+                                    connected = true
+                                    println("✅ [Bitget] Production connection successful!")
+                                } catch (e2: Exception) {
+                                    lastError = e2
+                                    val errorMsg2 = e2.message ?: "Unknown error"
+                                    println("❌ [Bitget] Production also failed: $errorMsg2")
+                                    logger.warn("Bitget production also failed: $errorMsg2")
+                                }
+                            } else {
+                                // Not an environment error - likely invalid keys, wrong passphrase, or other issue
+                                println("⚠️ [Bitget] Error is not environment-related (not 40099), not retrying with production")
+                                logger.info("Bitget error is not environment-related: $errorMsg")
+                            }
+                        } catch (e: Exception) {
+                            lastError = e
+                            println("❌ [Bitget] Unexpected error during demo/testnet attempt: ${e.message}")
+                            logger.error("Unexpected error during Bitget demo/testnet connection test", e)
+                        }
+                        
+                        if (!connected) {
+                            success = false
+                            val finalError = lastError?.message ?: "Unknown error"
+                            val environmentsTried = triedEnvironments.joinToString(" and ")
+                            message = "Connection failed after trying $environmentsTried: $finalError"
+                            println("❌ [Bitget] Connection test failed (tried: $environmentsTried): $finalError")
+                            logger.warn("Connection test failed for Bitget (tried: $environmentsTried)")
+                        }
+                    } else {
+                        // For Binance, just try testnet
+                        try {
+                            val connector = connectorFactory.createConnector(exchange, exchangeConfig, useCache = false)
+                            connector.configure(exchangeConfig)
+                            connector.connect()
+                            success = true
+                            message = "Successfully connected to ${exchange.name} testnet"
+                            connector.disconnect()
+                        } catch (e: ConnectionException) {
+                            success = false
+                            message = "Connection failed: ${e.message}"
+                            logger.warn("Connection test failed for ${exchange.name}", e)
+                        } catch (e: Exception) {
+                            success = false
+                            message = "Connection test error: ${e.message}"
+                            logger.error("Unexpected error during connection test for ${exchange.name}", e)
+                        }
                     }
                 }
                 
