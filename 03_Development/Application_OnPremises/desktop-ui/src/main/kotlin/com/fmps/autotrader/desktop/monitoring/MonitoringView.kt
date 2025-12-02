@@ -23,6 +23,7 @@ import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import javafx.util.StringConverter
 import tornadofx.action
+import tornadofx.addClass
 import tornadofx.borderpane
 import tornadofx.hbox
 import tornadofx.information
@@ -45,8 +46,11 @@ class MonitoringView :
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault())
 
     override val root = borderpane {
-        padding = Insets(20.0)
-        top = buildHeader()
+        padding = Insets(12.0)
+        top = vbox(8.0) {
+            children += buildHeader()
+            children += buildStatusRow()
+        }
         center = buildContent()
     }
 
@@ -62,8 +66,24 @@ class MonitoringView :
         }
     }
 
-    private fun buildHeader(): VBox = vbox(8.0) {
-        label("Trading Monitoring") { styleClass += "section-title" }
+    private fun buildHeader(): HBox = hbox(12.0) {
+        addClass("dashboard-header")
+        alignment = Pos.CENTER_LEFT
+        padding = Insets(4.0, 4.0, 8.0, 4.0)
+
+        label("Trading Monitoring") {
+            addClass("view-header")
+        }
+        label("|") {
+            addClass("view-header")
+            style = "-fx-padding: 0 8 0 8;"
+        }
+        label("Monitor real-time trading activity and positions.") {
+            addClass("view-description")
+        }
+    }
+
+    private fun buildStatusRow(): HBox = hbox(12.0) {
         hbox(12.0) {
             alignment = Pos.CENTER_LEFT
             connectionChip.styleClass.addAll("connection-chip", "connection-chip-good")

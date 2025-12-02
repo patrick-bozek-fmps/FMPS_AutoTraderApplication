@@ -3,6 +3,8 @@ package com.fmps.autotrader.desktop.config
 import com.fmps.autotrader.desktop.mvvm.DispatcherProvider
 import com.fmps.autotrader.desktop.services.ConfigService
 import com.fmps.autotrader.desktop.services.ConfigurationSnapshot
+import com.fmps.autotrader.desktop.services.ConnectionStatus
+import com.fmps.autotrader.desktop.services.ConnectionStatusService
 import com.fmps.autotrader.desktop.services.ConnectionTestResult
 import com.fmps.autotrader.desktop.services.Exchange
 import com.fmps.autotrader.desktop.services.ExchangeSettings
@@ -36,6 +38,7 @@ class ConfigurationViewModelTest {
     private lateinit var dispatcherProvider: DispatcherProvider
     private lateinit var testScope: TestScope
     private lateinit var fakeService: FakeConfigService
+    private lateinit var fakeConnectionStatusService: ConnectionStatusService
     private lateinit var viewModel: ConfigurationViewModel
 
     @BeforeAll
@@ -62,7 +65,9 @@ class ConfigurationViewModelTest {
             override val computation = dispatcher
         }
         fakeService = FakeConfigService()
-        viewModel = ConfigurationViewModel(dispatcherProvider, fakeService)
+        fakeConnectionStatusService = createFakeConnectionStatusService()
+        val fakeExchangeConnectionStatusService = com.fmps.autotrader.desktop.services.ExchangeConnectionStatusService()
+        viewModel = ConfigurationViewModel(dispatcherProvider, fakeService, fakeConnectionStatusService, fakeExchangeConnectionStatusService)
         println("[DEBUG] ViewModel created for test: ${testInfo.displayName}")
     }
 
@@ -172,6 +177,40 @@ class ConfigurationViewModelTest {
             snapshot.value = updated
             return updated
         }
+        
+        override fun getExchangeSettings(exchange: Exchange): ExchangeSettings? {
+            val current = snapshot.value.exchange
+            return if (current.exchange == exchange && (current.apiKey.isNotEmpty() || current.secretKey.isNotEmpty())) {
+                current
+            } else {
+                null
+            }
+        }
+        
+        override fun getExchangeTimestamp(exchange: Exchange): Long? {
+            // Return null for tests (no saved timestamp)
+            return null
+        }
+        
+        override fun saveExchangeTimestamp(exchange: Exchange, timestamp: Long) {
+            // No-op for tests
+        }
+    }
+    
+    // Use a real ConnectionStatusService instance but don't start monitoring
+    // The status will default to RECONNECTING which is fine for tests
+    private fun createFakeConnectionStatusService(): ConnectionStatusService {
+        val telemetryClient = object : com.fmps.autotrader.desktop.services.TelemetryClient {
+            override fun start() {}
+            override fun stop() {}
+            override fun samples(): kotlinx.coroutines.flow.Flow<com.fmps.autotrader.desktop.services.TelemetrySample> = kotlinx.coroutines.flow.flowOf()
+        }
+        return ConnectionStatusService(
+            httpClient = io.ktor.client.HttpClient(),
+            telemetryClient = telemetryClient,
+            baseUrl = "http://localhost:8080"
+        )
+        // Don't call startMonitoring() - status will be RECONNECTING which is fine for tests
     }
 }
 

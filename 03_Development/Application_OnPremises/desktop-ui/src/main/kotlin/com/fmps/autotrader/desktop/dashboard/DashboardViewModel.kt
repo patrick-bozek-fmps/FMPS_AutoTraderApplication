@@ -3,12 +3,14 @@ package com.fmps.autotrader.desktop.dashboard
 import com.fmps.autotrader.desktop.mvvm.BaseViewModel
 import com.fmps.autotrader.desktop.mvvm.DispatcherProvider
 import com.fmps.autotrader.desktop.services.CoreServiceClient
+import com.fmps.autotrader.desktop.services.ExchangeConnectionStatusService
 import com.fmps.autotrader.desktop.services.TelemetryClient
 import com.fmps.autotrader.desktop.services.TelemetrySample
 import com.fmps.autotrader.desktop.services.TraderService
 import com.fmps.autotrader.desktop.services.TraderStatus
 import java.time.Instant
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onEach
 
@@ -16,7 +18,8 @@ class DashboardViewModel(
     dispatcherProvider: DispatcherProvider,
     private val coreServiceClient: CoreServiceClient,
     private val telemetryClient: TelemetryClient,
-    private val traderService: TraderService
+    private val traderService: TraderService,
+    private val exchangeConnectionStatusService: ExchangeConnectionStatusService
 ) : BaseViewModel<DashboardState, DashboardEvent>(
     initialState = DashboardState(),
     dispatcherProvider = dispatcherProvider
@@ -34,6 +37,7 @@ class DashboardViewModel(
         observeTraderSummaries()
         observeTelemetry()
         monitorTelemetryConnection()
+        observeExchangeConnectionStatus()
     }
 
     override fun onCleared() {
@@ -104,7 +108,9 @@ class DashboardViewModel(
                         quickStats = quickStats,
                         systemStatus = current.systemStatus.copy(
                             coreServiceHealthy = traderItems.isNotEmpty(),
-                            lastSummaryUpdate = now
+                            lastSummaryUpdate = now,
+                            binanceConnected = current.systemStatus.binanceConnected, // Preserve existing values
+                            bitgetConnected = current.systemStatus.bitgetConnected
                         ),
                         lastUpdated = now,
                         isLoading = false
@@ -214,6 +220,24 @@ class DashboardViewModel(
                 quickStats = current.quickStats.copy(criticalAlerts = criticalCount),
                 notifications = snapshot
             )
+        }
+    }
+
+    private fun observeExchangeConnectionStatus() {
+        launchIO {
+            combine(
+                exchangeConnectionStatusService.binanceStatus,
+                exchangeConnectionStatusService.bitgetStatus
+            ) { binance, bitget ->
+                setState { current ->
+                    current.copy(
+                        systemStatus = current.systemStatus.copy(
+                            binanceConnected = binance,
+                            bitgetConnected = bitget
+                        )
+                    )
+                }
+            }.collectLatest { }
         }
     }
 

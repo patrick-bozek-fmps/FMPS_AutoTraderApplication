@@ -35,7 +35,9 @@ data class SystemStatusSummary(
     val coreServiceHealthy: Boolean = true,
     val telemetryConnected: Boolean = false,
     val lastSummaryUpdate: Instant? = null,
-    val lastTelemetryEvent: Instant? = null
+    val lastTelemetryEvent: Instant? = null,
+    val binanceConnected: Boolean? = null, // null = not tested, true = connected, false = failed
+    val bitgetConnected: Boolean? = null   // null = not tested, true = connected, false = failed
 )
 
 data class NotificationItem(

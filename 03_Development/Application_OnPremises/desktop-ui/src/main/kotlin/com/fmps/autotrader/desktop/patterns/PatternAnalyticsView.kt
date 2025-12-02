@@ -25,6 +25,7 @@ import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import javafx.util.Callback
 import tornadofx.action
+import tornadofx.addClass
 import tornadofx.borderpane
 import tornadofx.error
 import tornadofx.hbox
@@ -61,9 +62,29 @@ class PatternAnalyticsView :
     }
 
     override val root = borderpane {
-        padding = Insets(20.0)
-        top = buildFilters()
+        padding = Insets(12.0)
+        top = vbox(8.0) {
+            children += buildHeader()
+            children += buildFilters()
+        }
         center = buildContent()
+    }
+
+    private fun buildHeader() = hbox(12.0) {
+        addClass("dashboard-header")
+        alignment = Pos.CENTER_LEFT
+        padding = Insets(4.0, 4.0, 8.0, 4.0)
+
+        label("Pattern Analytics") {
+            addClass("view-header")
+        }
+        label("|") {
+            addClass("view-header")
+            style = "-fx-padding: 0 8 0 8;"
+        }
+        label("Analyze trading patterns and market trends.") {
+            addClass("view-description")
+        }
     }
 
     private fun buildFilters() = HBox(12.0).apply {

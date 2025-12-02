@@ -52,8 +52,15 @@ data class TelemetrySettings(
         fun load(environment: ApplicationEnvironment): TelemetrySettings {
             val config = environment.config
             val telemetryConfig = config.configOrNull("telemetry")
-            val heartbeatIntervalSeconds = telemetryConfig?.propertyOrNull("heartbeatIntervalSeconds")?.getString()
-                ?.toLongOrNull()?.coerceAtLeast(5) ?: 15L
+            
+            // Use runtime config if available, otherwise fall back to static config
+            val heartbeatIntervalSeconds = try {
+                com.fmps.autotrader.core.config.RuntimeConfigManager.getTelemetryHeartbeatIntervalSeconds()
+            } catch (e: Exception) {
+                telemetryConfig?.propertyOrNull("heartbeatIntervalSeconds")?.getString()
+                    ?.toLongOrNull()?.coerceAtLeast(5) ?: 15L
+            }
+            
             val heartbeatTimeoutSeconds = telemetryConfig?.propertyOrNull("heartbeatTimeoutSeconds")?.getString()
                 ?.toLongOrNull()?.coerceAtLeast(heartbeatIntervalSeconds * 2) ?: heartbeatIntervalSeconds * 3
             val rateLimitPerSecond = telemetryConfig?.propertyOrNull("rateLimitPerSecond")?.getString()?.toIntOrNull()?.coerceAtLeast(10) ?: 60

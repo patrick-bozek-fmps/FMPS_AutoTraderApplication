@@ -22,7 +22,11 @@ class ToolbarButton(
         icon?.let { graphicText ->
             graphic = javafx.scene.control.Label(graphicText).apply {
                 styleClass += "toolbar-button-icon"
+                // Set font size explicitly for better emoji rendering
+                style = "-fx-font-size: 18px;"
             }
+            // Add spacing between icon and text using CSS
+            style = "-fx-graphic-text-gap: 8px;"
         }
     }
 }

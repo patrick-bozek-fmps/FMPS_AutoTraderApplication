@@ -12,6 +12,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.json.*
+import kotlinx.coroutines.delay
 import mu.KotlinLogging
 import java.math.BigDecimal
 import java.time.Instant
@@ -97,11 +98,6 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
     private fun buildEndpointUrl(endpointType: EndpointType, path: String, queryParams: Map<String, String> = emptyMap()): String {
         val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
         
-        val apiVersion = when (endpointType) {
-            EndpointType.SYMBOLS -> "v2"  // Symbols always use V2
-            EndpointType.MARKET -> if (bitgetConfig.useV2MarketEndpoints) "v2" else "v1"  // Market uses config
-        }
-        
         val apiPath = when (endpointType) {
             EndpointType.SYMBOLS -> "/api/v2/spot/public/$path"  // Symbols use public path
             EndpointType.MARKET -> {
@@ -174,11 +170,10 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
         
         try {
-            // First, test basic connectivity with server time endpoint (public)
-            val timeResponse = httpClient.get("$baseUrl/api/spot/v1/public/time")
-            if (timeResponse.status != HttpStatusCode.OK) {
-                throw ConnectionException("Connectivity test failed: ${timeResponse.status}", exchangeName = "BITGET")
-            }
+            // Note: Server time endpoint test is removed from testConnectivity() to optimize speed
+            // Server time synchronization is performed in onConnect() after successful connection test
+            // This ensures timestamp sync happens before trading operations begin
+            // The actual connectivity is validated by testing critical trading endpoints below
             
             // Test both account endpoints (V2) and market endpoints (V1) since we use both for trading
             // V2 account endpoints work for demo trading with paptrading header
@@ -439,7 +434,6 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
      * @return List of symbols that work with V1 endpoints
      */
     private suspend fun discoverV1CompatibleSymbols(candidateSymbols: List<String>) {
-        val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
         val discovered = mutableListOf<String>()
         
         // Test more symbols (up to 50) to increase chances of finding V1-compatible ones
@@ -539,7 +533,6 @@ class BitgetConnector : AbstractExchangeConnector(Exchange.BITGET) {
         ensureConnected()
         
         try {
-            val baseUrl = bitgetConfig.baseUrl ?: "https://api.bitget.com"
             val bitgetSymbol = convertSymbolToBitget(symbol)
             val bitgetInterval = mapTimeFrameToBitgetInterval(interval)
             

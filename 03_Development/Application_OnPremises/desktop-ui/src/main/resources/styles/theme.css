@@ -20,14 +20,24 @@
 
 .app-shell .sidebar .nav-button {
     -fx-background-color: transparent;
-    -fx-text-fill: #cbd5f5;
+    -fx-text-fill: #ffffff; /* Match icon color (white) for dark theme - will be overridden by theme-light */
     -fx-font-size: 14px;
     -fx-padding: 8px 12px;
     -fx-alignment: CENTER_LEFT;
+    -fx-font-weight: normal;
 }
 
 .app-shell .sidebar .nav-button:hover {
     -fx-background-color: rgba(82, 91, 123, 0.35);
+}
+
+.app-shell .sidebar .nav-button.active {
+    -fx-background-color: rgba(156, 163, 175, 0.3); /* Light grey background for dark theme too */
+    -fx-text-fill: #ffffff; /* Match icon color (white) for dark theme - will be overridden by theme-light */
+    -fx-font-weight: bold;
+    -fx-border-color: #9ca3af; /* Grey left border */
+    -fx-border-width: 0 0 0 3px;
+    -fx-border-insets: 0;
 }
 
 .status-badge {
@@ -79,10 +89,42 @@
     -fx-padding: 8px 16px;
     -fx-spacing: 6px;
     -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.toolbar-button:hover {
+    -fx-opacity: 0.9;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.toolbar-button:pressed {
+    -fx-opacity: 0.8;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
 }
 
 .toolbar-button-primary {
     -fx-background-color: linear-gradient(to bottom right, #3b82f6, #2563eb);
+    -fx-text-fill: #ffffff;
+}
+
+.toolbar-button-primary:hover {
+    -fx-background-color: linear-gradient(to bottom right, #60a5fa, #3b82f6);
+}
+
+.toolbar-button-primary:pressed {
+    -fx-background-color: linear-gradient(to bottom right, #2563eb, #1d4ed8);
+}
+
+.toolbar-button-primary-dirty {
+    -fx-background-color: linear-gradient(to bottom right, #60a5fa, #3b82f6);
+    -fx-text-fill: #ffffff;
+}
+
+.toolbar-button-primary-saved {
+    -fx-background-color: linear-gradient(to bottom right, #93c5fd, #60a5fa);
+    -fx-opacity: 0.5;
     -fx-text-fill: #ffffff;
 }
 
@@ -91,14 +133,71 @@
     -fx-text-fill: #e5e7ff;
 }
 
+.toolbar-button-success {
+    -fx-background-color: linear-gradient(to bottom right, #10b981, #059669);
+    -fx-text-fill: #ffffff;
+}
+
+.toolbar-button-success:hover {
+    -fx-background-color: linear-gradient(to bottom right, #34d399, #10b981);
+}
+
+.toolbar-button-success:pressed {
+    -fx-background-color: linear-gradient(to bottom right, #059669, #047857);
+}
+
+.toolbar-button-success-disabled {
+    -fx-background-color: linear-gradient(to bottom right, #10b981, #059669);
+    -fx-text-fill: #ffffff;
+    -fx-opacity: 0.5;
+}
+
+.toolbar-button-secondary:hover {
+    -fx-background-color: rgba(75, 85, 99, 0.8);
+}
+
+.toolbar-button-secondary:pressed {
+    -fx-background-color: rgba(75, 85, 99, 1.0);
+}
+
 .toolbar-button-danger {
     -fx-background-color: linear-gradient(to bottom right, #ef4444, #dc2626);
     -fx-text-fill: #ffffff;
 }
 
+.toolbar-button-danger:hover {
+    -fx-background-color: linear-gradient(to bottom right, #f87171, #ef4444);
+}
+
+.toolbar-button-danger:pressed {
+    -fx-background-color: linear-gradient(to bottom right, #dc2626, #b91c1c);
+}
+
 .toolbar-button-icon {
-    -fx-text-fill: inherit;
-    -fx-font-size: 14px;
+    -fx-font-size: 18px;
+    -fx-background-color: transparent;
+    /* Icons need visible text color - JavaFX renders emojis as text */
+    -fx-text-fill: #ffffff; /* Default white for dark theme */
+}
+
+/* Dark theme - icons should be visible */
+.nav-button .toolbar-button-icon {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ffffff !important; /* White so icons are visible on dark background */
+}
+
+/* Light theme - icons should be visible */
+.theme-light .nav-button .toolbar-button-icon {
+    -fx-text-fill: #000000 !important; /* Black so icons are visible on light background */
+}
+
+/* Override button text color inheritance for icons - ensure they're always visible */
+.button .toolbar-button-icon {
+    -fx-text-fill: #ffffff !important; /* Don't inherit button text color */
+}
+
+.theme-light .button .toolbar-button-icon {
+    -fx-text-fill: #000000 !important; /* Black for light theme */
 }
 
 .sidebar-title {
@@ -240,6 +339,10 @@
     -fx-background-color: linear-gradient(to bottom right, #f87171, #dc2626);
 }
 
+.status-label-idle {
+    -fx-background-color: linear-gradient(to bottom right, #6b7280, #4b5563);
+}
+
 .timestamp-label {
     -fx-text-fill: #9ca3c5;
     -fx-font-size: 12px;
@@ -282,5 +385,315 @@
     -fx-text-fill: #c1c6da;
     -fx-font-size: 13px;
     -fx-font-weight: 500;
+}
+
+/* Light Theme Overrides */
+.theme-light {
+    -fx-base: #f5f5f5;
+    -fx-control-inner-background: #ffffff;
+    -fx-background: #f0f0f0;
+}
+
+/* Light theme root background - must override :root */
+.theme-light.root,
+.theme-light {
+    -fx-base: #f5f5f5;
+    -fx-control-inner-background: #ffffff;
+    -fx-background: #f0f0f0;
+    -fx-background-color: #f0f0f0;
+}
+
+.theme-light .app-shell {
+    -fx-background-color: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+}
+
+.theme-light .app-shell .content-card,
+.theme-light .app-shell .vbox,
+.theme-light .app-shell .hbox,
+.theme-light .app-shell .border-pane {
+    -fx-background-color: #ffffff;
+}
+
+.theme-light .app-shell .content-holder {
+    -fx-background-color: #ffffff;
+}
+
+/* Light theme sidebar - multiple selectors to ensure it applies */
+.theme-light .app-shell .sidebar,
+.theme-light .sidebar,
+.app-shell.theme-light .sidebar,
+.sidebar.theme-light {
+    -fx-background-color: #ffffff !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 12, 0.2, 0, 0) !important;
+}
+
+/* Also override the base sidebar style when in light theme */
+.theme-light.root .app-shell .sidebar,
+.theme-light.root .sidebar {
+    -fx-background-color: #ffffff !important;
+}
+
+/* Dark theme sidebar - ensure it uses dark background (override any light theme that might leak) */
+.theme-dark .app-shell .sidebar,
+.theme-dark .sidebar,
+.app-shell.theme-dark .sidebar,
+.sidebar.theme-dark,
+.app-shell .sidebar:not(.theme-light),
+.root.theme-dark .app-shell .sidebar,
+.root.theme-dark .sidebar,
+.theme-dark.root .app-shell .sidebar,
+.theme-dark.root .sidebar {
+    -fx-background-color: rgba(32, 37, 49, 0.95) !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 12, 0.2, 0, 0) !important;
+}
+
+/* Ensure default sidebar is dark when no theme-light class is present */
+.app-shell .sidebar:not(.theme-light):not(.sidebar.theme-light) {
+    -fx-background-color: rgba(32, 37, 49, 0.95) !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 12, 0.2, 0, 0) !important;
+}
+
+/* Light theme nav-button - must override base white text with higher specificity */
+/* Try multiple selector patterns to ensure one matches */
+.theme-light .app-shell .sidebar .nav-button,
+.theme-light.root .app-shell .sidebar .nav-button,
+.root.theme-light .app-shell .sidebar .nav-button,
+.app-shell.theme-light .sidebar .nav-button,
+.sidebar.theme-light .nav-button,
+.nav-button.theme-light,
+.nav-button.theme-light .text {
+    -fx-text-fill: #000000 !important; /* Black text for light theme - must override base rule */
+}
+
+/* Dark theme nav-button - ensure default dark styles are used (white text, dark background) */
+/* Explicitly set dark theme styles to override any light theme that might leak through */
+.app-shell .sidebar .nav-button:not(.theme-light) {
+    -fx-text-fill: #ffffff !important; /* White text for dark theme */
+}
+
+.theme-light .app-shell .sidebar .nav-button:hover {
+    -fx-background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Light theme active nav-button - must come after base rule and have higher specificity */
+.theme-light .app-shell .sidebar .nav-button.active,
+.theme-light.root .app-shell .sidebar .nav-button.active,
+.root.theme-light .app-shell .sidebar .nav-button.active {
+    -fx-background-color: rgba(156, 163, 175, 0.3); /* Light grey instead of light blue */
+    -fx-text-fill: #000000 !important; /* Match icon color (black) for light theme - must override base */
+    -fx-font-weight: bold; /* Bold when selected */
+    -fx-border-color: #9ca3af; /* Grey left border instead of blue */
+    -fx-border-width: 0 0 0 3px;
+    -fx-border-insets: 0;
+}
+
+.theme-light .metric-tile {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+}
+
+.theme-light .metric-title {
+    -fx-text-fill: #6b7280;
+}
+
+.theme-light .metric-value {
+    -fx-text-fill: #111827;
+}
+
+.theme-light .metric-subtitle {
+    -fx-text-fill: #6b7280;
+}
+
+.theme-light .content-card {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+}
+
+.theme-light .section-title {
+    -fx-text-fill: #1f2937;
+}
+
+.theme-light .sidebar-title {
+    -fx-text-fill: #111827;
+}
+
+.theme-light .view-header {
+    -fx-text-fill: #111827;
+}
+
+.theme-light .view-description {
+    -fx-text-fill: #4b5563;
+}
+
+.theme-light .field-label {
+    -fx-text-fill: #4b5563;
+}
+
+.theme-light .status-title {
+    -fx-text-fill: #374151;
+}
+
+.theme-light .timestamp-label {
+    -fx-text-fill: #6b7280;
+}
+
+.theme-light .breadcrumb-label {
+    -fx-text-fill: #6b7280;
+}
+
+.theme-light .trader-name {
+    -fx-text-fill: #111827;
+}
+
+.theme-light .trader-meta {
+    -fx-text-fill: #6b7280;
+}
+
+.theme-light .placeholder-label {
+    -fx-text-fill: #6b7280;
+}
+
+.theme-light .meta-muted {
+    -fx-text-fill: #6b7280;
+}
+
+.theme-light .kpi-value {
+    -fx-text-fill: #111827;
+}
+
+.theme-light .notification-icon {
+    -fx-text-fill: #374151;
+}
+
+.theme-light .notification-title {
+    -fx-text-fill: #111827;
+}
+
+.theme-light .notification-message {
+    -fx-text-fill: #4b5563;
+}
+
+.theme-light .notification-timestamp {
+    -fx-text-fill: #6b7280;
+}
+
+.theme-light .trader-row {
+    -fx-background-color: rgba(249, 250, 251, 0.9);
+}
+
+.theme-light .status-label {
+    -fx-text-fill: #ffffff;
+}
+
+.theme-light .toolbar-button-secondary {
+    -fx-background-color: rgba(229, 231, 235, 0.8);
+    -fx-text-fill: #374151;
+}
+
+.theme-light .toolbar-button-secondary:hover {
+    -fx-background-color: rgba(209, 213, 219, 0.9);
+}
+
+/* Light theme for input fields and controls */
+.theme-light .text-field,
+.theme-light .text-area,
+.theme-light .combo-box {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #111827;
+    -fx-border-color: #d1d5db;
+}
+
+.theme-light .text-field:focused,
+.theme-light .text-area:focused,
+.theme-light .combo-box:focused {
+    -fx-border-color: #3b82f6;
+}
+
+.theme-light .password-field {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #111827;
+    -fx-border-color: #d1d5db;
+}
+
+.theme-light .password-field:focused {
+    -fx-border-color: #3b82f6;
+}
+
+/* Light theme for tabs */
+.theme-light .tab {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #374151;
+}
+
+.theme-light .tab:selected {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #111827;
+}
+
+.theme-light .tab-pane {
+    -fx-background-color: #ffffff;
+}
+
+/* Light theme for labels and text */
+.theme-light .label {
+    -fx-text-fill: #111827;
+}
+
+/* Light theme for separators */
+.theme-light .separator {
+    -fx-background-color: #e5e7eb;
+}
+
+/* Light theme for connection status */
+.theme-light .connection-status {
+    -fx-background-color: transparent;
+}
+
+/* Light theme for all panes and containers */
+.theme-light .pane,
+.theme-light .vbox,
+.theme-light .hbox,
+.theme-light .border-pane,
+.theme-light .stack-pane,
+.theme-light .flow-pane {
+    -fx-background-color: #ffffff;
+}
+
+/* Light theme for main content area */
+.theme-light .content-holder {
+    -fx-background-color: #ffffff;
+}
+
+.theme-light .app-shell .content-card,
+.theme-light .app-shell .vbox,
+.theme-light .app-shell .hbox,
+.theme-light .app-shell .border-pane {
+    -fx-background-color: #ffffff;
+}
+
+/* Light theme for tab pane content */
+.theme-light .tab-pane .tab-content-area {
+    -fx-background-color: #ffffff;
+}
+
+.theme-light .tab-pane .tab-header-area {
+    -fx-background-color: #f3f4f6;
+}
+
+/* Ensure icons maintain colors in light theme - don't override text-fill */
+.theme-light .toolbar-button-icon,
+.theme-light .nav-button .toolbar-button-icon {
+    -fx-background-color: transparent;
+    /* Let emojis use their natural colors - don't set text-fill */
+}
+
+/* Dark Theme (default - already defined above) */
+.theme-dark {
+    /* All default styles are dark, so no overrides needed */
+}
+
+/* Ensure icons maintain colors in dark theme too */
+.theme-dark .toolbar-button-icon,
+.theme-dark .nav-button .toolbar-button-icon {
+    -fx-background-color: transparent;
+    /* Let emojis use their natural colors - don't set text-fill */
 }
 

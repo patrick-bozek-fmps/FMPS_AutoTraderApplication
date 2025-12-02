@@ -122,7 +122,26 @@ class PositionManager(
     private val managerScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     
     init {
-        logger.info { "Initialized PositionManager (update interval: $updateInterval)" }
+        // Use runtime config if available, otherwise use constructor parameter
+        val effectiveInterval = try {
+            val runtimeMs = com.fmps.autotrader.core.config.RuntimeConfigManager.getUpdateIntervalMs()
+            Duration.ofMillis(runtimeMs)
+        } catch (e: Exception) {
+            updateInterval // Fallback to constructor parameter
+        }
+        logger.info { "Initialized PositionManager (update interval: $effectiveInterval, from runtime config: ${effectiveInterval != updateInterval})" }
+    }
+    
+    /**
+     * Gets the current effective update interval, reading from runtime config.
+     */
+    private fun getEffectiveUpdateInterval(): Duration {
+        return try {
+            val runtimeMs = com.fmps.autotrader.core.config.RuntimeConfigManager.getUpdateIntervalMs()
+            Duration.ofMillis(runtimeMs)
+        } catch (e: Exception) {
+            updateInterval // Fallback to constructor parameter
+        }
     }
 
     private suspend fun emitPositionTelemetry(
@@ -700,11 +719,11 @@ class PositionManager(
                     logger.error(e) { "Error during position monitoring" }
                 }
 
-                delay(updateInterval.toMillis())
+                delay(getEffectiveUpdateInterval().toMillis())
             }
         }
         
-        logger.info { "Started position monitoring (interval: $updateInterval)" }
+        logger.info { "Started position monitoring (interval: ${getEffectiveUpdateInterval()})" }
     }
     
     /**

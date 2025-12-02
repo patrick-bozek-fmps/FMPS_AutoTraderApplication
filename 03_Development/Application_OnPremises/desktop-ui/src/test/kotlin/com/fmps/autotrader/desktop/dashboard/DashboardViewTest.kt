@@ -69,7 +69,8 @@ class DashboardViewTest {
                     single<CoreServiceClient> { coreServiceClient }
                     single<TelemetryClient> { telemetryClient }
                     single<TraderService> { traderService }
-                    factory { DashboardViewModel(get(), get(), get(), get()) }
+                    single<com.fmps.autotrader.desktop.services.ExchangeConnectionStatusService> { com.fmps.autotrader.desktop.services.ExchangeConnectionStatusService() }
+                    factory { DashboardViewModel(get(), get(), get(), get(), get()) }
                     factory { DashboardView() }
                 }
             )
@@ -176,6 +177,10 @@ class DashboardViewTest {
         }
 
         override suspend fun stopTrader(id: String) {
+            // No-op for tests
+        }
+        
+        override suspend fun updateTraderBalance(id: String, balance: Double) {
             // No-op for tests
         }
     }

@@ -48,6 +48,8 @@ class DashboardView :
 
     private val coreServiceStatusLabel = Label().apply { addClass("status-label") }
     private val telemetryStatusLabel = Label().apply { addClass("status-label") }
+    private val binanceStatusLabel = Label().apply { addClass("status-label") }
+    private val bitgetStatusLabel = Label().apply { addClass("status-label") }
     private val summaryTimestampLabel = Label().apply { addClass("timestamp-label") }
     private val telemetryTimestampLabel = Label().apply { addClass("timestamp-label") }
 
@@ -102,7 +104,10 @@ class DashboardView :
         label(Localization.string("dashboard.title", "Operations Dashboard")) {
             addClass("view-header")
         }
-        separator()
+        label("|") {
+            addClass("view-header")
+            style = "-fx-padding: 0 8 0 8;"
+        }
         label(Localization.string("dashboard.subtitle", "Real-time overview of traders and platform health.")) {
             addClass("view-description")
         }
@@ -147,6 +152,16 @@ class DashboardView :
                 telemetryStatusLabel
             )
             children += telemetryTimestampLabel
+            children += Separator()
+            children += buildStatusRow(
+                "Binance",
+                binanceStatusLabel
+            )
+            children += Separator()
+            children += buildStatusRow(
+                "Bitget",
+                bitgetStatusLabel
+            )
         }
 
         children += tradersSection
@@ -190,6 +205,36 @@ class DashboardView :
         telemetryStatusLabel.styleClass.setAll(
             "status-label",
             if (status.telemetryConnected) "status-label-ok" else "status-label-warning"
+        )
+
+        // Update Binance status
+        binanceStatusLabel.text = when (status.binanceConnected) {
+            true -> "Connected"
+            false -> "Disconnected"
+            null -> "Not tested"
+        }
+        binanceStatusLabel.styleClass.setAll(
+            "status-label",
+            when (status.binanceConnected) {
+                true -> "status-label-ok"
+                false -> "status-label-error"
+                null -> "status-label-idle"
+            }
+        )
+
+        // Update Bitget status
+        bitgetStatusLabel.text = when (status.bitgetConnected) {
+            true -> "Connected"
+            false -> "Disconnected"
+            null -> "Not tested"
+        }
+        bitgetStatusLabel.styleClass.setAll(
+            "status-label",
+            when (status.bitgetConnected) {
+                true -> "status-label-ok"
+                false -> "status-label-error"
+                null -> "status-label-idle"
+            }
         )
 
         summaryTimestampLabel.text = status.lastSummaryUpdate?.let {

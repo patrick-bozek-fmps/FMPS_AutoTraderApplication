@@ -14,21 +14,22 @@ data class TraderManagementState(
     val form: TraderForm = TraderForm(),
     val statusFilter: TraderStatusFilter = TraderStatusFilter.ALL,
     val searchQuery: String = "",
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
+    val hasUnsavedChanges: Boolean = false // Track if form has unsaved changes
 )
 
 data class TraderForm(
     val id: String? = null,
     val name: String = "",
     val exchange: String = "Binance",
-    val strategy: String = "Momentum",
+    val strategy: String = "TREND_FOLLOWING", // TradingStrategy enum name
     val riskLevel: TraderRiskLevel = TraderRiskLevel.BALANCED,
     val baseAsset: String = "BTC",
     val quoteAsset: String = "USDT",
     val budget: Double = 1000.0,
-    val apiKey: String = "",
-    val apiSecret: String = "",
-    val apiPassphrase: String = "",
+    val leverage: Int = 3,
+    val stopLossPercent: Double = 5.0,
+    val takeProfitPercent: Double = 5.0,
     val errors: Map<String, String> = emptyMap()
 ) {
     val isNew: Boolean get() = id == null
@@ -41,9 +42,12 @@ data class TraderForm(
         baseAsset = baseAsset,
         quoteAsset = quoteAsset,
         budget = budget,
-        apiKey = apiKey.takeIf { it.isNotBlank() },
-        apiSecret = apiSecret.takeIf { it.isNotBlank() },
-        apiPassphrase = apiPassphrase.takeIf { it.isNotBlank() }
+        leverage = leverage,
+        stopLossPercentage = stopLossPercent / 100.0, // Convert percentage to decimal
+        takeProfitPercentage = takeProfitPercent / 100.0, // Convert percentage to decimal
+        apiKey = null, // API keys come from Configuration, not per-trader
+        apiSecret = null,
+        apiPassphrase = null
     )
 
     companion object {
@@ -56,9 +60,10 @@ data class TraderForm(
             baseAsset = trader.baseAsset,
             quoteAsset = trader.quoteAsset,
             budget = trader.budget,
-            apiKey = "", // Credentials not stored in TraderDetail for security
-            apiSecret = "",
-            apiPassphrase = ""
+            leverage = trader.leverage ?: 3, // Default if not available
+            stopLossPercent = (trader.stopLossPercentage ?: 0.02) * 100.0, // Convert decimal to percentage
+            takeProfitPercent = (trader.takeProfitPercentage ?: 0.05) * 100.0 // Convert decimal to percentage
+            // API keys removed - they come from Configuration
         )
     }
 }

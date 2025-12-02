@@ -37,19 +37,23 @@ abstract class BaseViewModel<State : Any, Event : ViewEvent>(
 
     /**
      * Update the current state atomically.
+     * Uses value assignment to ensure immediate emission to collectors.
      */
     protected fun setState(reducer: (State) -> State) {
-        _state.update(reducer)
+        val oldState = _state.value
+        val newState = reducer(oldState)
+        _state.value = newState
+        println("🔍 BaseViewModel (${this::class.simpleName}): State updated from ${oldState.hashCode()} to ${newState.hashCode()}")
     }
 
     /**
      * Emit an event to the UI. Uses a buffered shared flow to avoid blocking.
+     * Always emits on main dispatcher to ensure events reach the view.
      */
     protected fun publishEvent(event: Event) {
-        if (!_events.tryEmit(event)) {
-            launch(dispatcherProvider.main) {
-                _events.emit(event)
-            }
+        launch(dispatcherProvider.main) {
+            _events.emit(event)
+            println("🔍 BaseViewModel: Event emitted: ${event.javaClass.simpleName}")
         }
     }
 

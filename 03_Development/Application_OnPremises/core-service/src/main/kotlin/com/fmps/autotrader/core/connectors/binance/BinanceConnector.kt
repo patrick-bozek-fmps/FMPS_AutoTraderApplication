@@ -63,7 +63,17 @@ class BinanceConnector : AbstractExchangeConnector(Exchange.BINANCE) {
     }
     
     /**
-     * Tests connectivity to the exchange
+     * Tests connectivity to the exchange and validates API keys
+     * 
+     * Uses an authenticated endpoint (/api/v3/account) to verify that:
+     * 1. The exchange API is reachable
+     * 2. The API keys are valid and have proper permissions
+     * 
+     * This will fail if:
+     * - Network connectivity issues
+     * - Invalid API key or secret
+     * - API key doesn't have required permissions
+     * - Clock synchronization issues (timestamp errors)
      */
     override suspend fun testConnectivity() {
         val baseUrl = config.baseUrl ?: if (config.testnet) {
@@ -72,9 +82,44 @@ class BinanceConnector : AbstractExchangeConnector(Exchange.BINANCE) {
             "https://api.binance.com"
         }
         
-        val pingResponse = httpClient.get("$baseUrl/api/v3/ping")
-        if (pingResponse.status != HttpStatusCode.OK) {
-            throw ConnectionException("Ping test failed: ${pingResponse.status}")
+        try {
+            // First, test basic connectivity with ping (public endpoint)
+            val pingResponse = httpClient.get("$baseUrl/api/v3/ping")
+            if (pingResponse.status != HttpStatusCode.OK) {
+                throw ConnectionException("Ping test failed: ${pingResponse.status}")
+            }
+            
+            // Then, validate API keys using authenticated endpoint
+            // This will fail if keys are invalid or don't have proper permissions
+            val signedQuery = authenticator.signQueryString("")
+            val accountUrl = "$baseUrl/api/v3/account?$signedQuery"
+            
+            val accountResponse = httpClient.get(accountUrl) {
+                headers {
+                    authenticator.createHeaders().forEach { (key, value) ->
+                        append(key, value)
+                    }
+                }
+            }
+            
+            // Handle response - this will throw if authentication fails
+            errorHandler.handleResponse(accountResponse)
+            
+            if (accountResponse.status != HttpStatusCode.OK) {
+                throw ConnectionException("Account validation failed: ${accountResponse.status}")
+            }
+            
+            logger.debug { "✓ Binance connectivity and API key validation passed" }
+            
+        } catch (e: ExchangeException) {
+            // Re-throw API exceptions (these indicate invalid keys or permissions)
+            throw ConnectionException("API key validation failed: ${e.message}", e)
+        } catch (e: ConnectionException) {
+            // Re-throw connection exceptions
+            throw e
+        } catch (e: Exception) {
+            // Wrap other exceptions
+            throw ConnectionException("Connectivity test failed: ${e.message}", e)
         }
     }
     

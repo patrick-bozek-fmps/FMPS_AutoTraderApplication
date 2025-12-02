@@ -58,7 +58,29 @@ class TraderManagementViewModelTest {
         }
         fakeService = FakeTraderService()
         fakeTelemetryClient = FakeTelemetryClient()
-        viewModel = TraderManagementViewModel(dispatcherProvider, fakeService, fakeTelemetryClient)
+        val fakeConfigService = object : com.fmps.autotrader.desktop.services.ConfigService {
+            override fun configuration() = kotlinx.coroutines.flow.flowOf(
+                com.fmps.autotrader.desktop.services.ConfigurationSnapshot(
+                    exchange = com.fmps.autotrader.desktop.services.ExchangeSettings("", "", "", com.fmps.autotrader.desktop.services.Exchange.BINANCE),
+                    general = com.fmps.autotrader.desktop.services.GeneralSettings(30, 5, com.fmps.autotrader.desktop.services.LoggingLevel.INFO, com.fmps.autotrader.desktop.services.ThemePreference.AUTO),
+                    traderDefaults = com.fmps.autotrader.desktop.services.TraderDefaults()
+                )
+            )
+            override suspend fun saveExchangeSettings(settings: com.fmps.autotrader.desktop.services.ExchangeSettings) {}
+            override suspend fun saveGeneralSettings(settings: com.fmps.autotrader.desktop.services.GeneralSettings) {}
+            override suspend fun saveTraderDefaults(defaults: com.fmps.autotrader.desktop.services.TraderDefaults) {}
+            override suspend fun testExchangeConnection(settings: com.fmps.autotrader.desktop.services.ExchangeSettings) = com.fmps.autotrader.desktop.services.ConnectionTestResult(true, "OK")
+            override suspend fun exportConfiguration() = ""
+            override suspend fun importConfiguration(serialized: String) = com.fmps.autotrader.desktop.services.ConfigurationSnapshot(
+                exchange = com.fmps.autotrader.desktop.services.ExchangeSettings("", "", "", com.fmps.autotrader.desktop.services.Exchange.BINANCE),
+                general = com.fmps.autotrader.desktop.services.GeneralSettings(30, 5, com.fmps.autotrader.desktop.services.LoggingLevel.INFO, com.fmps.autotrader.desktop.services.ThemePreference.AUTO),
+                traderDefaults = com.fmps.autotrader.desktop.services.TraderDefaults()
+            )
+            override fun getExchangeSettings(exchange: com.fmps.autotrader.desktop.services.Exchange) = null
+            override fun getExchangeTimestamp(exchange: com.fmps.autotrader.desktop.services.Exchange) = null
+            override fun saveExchangeTimestamp(exchange: com.fmps.autotrader.desktop.services.Exchange, timestamp: Long) {}
+        }
+        viewModel = TraderManagementViewModel(dispatcherProvider, fakeService, fakeTelemetryClient, fakeConfigService)
     }
 
     @AfterEach
@@ -116,83 +138,7 @@ class TraderManagementViewModelTest {
         advanceUntilIdle()
     }
 
-    @Test
-    fun `credential validation - API Secret required when API Key provided`() = testScope.runTest {
-        advanceUntilIdle()
-        
-        viewModel.updateForm {
-            it.copy(
-                name = "Test Trader",
-                apiKey = "test-key",
-                apiSecret = "", // Missing secret
-                baseAsset = "BTC",
-                quoteAsset = "USDT",
-                budget = 1000.0
-            )
-        }
-        
-        viewModel.saveTrader()
-        advanceUntilIdle()
-        
-        val errors = viewModel.state.value.form.errors
-        assertTrue(errors.containsKey("apiSecret"))
-        assertEquals("API Secret is required when API Key is provided", errors["apiSecret"])
-        viewModel.onCleared()
-        advanceUntilIdle()
-    }
-
-    @Test
-    fun `credential validation - Passphrase required for Bitget`() = testScope.runTest {
-        advanceUntilIdle()
-        
-        viewModel.updateForm {
-            it.copy(
-                name = "Test Trader",
-                exchange = "Bitget",
-                apiKey = "test-key",
-                apiSecret = "test-secret",
-                apiPassphrase = "", // Missing passphrase for Bitget
-                baseAsset = "BTC",
-                quoteAsset = "USDT",
-                budget = 1000.0
-            )
-        }
-        
-        viewModel.saveTrader()
-        advanceUntilIdle()
-        
-        val errors = viewModel.state.value.form.errors
-        assertTrue(errors.containsKey("apiPassphrase"))
-        assertEquals("Passphrase is required for Bitget exchange", errors["apiPassphrase"])
-        viewModel.onCleared()
-        advanceUntilIdle()
-    }
-
-    @Test
-    fun `credential validation - Passphrase not required for Binance`() = testScope.runTest {
-        advanceUntilIdle()
-        
-        viewModel.updateForm {
-            it.copy(
-                name = "Test Trader",
-                exchange = "Binance",
-                apiKey = "test-key",
-                apiSecret = "test-secret",
-                apiPassphrase = "", // No passphrase needed for Binance
-                baseAsset = "BTC",
-                quoteAsset = "USDT",
-                budget = 1000.0
-            )
-        }
-        
-        viewModel.saveTrader()
-        advanceUntilIdle()
-        
-        val errors = viewModel.state.value.form.errors
-        assertFalse(errors.containsKey("apiPassphrase"))
-        viewModel.onCleared()
-        advanceUntilIdle()
-    }
+    // Note: API credential validation tests removed since credentials are now managed in Configuration view
 
     @Test
     fun `telemetry updates trader status in real-time`() = testScope.runTest {
@@ -260,7 +206,29 @@ class TraderManagementViewModelTest {
     fun `retry logic - succeeds after transient failure`() = testScope.runTest {
         advanceUntilIdle()
         val failingService = FailingTraderService(failCount = 2) // Fail twice, then succeed
-        val testViewModel = TraderManagementViewModel(dispatcherProvider, failingService, fakeTelemetryClient)
+        val fakeConfigService = object : com.fmps.autotrader.desktop.services.ConfigService {
+            override fun configuration() = kotlinx.coroutines.flow.flowOf(
+                com.fmps.autotrader.desktop.services.ConfigurationSnapshot(
+                    exchange = com.fmps.autotrader.desktop.services.ExchangeSettings("", "", "", com.fmps.autotrader.desktop.services.Exchange.BINANCE),
+                    general = com.fmps.autotrader.desktop.services.GeneralSettings(30, 5, com.fmps.autotrader.desktop.services.LoggingLevel.INFO, com.fmps.autotrader.desktop.services.ThemePreference.AUTO),
+                    traderDefaults = com.fmps.autotrader.desktop.services.TraderDefaults()
+                )
+            )
+            override suspend fun saveExchangeSettings(settings: com.fmps.autotrader.desktop.services.ExchangeSettings) {}
+            override suspend fun saveGeneralSettings(settings: com.fmps.autotrader.desktop.services.GeneralSettings) {}
+            override suspend fun saveTraderDefaults(defaults: com.fmps.autotrader.desktop.services.TraderDefaults) {}
+            override suspend fun testExchangeConnection(settings: com.fmps.autotrader.desktop.services.ExchangeSettings) = com.fmps.autotrader.desktop.services.ConnectionTestResult(true, "OK")
+            override suspend fun exportConfiguration() = ""
+            override suspend fun importConfiguration(serialized: String) = com.fmps.autotrader.desktop.services.ConfigurationSnapshot(
+                exchange = com.fmps.autotrader.desktop.services.ExchangeSettings("", "", "", com.fmps.autotrader.desktop.services.Exchange.BINANCE),
+                general = com.fmps.autotrader.desktop.services.GeneralSettings(30, 5, com.fmps.autotrader.desktop.services.LoggingLevel.INFO, com.fmps.autotrader.desktop.services.ThemePreference.AUTO),
+                traderDefaults = com.fmps.autotrader.desktop.services.TraderDefaults()
+            )
+            override fun getExchangeSettings(exchange: com.fmps.autotrader.desktop.services.Exchange) = null
+            override fun getExchangeTimestamp(exchange: com.fmps.autotrader.desktop.services.Exchange) = null
+            override fun saveExchangeTimestamp(exchange: com.fmps.autotrader.desktop.services.Exchange, timestamp: Long) {}
+        }
+        val testViewModel = TraderManagementViewModel(dispatcherProvider, failingService, fakeTelemetryClient, fakeConfigService)
         advanceUntilIdle()
         
         testViewModel.updateForm {
@@ -286,7 +254,29 @@ class TraderManagementViewModelTest {
     fun `retry logic - fails after max retries`() = testScope.runTest {
         advanceUntilIdle()
         val failingService = FailingTraderService(failCount = 10) // Always fail
-        val testViewModel = TraderManagementViewModel(dispatcherProvider, failingService, fakeTelemetryClient)
+        val fakeConfigService = object : com.fmps.autotrader.desktop.services.ConfigService {
+            override fun configuration() = kotlinx.coroutines.flow.flowOf(
+                com.fmps.autotrader.desktop.services.ConfigurationSnapshot(
+                    exchange = com.fmps.autotrader.desktop.services.ExchangeSettings("", "", "", com.fmps.autotrader.desktop.services.Exchange.BINANCE),
+                    general = com.fmps.autotrader.desktop.services.GeneralSettings(30, 5, com.fmps.autotrader.desktop.services.LoggingLevel.INFO, com.fmps.autotrader.desktop.services.ThemePreference.AUTO),
+                    traderDefaults = com.fmps.autotrader.desktop.services.TraderDefaults()
+                )
+            )
+            override suspend fun saveExchangeSettings(settings: com.fmps.autotrader.desktop.services.ExchangeSettings) {}
+            override suspend fun saveGeneralSettings(settings: com.fmps.autotrader.desktop.services.GeneralSettings) {}
+            override suspend fun saveTraderDefaults(defaults: com.fmps.autotrader.desktop.services.TraderDefaults) {}
+            override suspend fun testExchangeConnection(settings: com.fmps.autotrader.desktop.services.ExchangeSettings) = com.fmps.autotrader.desktop.services.ConnectionTestResult(true, "OK")
+            override suspend fun exportConfiguration() = ""
+            override suspend fun importConfiguration(serialized: String) = com.fmps.autotrader.desktop.services.ConfigurationSnapshot(
+                exchange = com.fmps.autotrader.desktop.services.ExchangeSettings("", "", "", com.fmps.autotrader.desktop.services.Exchange.BINANCE),
+                general = com.fmps.autotrader.desktop.services.GeneralSettings(30, 5, com.fmps.autotrader.desktop.services.LoggingLevel.INFO, com.fmps.autotrader.desktop.services.ThemePreference.AUTO),
+                traderDefaults = com.fmps.autotrader.desktop.services.TraderDefaults()
+            )
+            override fun getExchangeSettings(exchange: com.fmps.autotrader.desktop.services.Exchange) = null
+            override fun getExchangeTimestamp(exchange: com.fmps.autotrader.desktop.services.Exchange) = null
+            override fun saveExchangeTimestamp(exchange: com.fmps.autotrader.desktop.services.Exchange, timestamp: Long) {}
+        }
+        val testViewModel = TraderManagementViewModel(dispatcherProvider, failingService, fakeTelemetryClient, fakeConfigService)
         advanceUntilIdle()
         
         testViewModel.updateForm {
@@ -362,6 +352,12 @@ class TraderManagementViewModelTest {
                 if (it.id == id) it.copy(status = TraderStatus.STOPPED) else it
             }
         }
+        
+        override suspend fun updateTraderBalance(id: String, balance: Double) {
+            traders.value = traders.value.map {
+                if (it.id == id) it.copy(budget = balance) else it
+            }
+        }
 
         private fun TraderDraft.toDetail(id: String) = TraderDetail(
             id = id,
@@ -431,6 +427,10 @@ class TraderManagementViewModelTest {
         }
 
         override suspend fun stopTrader(id: String) {
+            throw UnsupportedOperationException()
+        }
+        
+        override suspend fun updateTraderBalance(id: String, balance: Double) {
             throw UnsupportedOperationException()
         }
 

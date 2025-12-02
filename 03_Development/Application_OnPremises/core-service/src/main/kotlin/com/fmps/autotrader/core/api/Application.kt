@@ -103,6 +103,16 @@ fun Application.module() {
     logger.info { "Configuring Ktor application modules..." }
     
     try {
+        // Initialize runtime configuration manager
+        logger.debug { "Initializing runtime configuration..." }
+        try {
+            val appConfig = com.fmps.autotrader.core.config.ConfigManager.load()
+            com.fmps.autotrader.core.config.RuntimeConfigManager.initializeFromStaticConfig(appConfig)
+            logger.info { "✓ Runtime configuration initialized" }
+        } catch (e: Exception) {
+            logger.warn(e) { "Failed to initialize runtime configuration, using defaults" }
+        }
+        
         // Configure server features/plugins
         logger.debug { "Configuring monitoring..." }
         configureMonitoring()

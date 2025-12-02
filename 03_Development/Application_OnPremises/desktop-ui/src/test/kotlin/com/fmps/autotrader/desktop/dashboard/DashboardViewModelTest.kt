@@ -218,7 +218,8 @@ class DashboardViewModelTest {
 
     private fun createViewModel(): DashboardViewModel {
         println("[DEBUG] DashboardViewModelTest: Creating ViewModel...")
-        val vm = DashboardViewModel(dispatcherProvider, coreServiceClient, telemetryClient, traderService)
+        val exchangeConnectionStatusService = com.fmps.autotrader.desktop.services.ExchangeConnectionStatusService()
+        val vm = DashboardViewModel(dispatcherProvider, coreServiceClient, telemetryClient, traderService, exchangeConnectionStatusService)
         println("[DEBUG] DashboardViewModelTest: ViewModel created successfully")
         return vm
     }
@@ -279,6 +280,10 @@ class DashboardViewModelTest {
 
         override suspend fun stopTrader(id: String) {
             stopCalled = true
+        }
+        
+        override suspend fun updateTraderBalance(id: String, balance: Double) {
+            // No-op for tests
         }
     }
 }

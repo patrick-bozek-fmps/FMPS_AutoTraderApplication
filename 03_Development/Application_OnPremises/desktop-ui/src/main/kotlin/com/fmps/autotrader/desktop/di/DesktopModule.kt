@@ -12,8 +12,8 @@ import com.fmps.autotrader.desktop.services.CoreServiceClient
 import com.fmps.autotrader.desktop.services.MarketDataService
 import com.fmps.autotrader.desktop.services.PatternAnalyticsService
 import com.fmps.autotrader.desktop.services.RealConfigService
+import com.fmps.autotrader.desktop.services.RealCoreServiceClient
 import com.fmps.autotrader.desktop.services.StubConfigService
-import com.fmps.autotrader.desktop.services.StubCoreServiceClient
 import com.fmps.autotrader.desktop.services.StubTelemetryClient
 import com.fmps.autotrader.desktop.services.RealTelemetryClient
 import com.fmps.autotrader.desktop.services.StubMarketDataService
@@ -26,6 +26,7 @@ import com.fmps.autotrader.desktop.services.StubTraderService
 import com.fmps.autotrader.desktop.services.TelemetryClient
 import com.fmps.autotrader.desktop.services.TraderService
 import com.fmps.autotrader.desktop.services.ConnectionStatusService
+import com.fmps.autotrader.desktop.services.ExchangeConnectionStatusService
 import io.ktor.client.*
 import com.fmps.autotrader.desktop.shell.ShellViewModel
 import com.fmps.autotrader.desktop.monitoring.MonitoringView
@@ -43,7 +44,7 @@ val desktopModule = module {
     // HTTP Client for REST API calls
     single<HttpClient> { HttpClientFactory.create() }
     
-    single<CoreServiceClient> { StubCoreServiceClient() }
+    single<CoreServiceClient> { RealCoreServiceClient(get()) } // Use RealCoreServiceClient instead of stub
     single<TelemetryClient> { RealTelemetryClient(get()) } // Use RealTelemetryClient instead of stub
     single<TraderService> { RealTraderService(get()) } // Use RealTraderService instead of stub
     single<MarketDataService> { RealMarketDataService(get(), get()) } // Use RealMarketDataService with WebSocket + REST fallback
@@ -52,17 +53,18 @@ val desktopModule = module {
     
     // Connection status monitoring
     single<ConnectionStatusService> { ConnectionStatusService(get(), get()) }
+    single<ExchangeConnectionStatusService> { ExchangeConnectionStatusService() }
 
-    factory { ShellViewModel(get(), get(), get(), get(), get()) }
-    factory { DashboardViewModel(get(), get(), get(), get()) }
+    factory { ShellViewModel(get(), get(), get(), get(), get(), get()) }
+    factory { DashboardViewModel(get(), get(), get(), get(), get()) }
     factory { DashboardView() }
-    factory { TraderManagementViewModel(get(), get(), get()) }
+    factory { TraderManagementViewModel(get(), get(), get(), get()) }
     factory { TraderManagementView() }
     factory { MonitoringViewModel(get(), get()) }
     factory { MonitoringView() }
     factory { PatternAnalyticsViewModel(get(), get()) }
     factory { PatternAnalyticsView() }
-    factory { ConfigurationViewModel(get(), get()) }
+    factory { ConfigurationViewModel(get(), get(), get(), get()) }
     factory { ConfigurationView() }
 }
 

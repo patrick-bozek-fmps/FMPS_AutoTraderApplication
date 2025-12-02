@@ -170,6 +170,14 @@ class StubTraderService : TraderService {
         }
     }
 
+    override suspend fun updateTraderBalance(id: String, balance: Double) {
+        tradersFlow.update { current ->
+            current.map { trader ->
+                if (trader.id == id) trader.copy(budget = balance) else trader
+            }
+        }
+    }
+
     private fun TraderDraft.toDetail(id: String, status: TraderStatus) = TraderDetail(
         id = id,
         name = name,
@@ -406,6 +414,25 @@ class StubConfigService : ConfigService {
         )
         snapshotFlow.value = snapshot
         return snapshot
+    }
+    
+    override fun getExchangeSettings(exchange: Exchange): ExchangeSettings? {
+        val current = snapshotFlow.value.exchange
+        return if (current.exchange == exchange && (current.apiKey.isNotEmpty() || current.secretKey.isNotEmpty())) {
+            current
+        } else {
+            null
+        }
+    }
+    
+    private val exchangeTimestamps = mutableMapOf<Exchange, Long>()
+    
+    override fun getExchangeTimestamp(exchange: Exchange): Long? {
+        return exchangeTimestamps[exchange]
+    }
+    
+    override fun saveExchangeTimestamp(exchange: Exchange, timestamp: Long) {
+        exchangeTimestamps[exchange] = timestamp
     }
 }
 

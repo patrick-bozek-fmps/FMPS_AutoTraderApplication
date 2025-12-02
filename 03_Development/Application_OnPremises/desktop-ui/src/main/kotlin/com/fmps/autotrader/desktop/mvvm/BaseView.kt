@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
@@ -81,21 +82,37 @@ abstract class BaseView<State : Any, Event : ViewEvent, VM : BaseViewModel<State
 
     override fun onDock() {
         super.onDock()
+        println("🔍 BaseView.onDock() called for ${this::class.simpleName}")
         // Ensure ViewModel is initialized before accessing it
         // This is safe because onDock() is called after View construction
         val vm = viewModel
+        val viewClassName = this::class.simpleName ?: "UnknownView"
+        println("🔍 BaseView: Starting event and state collection for $viewClassName")
         bindingJob = viewScope.launch {
-            launch {
-                vm.state.collect { state ->
-                    withContext(Dispatchers.Main) { onStateChanged(state) }
+            launch(Dispatchers.Main) {
+                println("🔍 BaseView: Starting state collection for $viewClassName")
+                // Use collectLatest to ensure we always process the latest state immediately
+                // This cancels any pending onStateChanged calls if a new state arrives
+                vm.state.collectLatest { state ->
+                    println("🔍 BaseView: State changed for $viewClassName, calling onStateChanged()")
+                    // We're already on Main thread, so call directly
+                    // onStateChanged should be fast and non-blocking
+                    println("🔍 BaseView: About to call onStateChanged() on Main thread")
+                    onStateChanged(state) 
                 }
             }
             launch {
+                println("🔍 BaseView: Starting event collection for ${this::class.simpleName}")
                 vm.events.collect { event ->
-                    withContext(Dispatchers.Main) { onEvent(event) }
+                    println("🔍 BaseView: Event received for ${this::class.simpleName}: ${event.javaClass.simpleName}, calling onEvent()")
+                    withContext(Dispatchers.Main) { 
+                        println("🔍 BaseView: Calling onEvent() on JavaFX thread for ${this::class.simpleName}")
+                        onEvent(event) 
+                    }
                 }
             }
         }
+        println("🔍 BaseView: Event and state collection started for ${this::class.simpleName}")
     }
 
     override fun onUndock() {

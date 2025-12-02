@@ -52,6 +52,12 @@ class RealConfigService(
         ConfigurationSnapshot()
     )
     
+    // Cache to store all exchange settings (since file only stores one at a time)
+    private val allExchangeSettingsCache = mutableMapOf<Exchange, ExchangeSettings>()
+    
+    // Cache to store last saved timestamps for each exchange
+    private val exchangeTimestampsCache = mutableMapOf<Exchange, Long>()
+    
     private val maxRetries = 3
     private val initialRetryDelayMs = 500L
     private val configFile = File(configFilePath)
@@ -109,11 +115,18 @@ class RealConfigService(
     override fun configuration(): Flow<ConfigurationSnapshot> = snapshotFlow.asStateFlow()
 
     override suspend fun saveExchangeSettings(settings: ExchangeSettings) {
+        println("🔍 RealConfigService.saveExchangeSettings() called: exchange=${settings.exchange}, apiKey length=${settings.apiKey.length}, secretKey length=${settings.secretKey.length}")
+        // Always cache the settings (for multiple exchange support)
+        allExchangeSettingsCache[settings.exchange] = settings
+        println("🔍 Cached exchange settings for ${settings.exchange} in service cache")
+        
         try {
+            println("🔄 Attempting to save exchange settings via REST API...")
             // Try to save via REST API
             // Note: Endpoint may not be implemented yet, so we handle gracefully
             val response = executeWithRetry<HttpResponse>(
                 operation = {
+                    println("🔄 Calling PUT /api/v1/config/exchange...")
                     httpClient.put("$baseUrl/api/v1/config/exchange") {
                         contentType(ContentType.Application.Json)
                         setBody(ExchangeSettingsDTO.from(settings))
@@ -121,35 +134,46 @@ class RealConfigService(
                     }
                 }
             )
+            println("✅ API call completed: status=${response.status}")
 
             if (response.status == HttpStatusCode.NotImplemented) {
+                println("⚠️ Exchange settings endpoint not implemented yet, persisting to local file")
                 logger.info { "Exchange settings endpoint not implemented yet, persisting to local file" }
                 snapshotFlow.update { it.copy(exchange = settings) }
-                saveConfigurationToFile() // Persist to file as fallback
+                saveConfigurationToFile() // Persist to file as fallback (saves all cached exchanges)
+                println("✅ Settings saved to local file")
                 // TODO: Audit log configuration change when audit system is implemented (Epic 6)
                 return
             }
 
             if (response.status.isSuccess()) {
+                println("✅ Exchange settings saved successfully via REST API")
                 logger.info { "Exchange settings saved successfully via REST API" }
                 loadConfiguration() // Reload to get updated config
+                println("✅ Configuration reloaded")
                 // TODO: Audit log configuration change when audit system is implemented (Epic 6)
             } else {
+                println("❌ API call failed: ${response.status}")
                 val errorMessage = try {
                     val errorBody = response.body<ErrorResponse>()
                     errorBody.error.message
                 } catch (e: Exception) {
                     response.status.toString()
                 }
+                println("❌ Error message: $errorMessage")
                 logger.warn { "Failed to save exchange settings via REST API: $errorMessage, persisting to local file" }
                 snapshotFlow.update { it.copy(exchange = settings) }
-                saveConfigurationToFile() // Persist to file as fallback
+                saveConfigurationToFile() // Persist to file as fallback (saves all cached exchanges)
+                println("✅ Settings saved to local file as fallback")
                 // Don't throw - file persistence succeeded
             }
         } catch (e: Exception) {
+            println("❌ Exception in saveExchangeSettings: ${e.javaClass.simpleName} - ${e.message}")
+            e.printStackTrace()
             logger.warn(e) { "Error saving exchange settings via REST API, persisting to local file: ${e.message}" }
             snapshotFlow.update { it.copy(exchange = settings) }
-            saveConfigurationToFile() // Persist to file as fallback
+            saveConfigurationToFile() // Persist to file as fallback (saves all cached exchanges)
+            println("✅ Settings saved to local file after exception")
         }
     }
 
@@ -175,7 +199,9 @@ class RealConfigService(
 
             if (response.status.isSuccess()) {
                 logger.info { "General settings saved successfully via REST API" }
-                loadConfiguration()
+                // Update snapshot and persist to file
+                snapshotFlow.update { it.copy(general = settings) }
+                saveConfigurationToFile() // Always persist to file for local backup
                 // TODO: Audit log configuration change when audit system is implemented (Epic 6)
             } else {
                 val errorMessage = try {
@@ -217,7 +243,9 @@ class RealConfigService(
 
             if (response.status.isSuccess()) {
                 logger.info { "Trader defaults saved successfully via REST API" }
-                loadConfiguration()
+                // Update snapshot and persist to file
+                snapshotFlow.update { it.copy(traderDefaults = defaults) }
+                saveConfigurationToFile() // Always persist to file for local backup
                 // TODO: Audit log configuration change when audit system is implemented (Epic 6)
             } else {
                 val errorMessage = try {
@@ -238,9 +266,11 @@ class RealConfigService(
     }
 
     override suspend fun testExchangeConnection(settings: ExchangeSettings): ConnectionTestResult {
+        println("🔍 RealConfigService.testExchangeConnection() called: exchange=${settings.exchange}, apiKey length=${settings.apiKey.length}, secretKey length=${settings.secretKey.length}")
         // Connection test uses real exchange connectors via core-service endpoint
         // This is fully implemented and tests actual connectivity to Binance/Bitget testnets
         return try {
+            println("🔄 Calling POST /api/v1/config/test-connection...")
             val response = executeWithRetry<HttpResponse>(
                 operation = {
                     httpClient.post("$baseUrl/api/v1/config/test-connection") {
@@ -252,17 +282,34 @@ class RealConfigService(
             )
 
             if (response.status.isSuccess()) {
+                println("✅ Connection test API call succeeded (${response.status})")
                 val apiResponse = response.body<ApiResponse<ConnectionTestResponse>>()
                 if (apiResponse.success && apiResponse.data != null) {
+                    println("✅ Connection test result: success=${apiResponse.data.success}, message=${apiResponse.data.message}")
                     ConnectionTestResult(apiResponse.data.success, apiResponse.data.message)
                 } else {
-                    ConnectionTestResult(false, "Connection test returned unsuccessful response")
+                    // Connection test returned unsuccessful response
+                    val errorMessage = apiResponse.data?.message ?: "Connection test failed. Please check your API keys and try again."
+                    println("⚠️ Connection test returned unsuccessful response: $errorMessage")
+                    ConnectionTestResult(false, errorMessage)
                 }
             } else {
-                val error = response.body<ErrorResponse>()
-                ConnectionTestResult(false, error.error.message)
+                println("❌ Connection test API call failed: ${response.status}")
+                try {
+                    val error = response.body<ErrorResponse>()
+                    val errorMessage = error.error.message ?: "Connection test failed. Please check your API keys and try again."
+                    println("❌ Error message: $errorMessage")
+                    ConnectionTestResult(false, errorMessage)
+                } catch (e: Exception) {
+                    // If we can't parse the error response, use a generic message
+                    val errorMessage = "Connection test failed (${response.status}). Please check your API keys and try again."
+                    println("❌ Could not parse error response: ${e.message}")
+                    ConnectionTestResult(false, errorMessage)
+                }
             }
         } catch (e: Exception) {
+            println("❌ Exception in testExchangeConnection: ${e.javaClass.simpleName} - ${e.message}")
+            e.printStackTrace()
             logger.error(e) { "Connection test failed after retries" }
             ConnectionTestResult(false, "Connection test failed: ${e.message}")
         }
@@ -286,7 +333,43 @@ class RealConfigService(
             appendLine("# Full application.conf includes server, database, logging, and other system settings.")
             appendLine("# This export focuses on user-configurable settings only.")
             appendLine()
-            appendLine("# Exchange Configuration")
+            appendLine("# Exchange Configurations (supports multiple exchanges)")
+            appendLine("exchanges {")
+            // Export all cached exchanges
+            for ((exchange, settings) in allExchangeSettingsCache) {
+                if (settings.apiKey.isNotBlank() || settings.secretKey.isNotBlank()) {
+                    appendLine("  ${exchange.name.lowercase()} {")
+                    appendLine("    apiKey = \"${escapeHoconString(settings.apiKey)}\"")
+                    appendLine("    secretKey = \"${escapeHoconString(settings.secretKey)}\"")
+                    if (settings.passphrase.isNotBlank()) {
+                        appendLine("    passphrase = \"${escapeHoconString(settings.passphrase)}\"")
+                    }
+                    // Export timestamp if available
+                    exchangeTimestampsCache[exchange]?.let { timestamp ->
+                        appendLine("    lastSaved = $timestamp")
+                    }
+                    appendLine("  }")
+                }
+            }
+            // Also export the current snapshot exchange if not already in cache
+            if (snapshot.exchange.exchange != null && 
+                (snapshot.exchange.apiKey.isNotBlank() || snapshot.exchange.secretKey.isNotBlank()) &&
+                !allExchangeSettingsCache.containsKey(snapshot.exchange.exchange)) {
+                appendLine("  ${snapshot.exchange.exchange.name.lowercase()} {")
+                appendLine("    apiKey = \"${escapeHoconString(snapshot.exchange.apiKey)}\"")
+                appendLine("    secretKey = \"${escapeHoconString(snapshot.exchange.secretKey)}\"")
+                if (snapshot.exchange.passphrase.isNotBlank()) {
+                    appendLine("    passphrase = \"${escapeHoconString(snapshot.exchange.passphrase)}\"")
+                }
+                // Export timestamp if available
+                exchangeTimestampsCache[snapshot.exchange.exchange]?.let { timestamp ->
+                    appendLine("    lastSaved = $timestamp")
+                }
+                appendLine("  }")
+            }
+            appendLine("}")
+            appendLine()
+            appendLine("# Current Active Exchange (for backward compatibility)")
             appendLine("exchange {")
             appendLine("  name = \"${snapshot.exchange.exchange}\"")
             if (snapshot.exchange.apiKey.isNotBlank()) {
@@ -313,6 +396,7 @@ class RealConfigService(
             appendLine("  budgetUsd = ${snapshot.traderDefaults.budgetUsd}")
             appendLine("  leverage = ${snapshot.traderDefaults.leverage}")
             appendLine("  stopLossPercent = ${snapshot.traderDefaults.stopLossPercent}")
+            appendLine("  takeProfitPercent = ${snapshot.traderDefaults.takeProfitPercent}")
             appendLine("  strategy = \"${escapeHoconString(snapshot.traderDefaults.strategy)}\"")
             appendLine("}")
         }
@@ -348,6 +432,23 @@ class RealConfigService(
         } catch (e: Exception) {
             logger.error(e) { "Failed to import configuration" }
             throw IllegalArgumentException("Invalid configuration format: ${e.message}", e)
+        }
+    }
+    
+    override fun getExchangeSettings(exchange: Exchange): ExchangeSettings? {
+        return allExchangeSettingsCache[exchange]
+    }
+    
+    override fun getExchangeTimestamp(exchange: Exchange): Long? {
+        return exchangeTimestampsCache[exchange]
+    }
+    
+    override fun saveExchangeTimestamp(exchange: Exchange, timestamp: Long) {
+        exchangeTimestampsCache[exchange] = timestamp
+        println("🔍 Saved timestamp for $exchange: $timestamp")
+        // Trigger file save to persist the timestamp
+        scope.launch {
+            saveConfigurationToFile()
         }
     }
 
@@ -397,6 +498,24 @@ class RealConfigService(
                 val content = configFile.readText()
                 val snapshot = parseHoconConfiguration(content)
                 snapshotFlow.value = snapshot
+                println("🔍 Service: Loaded configuration from file: ${configFile.absolutePath}")
+                println("🔍 Service: Loaded ${allExchangeSettingsCache.size} exchange(s) from file: ${allExchangeSettingsCache.keys}")
+                println("🔍 Service: Loaded ${exchangeTimestampsCache.size} timestamp(s) from file: ${exchangeTimestampsCache.keys}")
+                for ((exchange, timestamp) in exchangeTimestampsCache) {
+                    println("🔍 Service: Timestamp for $exchange: $timestamp")
+                }
+                // Emit snapshots for all cached exchanges so ViewModel can cache them
+                // Start with the primary exchange, then emit others
+                for ((exchangeType, settings) in allExchangeSettingsCache) {
+                    if (exchangeType != snapshot.exchange.exchange) {
+                        // Emit a snapshot for this exchange so ViewModel can cache it
+                        // We'll do this by updating the snapshot flow with each exchange
+                        // But we need to be careful not to overwrite the primary exchange
+                        // Actually, we can't emit multiple snapshots - the ViewModel will cache
+                        // exchanges as it sees them in snapshots over time
+                        println("🔍 Service: Additional exchange ${exchangeType} is cached and will be available when selected")
+                    }
+                }
                 logger.debug { "Configuration loaded from file: ${configFile.absolutePath}" }
             } else {
                 logger.debug { "Configuration file not found, using defaults" }
@@ -413,24 +532,85 @@ class RealConfigService(
         var traderDefaults = TraderDefaults()
         
         var currentSection: String? = null
+        var currentExchangeName: String? = null
+        var currentExchangeSettings: ExchangeSettings? = null
+        var exchangesBlockDepth = 0  // Track nesting depth for exchanges block
         
         for (line in lines) {
             val trimmed = line.trim()
             if (trimmed.isEmpty() || trimmed.startsWith("#")) continue
             
             when {
+                trimmed.startsWith("exchanges {") -> {
+                    currentSection = "exchanges"
+                    exchangesBlockDepth = 1
+                }
                 trimmed.startsWith("exchange {") -> currentSection = "exchange"
                 trimmed.startsWith("general {") -> currentSection = "general"
                 trimmed.startsWith("traderDefaults {") -> currentSection = "traderDefaults"
-                trimmed == "}" -> currentSection = null
+                trimmed.matches(Regex("""^\w+\s*\{""")) && currentSection == "exchanges" -> {
+                    // Start of an exchange block (e.g., "binance {")
+                    currentExchangeName = trimmed.substringBefore("{").trim()
+                    currentExchangeSettings = ExchangeSettings(exchange = Exchange.valueOf(currentExchangeName.uppercase()))
+                    exchangesBlockDepth++
+                }
+                trimmed == "}" -> {
+                    if (currentExchangeSettings != null && currentExchangeName != null) {
+                        // Save the exchange to cache (closing an individual exchange block)
+                        val exchange = currentExchangeSettings.exchange
+                        allExchangeSettingsCache[exchange] = currentExchangeSettings
+                        val timestamp = exchangeTimestampsCache[exchange]
+                        println("🔍 Loaded exchange settings for ${currentExchangeName} from file (timestamp: $timestamp, cache keys: ${exchangeTimestampsCache.keys})")
+                        currentExchangeSettings = null
+                        currentExchangeName = null
+                        exchangesBlockDepth--
+                    } else if (currentSection == "exchanges") {
+                        // Closing the exchanges block itself
+                        exchangesBlockDepth--
+                        if (exchangesBlockDepth == 0) {
+                            currentSection = null
+                        }
+                    } else {
+                        // Closing other sections
+                        currentSection = null
+                    }
+                }
                 else -> {
                     val parts = trimmed.split("=", limit = 2)
                     if (parts.size == 2) {
                         val key = parts[0].trim()
-                        val value = parts[1].trim().removeSurrounding("\"")
+                        val rawValue = parts[1].trim()
                         
-                        when (currentSection) {
-                            "exchange" -> {
+                        when {
+                            currentSection == "exchanges" && currentExchangeSettings != null -> {
+                                // Parsing an exchange within the exchanges block
+                                when (key) {
+                                    "apiKey" -> {
+                                        val value = rawValue.removeSurrounding("\"")
+                                        currentExchangeSettings = currentExchangeSettings!!.copy(apiKey = value)
+                                    }
+                                    "secretKey" -> {
+                                        val value = rawValue.removeSurrounding("\"")
+                                        currentExchangeSettings = currentExchangeSettings!!.copy(secretKey = value)
+                                    }
+                                    "passphrase" -> {
+                                        val value = rawValue.removeSurrounding("\"")
+                                        currentExchangeSettings = currentExchangeSettings!!.copy(passphrase = value)
+                                    }
+                                    "lastSaved" -> {
+                                        // Load timestamp for this exchange (numeric value, no quotes)
+                                        val timestamp = rawValue.toLongOrNull()
+                                        if (timestamp != null && currentExchangeSettings != null) {
+                                            exchangeTimestampsCache[currentExchangeSettings.exchange] = timestamp
+                                            println("🔍 Loaded timestamp for ${currentExchangeSettings.exchange}: $timestamp")
+                                        } else {
+                                            println("⚠️ Failed to parse timestamp for ${currentExchangeSettings?.exchange}: rawValue='$rawValue'")
+                                        }
+                                    }
+                                }
+                            }
+                            currentSection == "exchange" -> {
+                                val value = rawValue.removeSurrounding("\"")
                                 exchange = when (key) {
                                     "name" -> exchange.copy(exchange = Exchange.valueOf(value.uppercase()))
                                     "apiKey" -> exchange.copy(apiKey = value)
@@ -439,7 +619,8 @@ class RealConfigService(
                                     else -> exchange
                                 }
                             }
-                            "general" -> {
+                            currentSection == "general" -> {
+                                val value = rawValue.removeSurrounding("\"")
                                 general = when (key) {
                                     "updateIntervalSeconds" -> general.copy(updateIntervalSeconds = value.toIntOrNull() ?: 30)
                                     "telemetryPollingSeconds" -> general.copy(telemetryPollingSeconds = value.toIntOrNull() ?: 5)
@@ -448,12 +629,69 @@ class RealConfigService(
                                     else -> general
                                 }
                             }
-                            "traderDefaults" -> {
+                            currentSection == "traderDefaults" -> {
                                 traderDefaults = when (key) {
-                                    "budgetUsd" -> traderDefaults.copy(budgetUsd = value.toDoubleOrNull() ?: 1000.0)
-                                    "leverage" -> traderDefaults.copy(leverage = value.toIntOrNull() ?: 3)
-                                    "stopLossPercent" -> traderDefaults.copy(stopLossPercent = value.toDoubleOrNull() ?: 5.0)
-                                    "strategy" -> traderDefaults.copy(strategy = value)
+                                    "budgetUsd" -> {
+                                        // For numeric values, don't remove quotes (they shouldn't have quotes)
+                                        val numericValue = rawValue.trim()
+                                        val parsed = numericValue.toDoubleOrNull() ?: 1000.0
+                                        logger.debug { "🔍 Parsed budgetUsd: rawValue='$rawValue', parsed=$parsed" }
+                                        traderDefaults.copy(budgetUsd = parsed)
+                                    }
+                                    "leverage" -> {
+                                        val numericValue = rawValue.trim()
+                                        val parsed = numericValue.toIntOrNull() ?: 3
+                                        logger.debug { "🔍 Parsed leverage: rawValue='$rawValue', parsed=$parsed" }
+                                        traderDefaults.copy(leverage = parsed)
+                                    }
+                                    "stopLossPercent" -> {
+                                        val numericValue = rawValue.trim()
+                                        val parsed = numericValue.toDoubleOrNull() ?: 5.0
+                                        logger.debug { "🔍 Parsed stopLossPercent: rawValue='$rawValue', parsed=$parsed" }
+                                        traderDefaults.copy(stopLossPercent = parsed)
+                                    }
+                                    "takeProfitPercent" -> {
+                                        val numericValue = rawValue.trim()
+                                        val parsed = numericValue.toDoubleOrNull() ?: 5.0
+                                        logger.debug { "🔍 Parsed takeProfitPercent: rawValue='$rawValue', parsed=$parsed" }
+                                        traderDefaults.copy(takeProfitPercent = parsed)
+                                    }
+                                    "strategy" -> {
+                                        val value = rawValue.removeSurrounding("\"").trim()
+                                        // Map legacy strategy names to enum values
+                                        val enumValue = when (value.uppercase()) {
+                                            "MOMENTUM" -> {
+                                                logger.info { "🔍 Mapping legacy strategy 'Momentum' to 'TREND_FOLLOWING'" }
+                                                "TREND_FOLLOWING" // Legacy mapping
+                                            }
+                                            "MEAN_REVERSION", "MEAN REVERSION" -> {
+                                                logger.debug { "🔍 Parsed strategy: '$value' -> 'MEAN_REVERSION'" }
+                                                "MEAN_REVERSION"
+                                            }
+                                            "BREAKOUT" -> {
+                                                logger.debug { "🔍 Parsed strategy: '$value' -> 'BREAKOUT'" }
+                                                "BREAKOUT"
+                                            }
+                                            "TREND_FOLLOWING", "TREND FOLLOWING" -> {
+                                                logger.debug { "🔍 Parsed strategy: '$value' -> 'TREND_FOLLOWING'" }
+                                                "TREND_FOLLOWING"
+                                            }
+                                            else -> {
+                                                // Try to validate as enum name
+                                                try {
+                                                    val enumName = value.uppercase().replace(" ", "_")
+                                                    com.fmps.autotrader.shared.model.TradingStrategy.valueOf(enumName)
+                                                    logger.debug { "🔍 Parsed strategy: '$value' -> '$enumName'" }
+                                                    enumName
+                                                } catch (e: IllegalArgumentException) {
+                                                    logger.warn { "⚠️ Invalid strategy '$value', defaulting to 'TREND_FOLLOWING'" }
+                                                    // Invalid strategy, will be fixed by ViewModel
+                                                    "TREND_FOLLOWING"
+                                                }
+                                            }
+                                        }
+                                        traderDefaults.copy(strategy = enumValue)
+                                    }
                                     else -> traderDefaults
                                 }
                             }
@@ -461,6 +699,14 @@ class RealConfigService(
                     }
                 }
             }
+        }
+        
+        // If we have cached exchanges, use the one matching the current exchange, or the first one
+        if (allExchangeSettingsCache.isNotEmpty() && exchange.exchange == null) {
+            exchange = allExchangeSettingsCache.values.first()
+        } else if (exchange.exchange != null && allExchangeSettingsCache.containsKey(exchange.exchange)) {
+            // Use cached version if available (it might have more complete data)
+            exchange = allExchangeSettingsCache[exchange.exchange] ?: exchange
         }
         
         return ConfigurationSnapshot(exchange, general, traderDefaults)
@@ -522,6 +768,7 @@ class RealConfigService(
         val budgetUsd: Double,
         val leverage: Int,
         val stopLossPercent: Double,
+        val takeProfitPercent: Double,
         val strategy: String
     ) {
         companion object {
@@ -529,6 +776,7 @@ class RealConfigService(
                 budgetUsd = defaults.budgetUsd,
                 leverage = defaults.leverage,
                 stopLossPercent = defaults.stopLossPercent,
+                takeProfitPercent = defaults.takeProfitPercent,
                 strategy = defaults.strategy
             )
         }

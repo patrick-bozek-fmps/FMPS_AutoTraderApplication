@@ -16,6 +16,26 @@ interface ConfigService {
     suspend fun exportConfiguration(): String
 
     suspend fun importConfiguration(serialized: String): ConfigurationSnapshot
+    
+    /**
+     * Gets saved exchange settings for a specific exchange.
+     * This allows the ViewModel to query the service's cache directly.
+     * This is synchronous since it just reads from cache.
+     */
+    fun getExchangeSettings(exchange: Exchange): ExchangeSettings?
+    
+    /**
+     * Gets the last saved timestamp for a specific exchange.
+     * Returns null if the exchange has never been saved.
+     * This is synchronous since it just reads from cache.
+     */
+    fun getExchangeTimestamp(exchange: Exchange): Long?
+    
+    /**
+     * Saves the timestamp for an exchange.
+     * This is called after successfully saving exchange settings.
+     */
+    fun saveExchangeTimestamp(exchange: Exchange, timestamp: Long)
 }
 
 data class ConfigurationSnapshot(
@@ -47,7 +67,8 @@ data class TraderDefaults(
     val budgetUsd: Double = 1000.0,
     val leverage: Int = 3,
     val stopLossPercent: Double = 5.0,
-    val strategy: String = "Momentum"
+    val takeProfitPercent: Double = 5.0,
+    val strategy: String = "TREND_FOLLOWING" // TradingStrategy enum name
 )
 
 data class ConnectionTestResult(

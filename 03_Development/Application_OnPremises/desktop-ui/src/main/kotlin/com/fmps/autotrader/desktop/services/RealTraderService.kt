@@ -40,37 +40,59 @@ class RealTraderService(
     init {
         // Poll for trader updates periodically
         scope.launch {
-            refreshTraders()
+            while (true) {
+                refreshTraders()
+                delay(5000) // Poll every 5 seconds
+            }
         }
     }
 
     override fun traders(): Flow<List<TraderDetail>> = tradersFlow.asStateFlow()
 
     override suspend fun createTrader(draft: TraderDraft): TraderDetail {
+        // Use leverage from draft (which comes from Trader Defaults), or fallback to risk-based calculation
+        val leverage = draft.leverage ?: when (draft.riskLevel) {
+            TraderRiskLevel.CONSERVATIVE -> 3
+            TraderRiskLevel.BALANCED -> 5
+            TraderRiskLevel.AGGRESSIVE -> 10
+        }
+        
+        // Use stopLossPercentage from draft (which comes from Trader Defaults), or fallback to 2% (0.02)
+        val stopLossDecimal = draft.stopLossPercentage ?: 0.02
+        
+        // Use takeProfitPercentage from draft, or fallback to 5% (0.05)
+        val takeProfitDecimal = draft.takeProfitPercentage ?: 0.05
+        
+        logger.info { "🔍 Creating trader with: leverage=$leverage, stopLoss=$stopLossDecimal, takeProfit=$takeProfitDecimal, budget=${draft.budget}" }
+        
         val response = httpClient.post("$baseUrl/api/v1/traders") {
             contentType(ContentType.Application.Json)
             apiKey?.let { header("X-API-Key", it) }
             setBody(CreateTraderRequest(
                 name = draft.name,
-                exchange = draft.exchange,
+                exchange = draft.exchange.uppercase(), // API expects uppercase: BINANCE, BITGET, TRADINGVIEW
                 tradingPair = "${draft.baseAsset}/${draft.quoteAsset}",
-                leverage = when (draft.riskLevel) {
-                    TraderRiskLevel.CONSERVATIVE -> 3
-                    TraderRiskLevel.BALANCED -> 5
-                    TraderRiskLevel.AGGRESSIVE -> 10
-                },
+                leverage = leverage,
                 initialBalance = draft.budget.toString(),
-                stopLossPercentage = "0.02",
-                takeProfitPercentage = "0.05"
+                stopLossPercentage = stopLossDecimal.toString(),
+                takeProfitPercentage = takeProfitDecimal.toString()
             ))
         }
         
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
-            val userFriendlyMessage = when {
-                response.status.value == 503 -> "Core service is unavailable. Please ensure the core service is running."
-                response.status.value == 500 -> "Server error occurred. Please try again later."
-                else -> "Failed to create trader: ${response.status}"
+            val userFriendlyMessage = try {
+                // Try to parse the error response to get the actual error message
+                val errorResponse = json.decodeFromString<ErrorResponse>(errorBody)
+                errorResponse.error?.message ?: "Failed to create trader: ${response.status}"
+            } catch (e: Exception) {
+                // Fallback to generic message if parsing fails
+                when {
+                    response.status.value == 503 -> "Core service is unavailable. Please ensure the core service is running."
+                    response.status.value == 500 -> "Server error occurred. Please try again later."
+                    response.status.value == 400 -> "Invalid request. Please check your input and try again."
+                    else -> "Failed to create trader: ${response.status}"
+                }
             }
             logger.error { "$userFriendlyMessage - $errorBody" }
             throw ClientRequestException(response, userFriendlyMessage)
@@ -84,21 +106,32 @@ class RealTraderService(
     }
 
     override suspend fun updateTrader(id: String, draft: TraderDraft): TraderDetail {
+        // Use leverage from draft (which comes from Trader Defaults), or fallback to risk-based calculation
+        val leverage = draft.leverage ?: when (draft.riskLevel) {
+            TraderRiskLevel.CONSERVATIVE -> 3
+            TraderRiskLevel.BALANCED -> 5
+            TraderRiskLevel.AGGRESSIVE -> 10
+        }
+        
+        // Use stopLossPercentage from draft (which comes from Trader Defaults), or fallback to 2% (0.02)
+        val stopLossDecimal = draft.stopLossPercentage ?: 0.02
+        
+        // Use takeProfitPercentage from draft, or fallback to 5% (0.05)
+        val takeProfitDecimal = draft.takeProfitPercentage ?: 0.05
+        
+        logger.info { "🔍 Updating trader $id with: leverage=$leverage, stopLoss=$stopLossDecimal, takeProfit=$takeProfitDecimal, budget=${draft.budget}" }
+        
         val response = httpClient.put("$baseUrl/api/v1/traders/$id") {
             contentType(ContentType.Application.Json)
             apiKey?.let { header("X-API-Key", it) }
             setBody(UpdateTraderRequest(
                 name = draft.name,
-                exchange = draft.exchange,
+                exchange = draft.exchange.uppercase(), // API expects uppercase: BINANCE, BITGET, TRADINGVIEW
                 tradingPair = "${draft.baseAsset}/${draft.quoteAsset}",
-                leverage = when (draft.riskLevel) {
-                    TraderRiskLevel.CONSERVATIVE -> 3
-                    TraderRiskLevel.BALANCED -> 5
-                    TraderRiskLevel.AGGRESSIVE -> 10
-                },
+                leverage = leverage,
                 initialBalance = draft.budget.toString(),
-                stopLossPercentage = "0.02",
-                takeProfitPercentage = "0.05"
+                stopLossPercentage = stopLossDecimal.toString(),
+                takeProfitPercentage = takeProfitDecimal.toString()
             ))
         }
         
@@ -183,6 +216,27 @@ class RealTraderService(
         refreshTraders()
     }
 
+    override suspend fun updateTraderBalance(id: String, balance: Double) {
+        val response = httpClient.patch("$baseUrl/api/v1/traders/$id/balance") {
+            contentType(ContentType.Application.Json)
+            apiKey?.let { header("X-API-Key", it) }
+            setBody(UpdateBalanceRequest(balance = balance.toString()))
+        }
+        
+        if (!response.status.isSuccess()) {
+            val errorBody = response.bodyAsText()
+            val userFriendlyMessage = when {
+                response.status.value == 503 -> "Core service is unavailable. Please ensure the core service is running."
+                response.status.value == 500 -> "Server error occurred. Please try again later."
+                else -> "Failed to update trader balance: ${response.status}"
+            }
+            logger.error { "$userFriendlyMessage - $errorBody" }
+            throw ClientRequestException(response, userFriendlyMessage)
+        }
+        
+        refreshTraders()
+    }
+
     private suspend fun refreshTraders() {
         try {
             val response = httpClient.get("$baseUrl/api/v1/traders") {
@@ -227,24 +281,67 @@ class RealTraderService(
             if (it.size == 2) Pair(it[0], it[1]) else Pair("BTC", "USDT")
         }
         
+        // Parse date with fallback for different formats
+        val createdAt = try {
+            Instant.parse(dto.createdAt)
+        } catch (e: Exception) {
+            // Try parsing with different formats if standard ISO format fails
+            try {
+                // Handle format like "2025-11-21T15:16:20.483" (missing timezone)
+                if (dto.createdAt.contains("T") && !dto.createdAt.endsWith("Z") && !dto.createdAt.contains("+")) {
+                    Instant.parse("${dto.createdAt}Z")
+                } else {
+                    Instant.now() // Fallback to current time if parsing fails
+                }
+            } catch (e2: Exception) {
+                logger.warn { "Failed to parse createdAt date: ${dto.createdAt}, using current time" }
+                Instant.now()
+            }
+        }
+        
+        // Normalize exchange: API returns uppercase (BINANCE, BITGET), but UI expects capitalized (Binance, Bitget)
+        val normalizedExchange = when (dto.exchange.uppercase()) {
+            "BINANCE" -> "Binance"
+            "BITGET" -> "Bitget"
+            "TRADINGVIEW" -> "TradingView"
+            else -> dto.exchange.capitalize()
+        }
+        
         return TraderDetail(
             id = dto.id.toString(),
             name = dto.name,
-            exchange = dto.exchange,
-            strategy = "Momentum", // Default, could be enhanced
+            exchange = normalizedExchange, // Normalize to match UI dropdown values
+            strategy = "TREND_FOLLOWING", // Default strategy - API doesn't return strategy, so use default
             riskLevel = riskLevel,
             baseAsset = baseAsset,
             quoteAsset = quoteAsset,
             budget = dto.initialBalance.toDoubleOrNull() ?: 0.0,
+            leverage = dto.leverage,
+            stopLossPercentage = dto.stopLossPercentage?.toDoubleOrNull(),
+            takeProfitPercentage = dto.takeProfitPercentage?.toDoubleOrNull(),
             status = status,
             profitLoss = (dto.currentBalance.toDoubleOrNull() ?: 0.0) - (dto.initialBalance.toDoubleOrNull() ?: 0.0),
             openPositions = 0, // Would need separate API call
-            createdAt = Instant.parse(dto.createdAt)
+            createdAt = createdAt
         )
     }
 
     @Serializable
     private data class ApiResponse<T>(val success: Boolean, val data: T, val timestamp: String)
+    
+    @Serializable
+    private data class ErrorResponse(
+        val success: Boolean,
+        val error: ErrorDetail? = null,
+        val timestamp: String
+    )
+    
+    @Serializable
+    private data class ErrorDetail(
+        val code: String,
+        val message: String,
+        val details: Map<String, String>? = null
+    )
 
     @Serializable
     private data class TraderDTO(
@@ -256,6 +353,8 @@ class RealTraderService(
         val leverage: Int,
         val initialBalance: String,
         val currentBalance: String,
+        val stopLossPercentage: String? = null,
+        val takeProfitPercentage: String? = null,
         val createdAt: String
     )
 
@@ -283,5 +382,8 @@ class RealTraderService(
 
     @Serializable
     private data class UpdateStatusRequest(val status: String)
+    
+    @Serializable
+    private data class UpdateBalanceRequest(val balance: String)
 }
 

@@ -7,7 +7,9 @@ import com.fmps.autotrader.desktop.navigation.NavigationEvent
 import com.fmps.autotrader.desktop.navigation.NavigationService
 import com.fmps.autotrader.desktop.services.ConnectionStatusService
 import com.fmps.autotrader.desktop.services.CoreServiceClient
+import com.fmps.autotrader.desktop.services.ExchangeConnectionStatusService
 import com.fmps.autotrader.desktop.services.TelemetryClient
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -16,7 +18,8 @@ class ShellViewModel(
     private val navigationService: NavigationService,
     private val coreServiceClient: CoreServiceClient,
     private val connectionStatusService: ConnectionStatusService,
-    private val telemetryClient: TelemetryClient
+    private val telemetryClient: TelemetryClient,
+    private val exchangeConnectionStatusService: ExchangeConnectionStatusService
 ) : BaseViewModel<ShellState, ShellEvent>(ShellState(), dispatcherProvider) {
 
     init {
@@ -77,6 +80,23 @@ class ShellViewModel(
                     )
                 }
             }
+        }
+        
+        // Observe exchange connection status (Binance and Bitget)
+        launchIO {
+            combine(
+                exchangeConnectionStatusService.binanceStatus,
+                exchangeConnectionStatusService.bitgetStatus
+            ) { binance, bitget ->
+                println("🔍 ShellViewModel: Exchange status updated - Binance=$binance, Bitget=$bitget")
+                setState { state ->
+                    state.copy(
+                        binanceConnected = binance,
+                        bitgetConnected = bitget,
+                        lastUpdatedTimestamp = System.currentTimeMillis()
+                    )
+                }
+            }.collectLatest { }
         }
     }
 

@@ -18,6 +18,8 @@ interface TraderService {
     suspend fun startTrader(id: String)
 
     suspend fun stopTrader(id: String)
+    
+    suspend fun updateTraderBalance(id: String, balance: Double)
 }
 
 data class TraderDetail(
@@ -29,6 +31,9 @@ data class TraderDetail(
     val baseAsset: String,
     val quoteAsset: String,
     val budget: Double,
+    val leverage: Int? = null,
+    val stopLossPercentage: Double? = null, // As decimal (e.g., 0.02 for 2%)
+    val takeProfitPercentage: Double? = null, // As decimal (e.g., 0.05 for 5%)
     val status: TraderStatus,
     val profitLoss: Double,
     val openPositions: Int,
@@ -43,6 +48,9 @@ data class TraderDraft(
     val baseAsset: String,
     val quoteAsset: String,
     val budget: Double,
+    val leverage: Int? = null, // If null, will use Trader Defaults
+    val stopLossPercentage: Double? = null, // If null, will use Trader Defaults (as decimal, e.g., 0.02 for 2%)
+    val takeProfitPercentage: Double? = null, // If null, will use default 0.05 (5%)
     val apiKey: String? = null,
     val apiSecret: String? = null,
     val apiPassphrase: String? = null
